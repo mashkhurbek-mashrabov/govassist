@@ -1,11 +1,12 @@
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { http, HttpResponse } from "msw";
+import { delay, http, HttpResponse } from "msw";
 import type { AssistantMessage } from "../api/types";
 import { server } from "../mocks/server";
 import { encodeFrame } from "../mocks/sse";
 import { db } from "../mocks/db";
+import { STALE_STREAMING_MS } from "../features/chat/streamingMessages";
 import { renderApp, signInSeedUser } from "../test/render";
 
 /**
@@ -44,6 +45,8 @@ function partialThenHang() {
 
 /** Seeded conversation (mocks/db.ts). */
 const SEED_CONVERSATION = "c0000000-0000-4000-8000-000000000001";
+/** A post-answer refetch that lands long after the test is done. */
+const REFETCH_DELAY_MS = 10_000;
 
 /**
  * Type a question into the composer and press Enter.
@@ -141,6 +144,30 @@ describe("chat", () => {
     ).toBeInTheDocument();
   });
 
+  it("keeps the finished answer when a follow-up is asked before the post-answer refetch", async () => {
+    let conversationFetches = 0;
+    server.use(
+      // The first load goes through; every later conversation fetch (the post-answer refetch) is late.
+      http.get("/api/v1/conversations/:id", async () => {
+        conversationFetches += 1;
+        if (conversationFetches > 1) await delay(REFETCH_DELAY_MS);
+        return undefined;
+      }),
+    );
+    const user = userEvent.setup();
+    renderApp(`/c/${SEED_CONVERSATION}`);
+    await screen.findByRole("heading", { name: "Pasportni almashtirish", level: 2 });
+    await ask(user, "NAMUNA: Pasportni onlayn almashtirsa boʻladimi?");
+    await waitForFinal(2);
+    server.use(partialThenHang());
+    await ask(user, "Yana savol");
+    expect(await screen.findByRole("heading", { name: "NAMUNA: qisman javob" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "NAMUNA: Pasportni onlayn almashtirish" }),
+    ).toBeInTheDocument();
+    expect(conversationFetches).toBeGreaterThan(1);
+  });
+
   it("renders a legal answer in the question's script with law points before the steps", async () => {
     const user = userEvent.setup();
     renderApp("/");
@@ -197,6 +224,29 @@ describe("chat", () => {
   it("shows a stored stopped answer after reload and retries it", async () => {
     const answer = db.conversations[SEED_CONVERSATION]?.messages[1] as AssistantMessage;
     Object.assign(answer, { status: "failed", error_code: "stopped", answer: null });
+    const user = userEvent.setup();
+    renderApp(`/c/${SEED_CONVERSATION}`);
+    expect(await screen.findByText("Javob toʻxtatildi")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Qayta urinish" }));
+    await waitForFinal();
+  });
+
+  it("polls a stored answer that is still streaming until it completes", async () => {
+    const answer = db.conversations[SEED_CONVERSATION]?.messages[1] as AssistantMessage;
+    const complete = { ...answer };
+    Object.assign(answer, { status: "streaming", answer: null, created_at: new Date().toISOString() });
+    renderApp(`/c/${SEED_CONVERSATION}`);
+    expect(await screen.findByText(/Javob yozilmoqda/)).toBeInTheDocument();
+    Object.assign(answer, complete);
+    expect(
+      await screen.findByRole("heading", { name: "Pasportni almashtirish", level: 2 }, { timeout: 5000 }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows a streaming row older than the stream lock as stopped, with Retry", async () => {
+    const answer = db.conversations[SEED_CONVERSATION]?.messages[1] as AssistantMessage;
+    const longAgo = new Date(Date.now() - STALE_STREAMING_MS - 1000).toISOString();
+    Object.assign(answer, { status: "streaming", answer: null, created_at: longAgo });
     const user = userEvent.setup();
     renderApp(`/c/${SEED_CONVERSATION}`);
     expect(await screen.findByText("Javob toʻxtatildi")).toBeInTheDocument();

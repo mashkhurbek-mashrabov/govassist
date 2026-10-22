@@ -2,7 +2,6 @@ import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate, useNavigate } from "react-router";
-import { ApiError } from "../../api/http";
 import { useMaybeMe, useUpdateMe, useViewer } from "../../api/queries";
 import type { Lang } from "../../api/types";
 import { HOME_PATH, signedOutPath } from "../../app/guards";
@@ -10,7 +9,7 @@ import { Alert } from "../../components/ui/Alert";
 import { Button } from "../../components/ui/Button";
 import { LANGUAGES } from "../../i18n";
 import { PlaceFields, type Place } from "./PlaceFields";
-import { placeErrors, type PlaceErrors } from "./placeErrors";
+import { placeErrors, serverPlaceErrors, type PlaceErrors } from "./placeErrors";
 
 /** Number of onboarding steps. */
 const STEP_COUNT = 2;
@@ -35,6 +34,9 @@ export function OnboardingPage() {
   });
   const [errors, setErrors] = useState<PlaceErrors>({});
   if (!me) return <Navigate to={signedOutPath(viewer)} replace />;
+  // A 400 validation_error from the server lands on its field; anything else is a form-level alert.
+  const serverErrors = update.isError ? serverPlaceErrors(update.error) : null;
+  const shown = { ...errors, ...serverErrors };
 
   /**
    * Pick a language and show the UI in it right away.
@@ -98,10 +100,7 @@ export function OnboardingPage() {
           <Alert title={t("onboarding.why_title")} role="note">
             {t("onboarding.why")}
           </Alert>
-          {update.isError &&
-            !(update.error instanceof ApiError && update.error.code === "validation_error") && (
-              <Alert tone="danger">{t("error.server")}</Alert>
-            )}
+          {update.isError && serverErrors === null && <Alert tone="danger">{t("error.server")}</Alert>}
           <form
             className="form"
             noValidate
@@ -112,10 +111,13 @@ export function OnboardingPage() {
           >
             <PlaceFields
               value={place}
-              onChange={setPlace}
+              onChange={(next) => {
+                setPlace(next);
+                update.reset();
+              }}
               errors={{
-                region: errors.region && t(errors.region),
-                district: errors.district && t(errors.district),
+                region: shown.region && t(shown.region),
+                district: shown.district && t(shown.district),
               }}
             />
             <div className="form__actions">
