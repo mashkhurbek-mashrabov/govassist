@@ -151,6 +151,24 @@ Two helper shadows: `--shadow-glass` (the soft drop under glass bars) and `--sha
 - The full name → where-used inventory, with the `lucide-react` component names, is in [`components.md`](components.md#icon-inventory).
 - To add an icon: copy it from the same `lucide-static` version into `icons/`, add it to the inventory, and use the same name in React.
 
+## 8b. Gradients and depth (v1.1)
+
+The author asked for a prettier, more professional look with "a little bit gradient". All gradients use **two close hues (indigo → violet)** at low contrast, are tokens, and keep text AA at both ends.
+
+| Token | Stops | Where | Text on it (worst end) |
+|---|---|---|---|
+| `--gradient-brand` | indigo-600 `#4642C8` → violet-600 `#5B3FD1` | Primary buttons, Send, logo mark, step numbers, office-card edge | white 6.83 |
+| `--gradient-brand-hover` | indigo-700 → violet-700 `#4A2FB0` | Hover/pressed primary | white 9.03 |
+| `--gradient-subtle` | indigo-50 → violet-50 `#F3EFFF` | Active nav item, current chat, checked radio card, kind pill, user bubble, chip hover | indigo-700 8.40 |
+| `--gradient-text` | indigo-800 `#2C287F` → violet-700 | Landing and greeting headlines (gradient-clipped text) | 8.65 on the page, 8.2 on the hero |
+| `--gradient-hero` | indigo-50 → violet-50 → white | Landing hero panel, chat greeting panel | body text 15+, muted 6.7 |
+| `--gradient-card` | white → neutral-50 | Content cards (a barely visible lift) | unchanged |
+| `--gradient-page` | indigo-100, violet-100, amber-50 radial washes | Fixed page backdrop behind the glass | muted 6.03 at the darkest point |
+
+Gradient headline text falls back to plain `CanvasText` under `forced-colors: active`. Only one element per screen uses gradient text.
+
+**Depth:** `--shadow-1` and `--shadow-2` are now three-layer shadows (a crisp 1–2 px contact shadow, a soft mid shadow and a wide ambient shadow), and `--shadow-primary` adds a violet-tinted glow under primary actions. Card edges use the softer `--color-border-subtle` (stone at 7 %); the office card alone gets a 1 px brand-gradient edge (gradient border-box under a solid padding-box), so the place to go stands out.
+
 ## 8a. Glass surfaces (v1.1)
 
 Frosted glass (translucent fill + `backdrop-filter: blur() saturate()` + hairline border + 1 px top highlight) on the **floating chrome only**: top bar, sticky composer, desktop sidebar, mobile drawer, dialogs and toasts. Content cards (answers, office card, forms) stay **solid white** for reading. The office-card header (optional in the plan) stays solid, so the card that matters most has no transparency.

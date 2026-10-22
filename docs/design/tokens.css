@@ -38,6 +38,11 @@
   --palette-indigo-800: #2C287F;
   --palette-indigo-950: #15133D;
 
+  --palette-violet-50: #F3EFFF;
+  --palette-violet-100: #EBE4FF;
+  --palette-violet-600: #5B3FD1;
+  --palette-violet-700: #4A2FB0;
+
   --palette-green-50: #F0FDF4;
   --palette-green-300: #86D9A4;
   --palette-green-700: #166534;
@@ -74,6 +79,7 @@
   --color-text-inverse: var(--palette-white);
 
   --color-border: var(--palette-neutral-200);
+  --color-border-subtle: rgb(12 10 9 / 0.07);   /* card edges: softer than --color-border, decorative only */
   --color-border-strong: var(--palette-neutral-500);
 
   --color-primary: var(--palette-indigo-600);
@@ -134,11 +140,19 @@
   --color-glass-border: rgb(12 10 9 / 0.08);      /* hairline edge */
   --color-glass-highlight: rgb(255 255 255 / 0.7); /* 1 px top highlight */
 
+  /* Gradients (v1.1): two close hues (indigo → violet), low contrast. Text on each passes AA. */
+  --gradient-brand: linear-gradient(135deg, var(--palette-indigo-600) 0%, var(--palette-violet-600) 100%);       /* primary buttons, Send, logo mark, step numbers; white text 7.31 → 6.83 */
+  --gradient-brand-hover: linear-gradient(135deg, var(--palette-indigo-700) 0%, var(--palette-violet-700) 100%); /* white text 9.51 → 9.03 */
+  --gradient-subtle: linear-gradient(135deg, var(--palette-indigo-50) 0%, var(--palette-violet-50) 100%);       /* active and selected states, user bubble; indigo-700 text 8.40 → 8.43 */
+  --gradient-text: linear-gradient(120deg, var(--palette-indigo-800) 0%, var(--palette-violet-700) 100%);       /* hero headlines; 11.71 → 8.65 on the page */
+  --gradient-hero: linear-gradient(160deg, var(--palette-indigo-50) 0%, var(--palette-violet-50) 45%, var(--palette-white) 100%); /* landing hero and chat greeting panels */
+  --gradient-card: linear-gradient(180deg, var(--palette-white) 0%, var(--palette-neutral-50) 100%);            /* content cards: a barely visible lift */
+
   /* Page backdrop: soft colour washes so the glass has something to frost. */
   --gradient-page:
     radial-gradient(40rem 28rem at 0% 0%, var(--palette-indigo-100), transparent 70%),
-    radial-gradient(36rem 26rem at 100% 10%, var(--palette-amber-50), transparent 70%),
-    radial-gradient(44rem 30rem at 60% 100%, var(--palette-indigo-50), transparent 70%);
+    radial-gradient(36rem 26rem at 100% 0%, var(--palette-violet-100), transparent 70%),
+    radial-gradient(44rem 30rem at 50% 100%, var(--palette-amber-50), transparent 70%);
 
   /* 3. Typography --------------------------------------------------------- */
   /* Inter covers Latin Extended (incl. U+02BB ʻ) and Cyrillic (incl. ў қ ғ ҳ). Two weights only. */
@@ -186,10 +200,10 @@
   --radius-lg: 1.25rem;  /* 20: cards, bubbles, dialogs */
 
   /* 6. Elevation (2 levels) ------------------------------------------------ */
-  --shadow-1: 0 1px 2px rgb(12 10 9 / 0.06), 0 1px 3px rgb(12 10 9 / 0.08);
-  --shadow-2: 0 8px 24px rgb(12 10 9 / 0.14), 0 2px 6px rgb(12 10 9 / 0.08);
+  --shadow-1: 0 1px 1px rgb(12 10 9 / 0.04), 0 2px 6px rgb(12 10 9 / 0.04), 0 8px 24px rgb(12 10 9 / 0.05);
+  --shadow-2: 0 2px 4px rgb(12 10 9 / 0.06), 0 12px 32px rgb(12 10 9 / 0.14), 0 24px 56px rgb(12 10 9 / 0.08);
   --shadow-glass: 0 4px 16px rgb(12 10 9 / 0.06), 0 1px 2px rgb(12 10 9 / 0.04);
-  --shadow-primary: 0 4px 12px rgb(70 66 200 / 0.28), 0 1px 2px rgb(70 66 200 / 0.2);
+  --shadow-primary: 0 1px 2px rgb(70 66 200 / 0.24), 0 6px 16px rgb(91 63 209 / 0.28);
 
   /* Glass blur: modest so low-end Android stays smooth. */
   --glass-blur: 14px;

@@ -44,7 +44,7 @@ Notes for reviewers:
 
 ## v1.1: before → after
 
-The author asked for "one icon package, not similar, glass effect, better UI/UX" (`01-design-plan.md` §3, v1.1).
+The author asked for "one icon package, not similar, glass effect, better UI/UX" and then "make prettier, use a little bit gradient, make as professional" (`01-design-plan.md` §3, v1.1).
 
 | Area | v1 (before) | v1.1 (after) |
 |---|---|---|
@@ -59,6 +59,8 @@ The author asked for "one icon package, not similar, glass effect, better UI/UX"
 | Primary actions | Flat indigo buttons | Indigo glow (`--shadow-primary`) on primary buttons and Send; the main action stands out on every screen |
 | Micro-interactions | Colour change on hover only | Press scale (0.98) on buttons, chips and icon buttons; chips lift 2 px on hover; answer blocks fade and rise in as they stream; all off under reduced motion |
 | Empty, loading, error | Plain icon circle; flat chips | Empty/success/error icons sit in a ringed circle; chips and the InputBar have a soft lift; loading keeps the skeletons; error alerts unchanged in copy and roles |
+| Overall look | Plain, flat, one solid indigo | A premium SaaS feel with restrained gradients (indigo → violet, low contrast): brand gradient on primary buttons, Send, logo mark and step numbers; gradient hero panels and gradient headline text on the landing and chat greeting; soft gradient for active/selected states and the user bubble; violet-tinted wash behind the glass |
+| Depth | Two simple shadows, grey card borders | Three-layer shadows, a softer 7 % card edge, a white → stone-50 card surface, a brand-gradient edge on the office card, a violet glow under primary actions |
 | Screenshots | 25 MB | Palette PNG (256 colours, dithered) via `shoot.cjs`: 18 MB for more shots |
 
 ## Review checklist (`01-design-plan.md` §8)
@@ -79,7 +81,7 @@ The author asked for "one icon package, not similar, glass effect, better UI/UX"
 - [x] `screenshots/journeys/` has every step of every journey. *(91 steps at 375; J2 and J6 also at 1440.)*
 - [x] (v1.1) Every icon is a real Lucide icon from one pinned `lucide-static` version, and the inventory is in `components.md`. *(1.61.0; 40 icons in `icons/`; enforced by `tokens.mjs --check`, which also caught the old hand-drawn menu icon in a negative test.)*
 - [x] (v1.1) Glass is on the listed chrome only, AA passes on glass, and the solid fallbacks for no-`backdrop-filter` and reduced transparency are designed and screenshotted. *(`design-system.md` §8a worst-case contrast table; `screenshots/glass/`.)*
-- [x] (v1.1) A UX polish pass is done, with a before/after list in the README. *(Above.)*
+- [x] (v1.1) A UX polish pass is done, with a before/after list in the README. *(Above. Includes the "prettier, a little gradient, professional" round: restrained indigo → violet gradient tokens with AA on every stop, `design-system.md` §8b.)*
 
 ## Open questions
 
