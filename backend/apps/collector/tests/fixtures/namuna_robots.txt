@@ -1,0 +1,5 @@
+# NAMUNA robots.txt fixture for GovAssist tests
+User-agent: *
+Disallow: /admin/
+Disallow: /private/
+Allow: /
