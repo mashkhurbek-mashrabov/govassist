@@ -10,10 +10,12 @@ from pathlib import Path
 from django.conf import settings
 from django.utils import timezone
 
+from apps.collector.constants import CRAWLER_BLOCKED_STATUS
 from apps.collector.fetchers import (
     BlockedUrlError,
     Fetcher,
     FetchResult,
+    HostBlockedError,
     HostRateLimiter,
     RobotsPolicy,
     host_of,
@@ -91,7 +93,12 @@ class Crawler:
         logger.info("Page skipped", extra={"url": url, "reason": reason})
 
     def _fetch(self, job: CrawlJob, url: str) -> FetchResult | None:
-        """Fetch one URL politely; None (counted as skipped) when not allowed or not 2xx."""
+        """Fetch one URL politely; None (counted as skipped) when not allowed or not 2xx.
+
+        Raises:
+            HostBlockedError: On HTTP 403/429: the host refuses automated access, so the
+                whole job stops (``run`` marks it failed) instead of trying more pages.
+        """
         if not self._robots.allowed(url):
             self._skip(job, url, "robots.txt")
             return None
@@ -101,6 +108,9 @@ class Crawler:
         except BlockedUrlError as exc:
             self._skip(job, url, f"blocked: {exc}")
             return None
+        if page.status in CRAWLER_BLOCKED_STATUS:
+            msg = f"{host_of(url)} answered HTTP {page.status}: blocked automated access"
+            raise HostBlockedError(msg)
         if not HTTP_OK_MIN <= page.status <= HTTP_OK_MAX:
             self._skip(job, url, f"HTTP {page.status}")
             return None

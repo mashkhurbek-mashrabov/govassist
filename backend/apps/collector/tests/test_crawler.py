@@ -5,9 +5,10 @@ from pathlib import Path
 
 import pytest
 from django.conf import settings
+from django.core.management import CommandError, call_command
 
 from apps.collector.crawler import Crawler
-from apps.collector.fetchers import FetchResult, HostRateLimiter
+from apps.collector.fetchers import FetchResult, HostBlockedError, HostRateLimiter
 from apps.collector.models import CrawlJob, CrawlSource, RawPage
 from apps.collector.parsers import ParsedPage
 
@@ -154,3 +155,51 @@ def test_blocked_fetch_is_skipped_not_fatal() -> None:
 
     job = _crawl(_source(), Refusing({}), RecordingPipeline())
     assert (job.status, job.pages_fetched, job.pages_skipped) == (CrawlJob.Status.DONE, 0, 1)
+
+
+class RefusingFetcher(FakeFetcher):
+    """Serves the start page, then answers 403 like a bot block."""
+
+    def fetch(self, url: str) -> FetchResult:
+        """Start page once, 403 afterwards."""
+        self.fetched.append(url)
+        if url == START:
+            return FetchResult(url, url, 200, "text/html", _page("/docs/1", "/docs/2").encode())
+        return FetchResult(url, url, 403, "text/html", b"Forbidden")
+
+
+def test_a_403_stops_the_job_and_nothing_more_is_fetched() -> None:
+    """The first refusal fails the job with the reason; the next page is never requested."""
+    source = _source(allowed_url_pattern=r"/docs/", max_pages=10)
+    fetcher = RefusingFetcher({})
+    with pytest.raises(HostBlockedError, match="HTTP 403: blocked automated access"):
+        _crawl(source, fetcher, RecordingPipeline())
+    job = CrawlJob.objects.get(source=source)
+    assert job.status == CrawlJob.Status.FAILED
+    assert "blocked automated access" in job.error
+    assert fetcher.fetched == [START, "https://example.org/docs/1"]
+
+
+def test_crawl_command_skips_the_other_sources_of_a_blocked_host(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """After a host blocks us, its remaining sources are not started in the same run."""
+    blocked = _source(name="NAMUNA 1")
+    same_host = _source(name="NAMUNA 2", start_url="https://example.org/other")
+    other_host = _source(name="NAMUNA 3", start_url="https://namuna.example/")
+    started: list[str] = []
+
+    def run_job(job: CrawlJob, *, force: bool = False) -> CrawlJob:
+        """Block on example.org, succeed elsewhere."""
+        started.append(job.source.name)
+        if "example.org" in job.source.start_url:
+            raise HostBlockedError("example.org answered HTTP 403: blocked automated access")
+        job.status = CrawlJob.Status.DONE
+        return job
+
+    monkeypatch.setattr("apps.collector.runner.run_job", run_job)
+    with pytest.raises(CommandError, match="2 source"):
+        call_command("crawl", "--all")
+    assert started == [blocked.name, other_host.name]
+    assert "NAMUNA 2: not started: example.org blocked us" in capsys.readouterr().err
+    assert same_host.name not in started

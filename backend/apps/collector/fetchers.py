@@ -49,6 +49,10 @@ class FetchResult:
         return self.content_type == PDF_TYPE or self.final_url.lower().endswith(".pdf")
 
 
+class HostBlockedError(Exception):
+    """The host refused automated access (HTTP 403/429): stop crawling it, never retry."""
+
+
 class Fetcher(Protocol):
     """Fetches one URL (``HttpFetcher`` or ``BrowserFetcher``)."""
 
