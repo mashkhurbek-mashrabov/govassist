@@ -1,5 +1,5 @@
 /**
- * Contract types, hand-written from `docs/contract.md` §1, §3–§5.
+ * Contract v1.1 types, hand-written from `docs/contract.md` §1, §3–§5.
  * F3 replaces them with types generated from `docs/schema/`.
  */
 
@@ -16,7 +16,12 @@ export interface Problem {
   code: string;
   retry_after?: number | null;
   errors?: Record<string, string[]> | null;
+  /** Only on `quota_exceeded`: whose daily limit was hit. */
+  scope?: QuotaScope;
 }
+
+/** `user`: this user's daily limit; `global`: the service-wide daily token cap. */
+export type QuotaScope = "user" | "global";
 
 /** Cursor-paginated list (contract §1). */
 export interface Page<T> {
@@ -49,6 +54,8 @@ export interface Me {
   id: string;
   email: string;
   email_verified: boolean;
+  /** False for Google-only accounts: changing the password then needs no current password. */
+  has_password: boolean;
   display_name: string | null;
   ui_language: Lang;
   region: Region | null;
@@ -99,12 +106,17 @@ export interface UserMessage {
 /** Lifecycle of an assistant message. */
 export type AssistantStatus = "streaming" | "complete" | "failed";
 
+/** Why a stored assistant message failed (`"stopped"`: the user pressed Stop). */
+export type AssistantErrorCode = "stopped" | StreamErrorCode;
+
 /** An assistant answer as stored. */
 export interface AssistantMessage {
   id: string;
   role: "assistant";
   created_at: string;
   status: AssistantStatus;
+  /** Set when `status` is `"failed"`. */
+  error_code: AssistantErrorCode | null;
   answer: Answer | null;
   sources: Source[];
   office: OfficeMatch | null;
@@ -244,6 +256,18 @@ export type StreamErrorCode =
 export interface ErrorEventData {
   code: StreamErrorCode;
   message: string;
+  /** Only for `quota_exceeded`. */
+  scope?: QuotaScope;
+}
+
+/** A corpus source listed on the About page (`GET /api/v1/sources`). */
+export interface SourceSummary {
+  publisher: string;
+  name: string;
+  kind: "law" | "service_page" | "office" | "other";
+  url: string;
+  documents: number;
+  last_fetched_at: string;
 }
 
 /** A typed SSE event from the chat stream. */

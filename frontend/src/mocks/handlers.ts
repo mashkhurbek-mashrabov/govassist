@@ -1,7 +1,8 @@
 /**
  * MSW handlers for allauth headless (contract §2) and `/api/v1/` (contract §3–§4).
  *
- * Mock-only triggers in the question text: `#limit` → 429 rate_limited, `#quota` → 429 quota_exceeded,
+ * Mock-only triggers in the question text: `#limit` → 429 rate_limited, `#quota` → 429 quota_exceeded
+ * (scope user), `#globalquota` → 429 quota_exceeded (scope global),
  * `#busy` → 409 stream_in_progress, `#error` → in-stream `error` event, `#offtopic` → off-topic answer.
  * Verification and reset links are printed to the console, like Django's console email backend.
  */
@@ -14,6 +15,7 @@ import { LANGUAGES } from "../i18n";
 import { currentUser, db, newUser, sampleAssistantMessage, saveDb, WRONG_PASSWORD } from "./db";
 import {
   SAMPLE_DISTRICTS,
+  SAMPLE_SOURCE_SUMMARIES,
   SAMPLE_OFF_TOPIC_ANSWER,
   SAMPLE_OFFICE,
   SAMPLE_REGIONS,
@@ -306,12 +308,16 @@ const authHandlers = [
   http.post(
     `${AUTH_BASE}/account/password/change`,
     csrf(async ({ request }) => {
-      if (!currentUser()) return unauthenticated();
+      const me = currentUser();
+      if (!me) return unauthenticated();
       const body = (await request.json()) as { current_password?: string; new_password?: string };
-      if (body.current_password === WRONG_PASSWORD)
+      if (me.has_password && (!body.current_password || body.current_password === WRONG_PASSWORD)) {
         return authError("incorrect_password", "current_password");
+      }
       if ((body.new_password ?? "").length < MIN_PASSWORD_LENGTH)
         return authError("password_too_short", "new_password");
+      me.has_password = true;
+      saveDb();
       return HttpResponse.json({ status: 200 });
     }),
   ),
@@ -366,7 +372,8 @@ async function chat(request: Request, me: Me) {
       },
     );
   }
-  if (text.includes("#quota")) return problem(429, "quota_exceeded");
+  if (text.includes("#quota")) return problem(429, "quota_exceeded", { scope: "user" });
+  if (text.includes("#globalquota")) return problem(429, "quota_exceeded", { scope: "global" });
   if (text.includes("#busy")) return problem(409, "stream_in_progress");
 
   const now = new Date().toISOString();
@@ -398,6 +405,7 @@ async function chat(request: Request, me: Me) {
   const stored: AssistantMessage = {
     ...final,
     status: text.includes("#error") ? "failed" : "streaming",
+    error_code: text.includes("#error") ? "llm_unavailable" : null,
     answer: null,
   };
   conversation.messages.push({ id: meta.user_message_id, role: "user", text, created_at: now }, stored);
@@ -413,13 +421,34 @@ async function chat(request: Request, me: Me) {
       saveDb();
     },
     onAbort: () => {
-      Object.assign(stored, { status: "failed" });
+      // Contract v1.1 Stop: failed + error_code "stopped", the partial answer is not stored.
+      Object.assign(stored, { status: "failed", error_code: "stopped", answer: null });
       saveDb();
     },
   });
 }
 
+/** Mock rate limit for verification resends (seconds). */
+const RESEND_COOLDOWN_S = 60;
+/** Milliseconds per second. */
+const MS_PER_S = 1000;
+
 const apiHandlers = [
+  http.post(
+    `${API_BASE}/auth/resend-verification`,
+    csrf(async ({ request }) => {
+      const { email = "" } = (await request.json()) as { email?: string };
+      const now = Date.now();
+      if (db.lastResendAt !== null && now - db.lastResendAt < RESEND_COOLDOWN_S * MS_PER_S) {
+        return problem(429, "rate_limited", { retry_after: RESEND_COOLDOWN_S });
+      }
+      db.lastResendAt = now;
+      if (db.users[email.toLowerCase()]?.email_verified === false) sendVerification(email.toLowerCase());
+      saveDb();
+      return new HttpResponse(null, { status: 204 });
+    }),
+  ),
+  http.get(`${API_BASE}/sources`, () => HttpResponse.json({ items: SAMPLE_SOURCE_SUMMARIES })),
   http.get(`${API_BASE}/health`, () =>
     HttpResponse.json({ status: "ok", checks: { db: "ok", redis: "ok" } }),
   ),

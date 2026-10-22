@@ -1,5 +1,7 @@
 {
-  "app": { "name": "GovAssist" },
+  "app": {
+    "name": "GovAssist"
+  },
   "nav": {
     "main": "Main",
     "newChat": "New chat",
@@ -16,7 +18,9 @@
     "retry": "Retry",
     "error": "Something went wrong. Please try again."
   },
-  "offline": { "banner": "You are offline. Answers will load when the connection is back." },
+  "offline": {
+    "banner": "You are offline. Answers will load when the connection is back."
+  },
   "profile": {
     "language": "Language",
     "region": "Region",
@@ -53,7 +57,11 @@
     },
     "checkEmail": {
       "title": "Check your email",
-      "body": "We sent you a link. Open it to confirm your email address, then come back here."
+      "body": "We sent you a link. Open it to confirm your email address, then come back here.",
+      "resend": "Send the link again",
+      "resent": "If this email is waiting for confirmation, a new link is on its way.",
+      "resendWait": "Please wait {{minutes}} min before asking for another link.",
+      "otherEmail": "Use another email"
     },
     "verify": {
       "title": "Confirm your email",
@@ -126,12 +134,14 @@
       "quota_exceeded": "The daily question limit is reached. Please come back tomorrow.",
       "quota_exceeded_retry": "The daily question limit is reached. Try again in {{minutes}} min.",
       "stream_in_progress": "Another answer is still being written. Please wait for it to finish.",
-      "stream_in_progress_retry": "Another answer is still being written. Try again in {{minutes}} min."
+      "stream_in_progress_retry": "Another answer is still being written. Try again in {{minutes}} min.",
+      "quota_exceeded_global": "The service has reached its daily limit. Please try again tomorrow."
     },
     "failedMessage": "This answer could not be completed.",
     "streamingElsewhere": "This answer is still being written. Refresh in a moment.",
     "loadError": "This conversation could not be loaded.",
-    "notFound": "This conversation does not exist or was deleted."
+    "notFound": "This conversation does not exist or was deleted.",
+    "answerStopped": "Answer stopped."
   },
   "answer": {
     "steps": "Steps",
@@ -148,7 +158,7 @@
   },
   "office": {
     "title": "Office",
-    "matchRegion": "No office found in your district. This is the nearest one in {{region}}.",
+    "matchRegion": "No office found in your district. This one of the same type is elsewhere in {{region}}.",
     "matchNone": "We do not have the address of the {{type}} for your district yet.",
     "phone": "Phone",
     "map": "Open in Google Maps",
@@ -203,7 +213,9 @@
     "password": {
       "title": "Change password",
       "submit": "Change password",
-      "saved": "Your password was changed."
+      "saved": "Your password was changed.",
+      "set": "Set password",
+      "setTitle": "Set a password"
     },
     "logout": "Log out",
     "deleteAccount": {
@@ -216,7 +228,9 @@
   "about": {
     "title": "About GovAssist",
     "body": "GovAssist explains how to get a public service in Uzbekistan, step by step, and shows the office in your district.",
-    "sources": "Answers are built only from a reviewed collection of official pages, such as lex.uz and my.gov.uz, with links to every source."
+    "sources": "Answers are built only from a reviewed collection of official pages, such as lex.uz and my.gov.uz, with links to every source.",
+    "sourcesTitle": "Sources",
+    "sourceMeta": "documents: {{count}} · updated {{date}}"
   },
   "notFound": {
     "title": "Page not found",
@@ -227,5 +241,16 @@
     "title": "Something went wrong",
     "body": "Please reload the page.",
     "reload": "Reload"
+  },
+  "welcome": {
+    "title": "Public services and laws, step by step",
+    "body": "Ask in Uzbek, Russian or English. GovAssist answers from official sources and shows the office in your district.",
+    "points": {
+      "steps": "Clear steps, documents, fee and processing time.",
+      "office": "The office to go to in your district, with hours and a map.",
+      "sources": "Links to lex.uz and my.gov.uz for every answer."
+    },
+    "signup": "Create an account",
+    "login": "Log in"
   }
 }

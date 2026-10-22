@@ -1,7 +1,8 @@
 import { AnswerView } from "../answer/AnswerView";
 import { FeedbackBar } from "./FeedbackBar";
 import { ProgressLine } from "./ProgressLine";
-import { TurnFailureAlert } from "./TurnFailureAlert";
+import { FailureAlert } from "./FailureAlert";
+import { failureMessage } from "./failureMessage";
 import type { LiveTurn } from "./useChatStream";
 import { UserBubble } from "./UserBubble";
 
@@ -41,7 +42,13 @@ export function LiveTurnView({ turn, onRetry, onAsk }: LiveTurnViewProps) {
           askDisabled={turn.isStreaming}
         />
       )}
-      {turn.failure && <TurnFailureAlert failure={turn.failure} onRetry={onRetry} />}
+      {turn.failure && (
+        <FailureAlert
+          message={failureMessage(turn.failure)}
+          tone={turn.failure.kind === "stopped" ? "info" : "error"}
+          onRetry={onRetry}
+        />
+      )}
     </>
   );
 }

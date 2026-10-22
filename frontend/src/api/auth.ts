@@ -166,12 +166,13 @@ export function resetPassword(input: { key: string; password: string }): Promise
 }
 
 /**
- * Change the password of the signed-in user. Not listed in contract §2; uses allauth's standard endpoint.
+ * Change (or, for Google-only accounts, set) the password. Contract §2: omit `current_password` when
+ * `Me.has_password` is false.
  *
- * @param input Current and new password.
+ * @param input New password, plus the current one when the account has a password.
  */
 export async function changePassword(input: {
-  current_password: string;
+  current_password?: string;
   new_password: string;
 }): Promise<void> {
   await authCall("/account/password/change", "POST", input);

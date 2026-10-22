@@ -11,6 +11,7 @@ import type {
   ChatEvent,
   MetaEventData,
   OfficeMatch,
+  QuotaScope,
   Stage,
   StreamErrorCode,
 } from "../../api/types";
@@ -20,9 +21,9 @@ export type TurnFailure =
   /** The user pressed Stop. */
   | { kind: "stopped" }
   /** The server sent an `error` event. */
-  | { kind: "stream"; code: StreamErrorCode }
+  | { kind: "stream"; code: StreamErrorCode; scope: QuotaScope | null }
   /** The server rejected the request before streaming (problem+json). */
-  | { kind: "request"; code: string | null; retryAfter: number | null }
+  | { kind: "request"; code: string | null; retryAfter: number | null; scope: QuotaScope | null }
   /** The connection broke or the stream ended without `final`. */
   | { kind: "network" };
 
@@ -129,7 +130,9 @@ export function parsePartialAnswer(buffer: string): PartialAnswer | null {
  */
 function toFailure(error: unknown, stopped: boolean): TurnFailure {
   if (stopped) return { kind: "stopped" };
-  if (error instanceof ApiError) return { kind: "request", code: error.code, retryAfter: error.retryAfter };
+  if (error instanceof ApiError) {
+    return { kind: "request", code: error.code, retryAfter: error.retryAfter, scope: error.scope };
+  }
   return { kind: "network" };
 }
 
@@ -205,7 +208,10 @@ export function useChatStream(options: ChatStreamOptions = {}): ChatStream {
           return;
         case "error":
           cancelFrame();
-          dispatch({ type: "fail", failure: { kind: "stream", code: event.data.code } });
+          dispatch({
+            type: "fail",
+            failure: { kind: "stream", code: event.data.code, scope: event.data.scope ?? null },
+          });
           return;
         case "done":
           return;

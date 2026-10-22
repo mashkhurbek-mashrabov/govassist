@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Viewer } from "../api/queries";
 import type { Me } from "../api/types";
-import { redirectFor, safeNext } from "./guards";
+import { redirectFor, safeNext, withNext } from "./guards";
 
 /**
  * A signed-in viewer with overrides on `Me`.
@@ -16,6 +16,7 @@ function signedIn(me: Partial<Me> = {}): Viewer {
       id: "u",
       email: "u@example.com",
       email_verified: true,
+      has_password: true,
       display_name: null,
       ui_language: "uz-Latn",
       region: { id: 1, name: "R" },
@@ -39,7 +40,9 @@ describe("redirectFor", () => {
     ["unverified", pending, null],
     ["unverified", signedIn({ email_verified: false }), null],
     ["unverified", signedIn(), "/"],
-    ["auth", anonymous, "/login?next=%2Fsettings%3Fx%3D1"],
+    ["guest", anonymous, null],
+    ["auth", anonymous, "/welcome?next=%2Fsettings%3Fx%3D1"],
+    ["profile", anonymous, "/welcome?next=%2Fsettings%3Fx%3D1"],
     ["auth", pending, "/check-email"],
     ["auth", signedIn({ email_verified: false }), "/check-email"],
     ["auth", signedIn({ profile_complete: false }), null],
@@ -47,6 +50,15 @@ describe("redirectFor", () => {
     ["profile", signedIn(), null],
   ] as const)("%s with %o → %s", (requirement, viewer, expected) => {
     expect(redirectFor(viewer, requirement, "/settings?x=1")).toBe(expected);
+  });
+});
+
+/** `next` is only carried when it is not the home page. */
+describe("withNext", () => {
+  it("keeps useful targets and drops the home page", () => {
+    expect(withNext("/login", "/c/1")).toBe("/login?next=%2Fc%2F1");
+    expect(withNext("/login", "/")).toBe("/login");
+    expect(withNext("/login", null)).toBe("/login");
   });
 });
 

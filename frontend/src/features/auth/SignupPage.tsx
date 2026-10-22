@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router";
 import { signup } from "../../api/auth";
 import { useAuthMutation } from "../../api/queries";
-import { HOME_PATH } from "../../app/guards";
+import { CHECK_EMAIL_PATH, HOME_PATH } from "../../app/guards";
 import { PasswordField } from "../../components/ui/PasswordField";
 import { TextField } from "../../components/ui/TextField";
 import { TURNSTILE_SITE_KEY } from "../../config";
@@ -34,7 +34,12 @@ export function SignupPage() {
   const onSubmit = handleSubmit((values) =>
     mutation.mutate(
       { ...values, turnstile_token: turnstileToken },
-      { onSuccess: () => void navigate(HOME_PATH) },
+      {
+        onSuccess: (viewer) =>
+          void navigate(viewer.state === "pending_verification" ? CHECK_EMAIL_PATH : HOME_PATH, {
+            state: { email: values.email },
+          }),
+      },
     ),
   );
 

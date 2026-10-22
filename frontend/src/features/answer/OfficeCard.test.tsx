@@ -20,12 +20,12 @@ describe("OfficeCard", () => {
     const map = screen.getByRole("link", { name: "Google Xaritada ochish" });
     expect(map).toHaveAttribute("target", "_blank");
     expect(map).toHaveAttribute("rel", "noopener noreferrer");
-    expect(screen.queryByText(/eng yaqin/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/boshqa idora/)).not.toBeInTheDocument();
   });
 
   it("explains a region fallback", () => {
     render(<OfficeCard match={{ ...SAMPLE_OFFICE, match: "region" }} now={THURSDAY_MORNING} />);
-    expect(screen.getByText(/Toshkent shahri dagi eng yaqin idora/)).toBeInTheDocument();
+    expect(screen.getByText(/Toshkent shahri dagi shu turdagi boshqa idora/)).toBeInTheDocument();
   });
 
   it("says when no office is known", () => {

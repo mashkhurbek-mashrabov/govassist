@@ -2,7 +2,7 @@
  * Mock data built from docs/contract.md §3 and §6. Every value is a layout placeholder (NAMUNA / SAMPLE),
  * never real information: no real fees, addresses, phone numbers or SOATO codes.
  */
-import type { Answer, District, OfficeMatch, Region, Source, Suggestion } from "../api/types";
+import type { Answer, District, OfficeMatch, Region, Source, SourceSummary, Suggestion } from "../api/types";
 
 /** Contract §6 sample service answer (illustrative values). */
 export const SAMPLE_SERVICE_ANSWER: Answer = {
@@ -112,4 +112,24 @@ export const SAMPLE_SUGGESTIONS: Suggestion[] = [
   { text: "Pasportimni qanday yangilayman?", category: "documents" },
   { text: "Tugʻilganlik haqidagi guvohnomani qanday olaman?", category: "civil_registry" },
   { text: "Ishdan boʻshatilganda qanday huquqlarim bor?", category: "legal" },
+];
+
+/** About-page sources (contract v1.1 `SourceSummary`); names and counts are placeholders. */
+export const SAMPLE_SOURCE_SUMMARIES: SourceSummary[] = [
+  {
+    publisher: "lex.uz",
+    name: "NAMUNA Oila kodeksi",
+    kind: "law",
+    url: "https://lex.uz/",
+    documents: 12,
+    last_fetched_at: "2026-10-20T08:00:00Z",
+  },
+  {
+    publisher: "my.gov.uz",
+    name: "NAMUNA xizmatlar katalogi",
+    kind: "service_page",
+    url: "https://my.gov.uz/",
+    documents: 8,
+    last_fetched_at: "2026-10-20T08:00:00Z",
+  },
 ];

@@ -9,9 +9,13 @@ const STREAM_TIMEOUT_MS = 5000;
 
 /** Route guards and auth flows through the real route table and MSW. */
 describe("auth flows", () => {
-  it("sends anonymous users to login with next, and back after login", async () => {
+  it("sends anonymous visitors to /welcome, then through login back to the page", async () => {
     const user = userEvent.setup();
     const { router } = renderApp("/settings");
+    await screen.findByRole("heading", { name: "Davlat xizmatlari va qonunlar — bosqichma-bosqich" });
+    expect(router.state.location.pathname).toBe("/welcome");
+    expect(router.state.location.search).toBe("?next=%2Fsettings");
+    await user.click(screen.getByRole("link", { name: "Kirish" }));
     await screen.findByRole("heading", { name: "Kirish" });
     expect(router.state.location.search).toBe("?next=%2Fsettings");
 

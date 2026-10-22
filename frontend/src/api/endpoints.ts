@@ -10,6 +10,7 @@ import type {
   MeUpdate,
   Page,
   Region,
+  SourceSummary,
   Suggestion,
 } from "./types";
 
@@ -21,6 +22,26 @@ export const API_BASE = "/api/v1";
  */
 export function fetchCsrf(): Promise<void> {
   return request<undefined>(`${API_BASE}/csrf`);
+}
+
+/**
+ * Resend the verification email. Always 204 so it cannot reveal whether an account exists; 429 with
+ * `retry_after` when asked too often.
+ *
+ * @param email Address used at signup.
+ */
+export function resendVerification(email: string): Promise<void> {
+  return request<undefined>(`${API_BASE}/auth/resend-verification`, { method: "POST", body: { email } });
+}
+
+/**
+ * Reviewed sources behind the answers (About page).
+ *
+ * @returns Source summaries.
+ */
+export async function getSources(): Promise<SourceSummary[]> {
+  const body = await request<{ items: SourceSummary[] }>(`${API_BASE}/sources`);
+  return body.items;
 }
 
 /**

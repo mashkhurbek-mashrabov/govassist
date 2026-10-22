@@ -5,7 +5,7 @@ import { viewerQuery, type Viewer } from "../api/queries";
 
 /** What a route needs from the viewer. */
 export type Requirement =
-  /** Signup/login/forgot: not signed in. */
+  /** Welcome/signup/login/forgot: not signed in. */
   | "guest"
   /** Check-email: anyone not yet verified. */
   | "unverified"
@@ -14,7 +14,9 @@ export type Requirement =
   /** Signed in, verified, region + district set. */
   | "profile";
 
-/** Where unauthenticated users go. */
+/** Public landing: where unauthenticated visitors to app routes go (plan §3). */
+export const WELCOME_PATH = "/welcome";
+/** Login page (also the target after logout and on a 401). */
 export const LOGIN_PATH = "/login";
 /** Where users without a district go. */
 export const ONBOARDING_PATH = "/onboarding";
@@ -35,11 +37,23 @@ export function safeNext(next: string | null): string {
 }
 
 /**
+ * Append a `next` target, unless it is the home page (the default anyway).
+ *
+ * @param target Page to send the user to.
+ * @param next Path to return to after login.
+ * @returns `target` with `?next=` when useful.
+ */
+export function withNext(target: string, next: string | null): string {
+  const safe = safeNext(next);
+  return safe === HOME_PATH ? target : `${target}?next=${encodeURIComponent(safe)}`;
+}
+
+/**
  * Decide whether a viewer may open a route.
  *
  * @param viewer Current viewer.
  * @param requirement The route's requirement.
- * @param path Requested path + query, kept as `next` for login.
+ * @param path Requested path + query, kept as `next` through welcome → login.
  * @returns The redirect target, or `null` to allow.
  */
 export function redirectFor(viewer: Viewer, requirement: Requirement, path: string): string | null {
@@ -52,7 +66,7 @@ export function redirectFor(viewer: Viewer, requirement: Requirement, path: stri
       return verified ? HOME_PATH : null;
     case "auth":
     case "profile":
-      if (viewer.state === "anonymous") return `${LOGIN_PATH}?next=${encodeURIComponent(path)}`;
+      if (viewer.state === "anonymous") return withNext(WELCOME_PATH, path);
       if (!verified) return CHECK_EMAIL_PATH;
       if (requirement === "profile" && !viewer.me.profile_complete) return ONBOARDING_PATH;
       return null;

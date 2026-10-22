@@ -29,12 +29,16 @@ async function emailedPath(page: Page, action: () => Promise<void>): Promise<str
 }
 
 /** The whole F1 journey on mocks, in the default language (uz-Latn). */
-test("signup → verify → onboarding → streamed answer, stop/retry → feedback → history → settings", async ({
+test("welcome → signup → verify → onboarding → streamed answer, stop/retry → feedback → history → settings", async ({
   page,
 }) => {
   const email = `e2e-${Date.now()}@example.com`;
 
-  await page.goto("/signup");
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/welcome$/);
+  await expectAccessible(page);
+  await page.getByRole("link", { name: "Roʻyxatdan oʻtish" }).click();
+  await expect(page).toHaveURL(/\/signup$/);
   await expectAccessible(page);
   await page.getByLabel("Elektron pochta").fill(email);
   await page.getByLabel("Parol", { exact: true }).fill("namuna-parol-123");
@@ -72,9 +76,11 @@ test("signup → verify → onboarding → streamed answer, stop/retry → feedb
   await page.getByRole("button", { name: "Yuborish", exact: true }).click();
   await page.getByRole("button", { name: "Toʻxtatish" }).click();
   await expect(page.getByText("Siz bu javobni toʻxtatdingiz.")).toBeVisible();
+  await page.reload();
+  await expect(page.getByText("Javob toʻxtatildi.")).toBeVisible();
   await page.getByRole("button", { name: "Qayta urinish" }).click();
   await expect(page.getByRole("button", { name: "Yuborish", exact: true })).toBeVisible();
-  await expect(page.getByText("Siz bu javobni toʻxtatdingiz.")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Qayta urinish" })).toHaveCount(0);
 
   await page.goto("/history");
   await expect(page.getByRole("link", { name: /Pasportimni qanday yangilayman/ })).toBeVisible();

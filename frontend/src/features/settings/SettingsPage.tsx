@@ -37,8 +37,10 @@ export function SettingsPage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="font-bold">{t("settings.password.title")}</h2>
-        <ChangePasswordForm />
+        <h2 className="font-bold">
+          {t(me.has_password ? "settings.password.title" : "settings.password.setTitle")}
+        </h2>
+        <ChangePasswordForm hasPassword={me.has_password} />
       </section>
 
       <section className="flex flex-col gap-3">

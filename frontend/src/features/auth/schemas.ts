@@ -25,14 +25,22 @@ export const newPasswordSchema = z
     error: "auth.errors.passwordsDiffer",
     path: ["confirm"],
   });
-/** Change-password form (Settings). */
-export const changePasswordSchema = z.object({
-  current: z.string().min(1, { error: "auth.errors.required" }),
-  password,
-});
+/**
+ * Change-password form (Settings). Google-only accounts (`has_password: false`) set a first password,
+ * so the current one is not asked for.
+ *
+ * @param hasPassword `Me.has_password`.
+ * @returns The schema.
+ */
+export function changePasswordSchema(hasPassword: boolean) {
+  return z.object({
+    current: hasPassword ? z.string().min(1, { error: "auth.errors.required" }) : z.string().optional(),
+    password,
+  });
+}
 
 export type SignupValues = z.infer<typeof signupSchema>;
 export type LoginValues = z.infer<typeof loginSchema>;
 export type ForgotValues = z.infer<typeof forgotSchema>;
 export type NewPasswordValues = z.infer<typeof newPasswordSchema>;
-export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
+export type ChangePasswordValues = z.infer<ReturnType<typeof changePasswordSchema>>;

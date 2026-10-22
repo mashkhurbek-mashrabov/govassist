@@ -23,6 +23,13 @@ export function appRoutes(client: QueryClient): RouteObject[] {
           element: <AuthLayout />,
           children: [
             {
+              path: "/welcome",
+              loader: guard(client, "guest"),
+              lazy: async () => ({
+                Component: (await import("../features/welcome/WelcomePage")).WelcomePage,
+              }),
+            },
+            {
               path: "/signup",
               loader: guard(client, "guest"),
               lazy: async () => ({ Component: (await import("../features/auth/SignupPage")).SignupPage }),

@@ -10,7 +10,7 @@ import { InputBar } from "./InputBar";
 import { LiveAnnouncer } from "./LiveAnnouncer";
 import { LiveTurnView } from "./LiveTurnView";
 import { UserBubble } from "./UserBubble";
-import { visibleMessages } from "./visibleMessages";
+import { retryableQuestion, visibleMessages } from "./visibleMessages";
 
 /**
  * New chat (`/`) or an existing conversation (`/c/:id`): stored messages, the live turn, the input bar.
@@ -25,6 +25,7 @@ export function ChatPage() {
   const { messages, showTurn } = visibleMessages(conversation.data?.messages ?? [], turn);
   const streaming = turn?.isStreaming ?? false;
   const lastAssistantId = messages.findLast((message) => message.role === "assistant")?.id;
+  const retryText = showTurn || streaming ? null : retryableQuestion(messages);
   const notFound = conversation.error instanceof ApiError && conversation.error.status === 404;
 
   /**
@@ -50,6 +51,9 @@ export function ChatPage() {
               message={message}
               conversationId={conversationId}
               onAsk={!showTurn && !streaming && message.id === lastAssistantId ? ask : undefined}
+              onRetry={
+                retryText !== null && message.id === lastAssistantId ? () => ask(retryText) : undefined
+              }
             />
           ),
         )}

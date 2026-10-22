@@ -15,6 +15,8 @@ import {
 const STORAGE_KEY = "govassist.mock-db";
 /** Seeded, ready-to-use account (any password works except the sentinel below). */
 export const SEED_EMAIL = "namuna@example.com";
+/** Seeded Google-only account (`has_password: false`), for the set-password flow. */
+export const GOOGLE_ONLY_EMAIL = "google-namuna@example.com";
 /** Password the mock always rejects, to exercise error paths. */
 export const WRONG_PASSWORD = "wrong-password";
 
@@ -25,6 +27,8 @@ export interface MockState {
   pendingEmail: string | null;
   verificationKeys: Record<string, string>;
   resetKeys: Record<string, string>;
+  /** Epoch ms of the last verification resend, for the mock rate limit. */
+  lastResendAt: number | null;
   conversations: Record<string, Conversation & { owner: string }>;
 }
 
@@ -43,6 +47,7 @@ export function newUser(email: string, verified: boolean): Me {
     id: crypto.randomUUID(),
     email,
     email_verified: verified,
+    has_password: true,
     display_name: null,
     ui_language: "uz-Latn",
     region: null,
@@ -64,6 +69,7 @@ export function sampleAssistantMessage(id: string): AssistantMessage {
     role: "assistant",
     created_at: SEED_TIME,
     status: "complete",
+    error_code: null,
     refused: false,
     feedback: null,
     answer: SAMPLE_SERVICE_ANSWER,
@@ -73,7 +79,7 @@ export function sampleAssistantMessage(id: string): AssistantMessage {
 }
 
 /**
- * Initial state: one verified, onboarded user with one past conversation.
+ * Initial state: a verified, onboarded user with one past conversation, plus a Google-only account.
  *
  * @returns The seed state.
  */
@@ -83,11 +89,21 @@ function seed(): MockState {
   const user: Me = { ...newUser(SEED_EMAIL, true), region, district, profile_complete: true };
   const conversationId = "c0000000-0000-4000-8000-000000000001";
   return {
-    users: { [SEED_EMAIL]: user },
+    users: {
+      [SEED_EMAIL]: user,
+      [GOOGLE_ONLY_EMAIL]: {
+        ...newUser(GOOGLE_ONLY_EMAIL, true),
+        has_password: false,
+        region,
+        district,
+        profile_complete: true,
+      },
+    },
     sessionEmail: null,
     pendingEmail: null,
     verificationKeys: {},
     resetKeys: {},
+    lastResendAt: null,
     conversations: {
       [conversationId]: {
         id: conversationId,

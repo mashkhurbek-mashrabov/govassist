@@ -68,7 +68,7 @@ describe("useChatStream", () => {
     const { result } = mountStream();
     act(() => result.current.send("Savol #error", null));
     await waitFor(() =>
-      expect(result.current.turn?.failure).toEqual({ kind: "stream", code: "llm_unavailable" }),
+      expect(result.current.turn?.failure).toEqual({ kind: "stream", code: "llm_unavailable", scope: null }),
     );
     act(() => result.current.retry());
     await waitFor(() => expect(requests).toHaveLength(2));
@@ -85,6 +85,7 @@ describe("useChatStream", () => {
         kind: "request",
         code: "rate_limited",
         retryAfter: 1260,
+        scope: null,
       }),
     );
   });

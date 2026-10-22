@@ -2,7 +2,7 @@
 
 React 19 + Vite 8 + TypeScript 6.0 SPA. Rules: [`AGENTS.md`](AGENTS.md). Plan: [`docs/plans/03-frontend-plan.md`](../docs/plans/03-frontend-plan.md). API: [`docs/contract.md`](../docs/contract.md).
 
-Status: **F0 + F1** (logic on MSW mocks, unstyled). F2 applies the design after gate G2; F3 switches to the real backend after G3.
+Status: **F0 + F1** against contract **v1.1** (logic on MSW mocks, unstyled). F2 applies the design after gate G2; F3 switches to the real backend after G3.
 
 ## Run
 
@@ -14,9 +14,11 @@ npm run dev        # http://localhost:5173, proxies /api, /_allauth, /static, /a
 
 ### Mock mode
 
-- Seeded account: `namuna@example.com`, any password (the mock rejects only `wrong-password`).
-- Signup and password-reset links are printed to the browser console as `[MSW mail] …`, like Django's console email backend. Open the link in the same tab: the mock state survives reloads (sessionStorage, mock mode only).
-- Question triggers: `#limit` → 429 `rate_limited` (retry in 21 min), `#quota` → 429 `quota_exceeded`, `#busy` → 409 `stream_in_progress`, `#error` → in-stream `error` event, `#offtopic` → off-topic answer.
+- Seeded accounts: `namuna@example.com` (has a password) and `google-namuna@example.com` (Google-only, `has_password: false`, to try "set a password"). Any password works; the mock rejects only `wrong-password`.
+- Signed-out visitors land on `/welcome`.
+- Signup and password-reset links are printed to the browser console as `[MSW mail] …`, like Django's console email backend. Open the link in the same tab: the mock state survives reloads (sessionStorage, mock mode only). "Resend" on the check-email page is rate-limited to once a minute.
+- Stop stores the answer as `failed` / `error_code: "stopped"`, so a reload shows "Answer stopped" with Retry.
+- Question triggers: `#limit` → 429 `rate_limited` (retry in 21 min), `#quota` → 429 `quota_exceeded` (scope `user`), `#globalquota` → 429 `quota_exceeded` (scope `global`), `#busy` → 409 `stream_in_progress`, `#error` → in-stream `error` event, `#offtopic` → off-topic answer.
 - All mock data comes from contract §3/§6 and keeps the `NAMUNA` / `SAMPLE` markers. Nothing is real.
 
 ## Checks

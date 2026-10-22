@@ -23,6 +23,7 @@ export const queryKeys = {
   regions: (lang: Lang) => ["geo", "regions", lang] as const,
   districts: (regionId: number, lang: Lang) => ["geo", "districts", regionId, lang] as const,
   suggestions: (lang: Lang) => ["suggestions", lang] as const,
+  sources: ["sources"] as const,
   conversations: ["conversations"] as const,
   conversation: (id: string) => ["conversation", id] as const,
 };
@@ -141,6 +142,15 @@ export function useDistricts(regionId: number | null) {
 export function useSuggestions() {
   const lang = useLang();
   return useQuery({ queryKey: queryKeys.suggestions(lang), queryFn: api.getSuggestions });
+}
+
+/**
+ * Reviewed sources for the About page (public).
+ *
+ * @returns The sources query.
+ */
+export function useSources() {
+  return useQuery({ queryKey: queryKeys.sources, queryFn: api.getSources, staleTime: Infinity });
 }
 
 /**

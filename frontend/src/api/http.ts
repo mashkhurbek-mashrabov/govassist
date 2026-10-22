@@ -1,4 +1,4 @@
-import type { Problem } from "./types";
+import type { Problem, QuotaScope } from "./types";
 
 /** Cookie Django sets on `GET /api/v1/csrf`. */
 const CSRF_COOKIE = "csrftoken";
@@ -34,6 +34,11 @@ export class ApiError extends Error {
   /** Machine-readable error code (`rate_limited`, …), or `null` when unknown. */
   get code(): string | null {
     return this.problem?.code ?? null;
+  }
+
+  /** Whose quota ran out (`quota_exceeded` only). */
+  get scope(): QuotaScope | null {
+    return this.problem?.scope ?? null;
   }
 
   /** Seconds until a retry makes sense, from the problem body. */

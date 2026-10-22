@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { login } from "../../api/auth";
 import { useAuthMutation } from "../../api/queries";
-import { safeNext } from "../../app/guards";
+import { CHECK_EMAIL_PATH, safeNext } from "../../app/guards";
 import { Alert } from "../../components/ui/Alert";
 import { PasswordField } from "../../components/ui/PasswordField";
 import { TextField } from "../../components/ui/TextField";
@@ -29,7 +29,15 @@ export function LoginPage() {
   } = useForm<LoginValues>({ resolver: zodResolver(loginSchema) });
 
   const onSubmit = handleSubmit((values) =>
-    mutation.mutate(values, { onSuccess: () => void navigate(safeNext(params.get("next"))) }),
+    mutation.mutate(values, {
+      onSuccess: (viewer) =>
+        void navigate(
+          viewer.state === "pending_verification" ? CHECK_EMAIL_PATH : safeNext(params.get("next")),
+          {
+            state: { email: values.email },
+          },
+        ),
+    }),
   );
 
   return (

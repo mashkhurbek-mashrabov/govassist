@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Message } from "../../api/types";
 import { sampleAssistantMessage } from "../../mocks/db";
 import { turnReducer, type LiveTurn } from "./useChatStream";
-import { visibleMessages } from "./visibleMessages";
+import { retryableQuestion, visibleMessages } from "./visibleMessages";
 
 const user: Message = { id: "u1", role: "user", text: "Q", created_at: "2026-10-22T09:00:00Z" };
 const assistant = sampleAssistantMessage("a1");
@@ -52,5 +52,20 @@ describe("visibleMessages", () => {
   it("keeps a finished turn until the refetch includes it", () => {
     const done = turn({ isStreaming: false, finalMessage: assistant });
     expect(visibleMessages([], done)).toEqual({ messages: [], showTurn: true });
+  });
+});
+
+/** Retry after reload resends the question of a failed latest answer. */
+describe("retryableQuestion", () => {
+  const stopped = { ...assistant, status: "failed" as const, error_code: "stopped" as const, answer: null };
+
+  it("returns the question before a failed latest answer", () => {
+    expect(retryableQuestion([user, stopped])).toBe("Q");
+  });
+
+  it("returns null when the latest answer is fine or missing", () => {
+    expect(retryableQuestion([user, assistant])).toBeNull();
+    expect(retryableQuestion([user])).toBeNull();
+    expect(retryableQuestion([])).toBeNull();
   });
 });

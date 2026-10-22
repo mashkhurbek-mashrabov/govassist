@@ -26,3 +26,16 @@ export function visibleMessages(messages: Message[], turn: LiveTurn | null): Vis
   const liveIds = new Set([turn.userMessageId, turn.assistantMessageId]);
   return { messages: messages.filter((message) => !liveIds.has(message.id)), showTurn: true };
 }
+
+/**
+ * The question to resend when the latest stored answer failed (e.g. stopped, then the page reloaded).
+ *
+ * @param messages Stored messages, oldest first.
+ * @returns The user text before the latest assistant message when that message failed, else `null`.
+ */
+export function retryableQuestion(messages: Message[]): string | null {
+  const last = messages.at(-1);
+  const question = messages.at(-2);
+  if (last?.role !== "assistant" || last.status !== "failed" || question?.role !== "user") return null;
+  return question.text;
+}
