@@ -455,7 +455,8 @@ async function chat(request: Request, me: Me) {
   saveDb();
 
   if (text.includes("#error")) return sseResponse(errorFrames(meta));
-  return sseResponse(successFrames(meta, final, office), {
+  const earlyOffice = scenario.earlyOffice ? localizeOffice(scenario.earlyOffice, me.ui_language) : office;
+  return sseResponse(successFrames(meta, final, earlyOffice), {
     onComplete: () => {
       Object.assign(stored, final);
       // Contract v1.4: the first successful answer's title replaces the question-based title.

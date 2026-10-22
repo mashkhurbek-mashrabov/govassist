@@ -1,7 +1,7 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-import type { Answer } from "../../api/types";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import type { Answer, OfficeMatch } from "../../api/types";
 import {
   SAMPLE_OFF_TOPIC_ANSWER,
   SAMPLE_OFFICE,
@@ -9,7 +9,7 @@ import {
   SAMPLE_SOURCES,
 } from "../../mocks/fixtures";
 import { AnswerView } from "./AnswerView";
-import { testQueryClient } from "../../test/render";
+import { queryWrapper, testQueryClient } from "../../test/render";
 import type { PartialAnswer } from "./answerTypes";
 import { nextSkeleton } from "./skeleton";
 
@@ -35,8 +35,21 @@ function headings(): (string | null)[] {
   return screen.getAllByRole("heading").map((heading) => heading.textContent);
 }
 
+/**
+ * An answer still streaming, with or without its early office.
+ *
+ * @param answer The partial answer so far.
+ * @param office The early office, or `null` once withdrawn.
+ * @returns The element to render.
+ */
+function streamingView(answer: PartialAnswer, office: OfficeMatch | null) {
+  return <AnswerView answer={answer} sources={[]} office={office} messageId="m" streaming complete={false} />;
+}
+
 /** AnswerView: schema order per type, citations, streaming skeletons, plain text. */
 describe("AnswerView", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
   it("renders a complete service answer in schema order with numbered citations", () => {
     render(
       <AnswerView
@@ -138,6 +151,41 @@ describe("AnswerView", () => {
     expect(document.querySelector("img")).toBeNull();
     expect(screen.getByText(/davlat xizmatlari va Oʻzbekiston qonunlari/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Pasportimni qanday yangilayman?" })).toBeEnabled();
+  });
+
+  it("animates a withdrawn early office card out when the answer turns out refused (contract v1.7)", () => {
+    const { rerender } = render(streamingView({}, SAMPLE_OFFICE), {
+      wrapper: queryWrapper(testQueryClient()),
+    });
+    expect(screen.getByRole("heading", { name: "Qayerga borish kerak" })).toBeInTheDocument();
+    rerender(streamingView({ answer_type: "off_topic" }, SAMPLE_OFFICE));
+    const leaving = screen.getByText("Qayerga borish kerak", { selector: "h3" }).closest(".office-leave");
+    expect(leaving).toHaveAttribute("inert");
+    // jsdom has no AnimationEvent, so React listens for the prefixed event there (browsers use `animationend`).
+    fireEvent(leaving as Element, new Event("webkitAnimationEnd", { bubbles: true }));
+    expect(screen.queryByText("Qayerga borish kerak")).not.toBeInTheDocument();
+  });
+
+  it("removes a withdrawn office card at once under reduced motion", () => {
+    vi.stubGlobal("matchMedia", (query: string) => ({ matches: query.includes("reduce") }));
+    const { rerender } = render(streamingView({}, SAMPLE_OFFICE));
+    rerender(streamingView({}, null));
+    expect(screen.queryByText("Qayerga borish kerak")).not.toBeInTheDocument();
+  });
+
+  it("never shows an office on a stored refused answer", () => {
+    render(
+      <AnswerView
+        answer={SAMPLE_OFF_TOPIC_ANSWER}
+        sources={[]}
+        office={SAMPLE_OFFICE}
+        messageId="m"
+        streaming={false}
+        complete
+      />,
+      { wrapper: queryWrapper(testQueryClient()) },
+    );
+    expect(screen.queryByText("Qayerga borish kerak")).not.toBeInTheDocument();
   });
 });
 

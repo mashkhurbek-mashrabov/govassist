@@ -10,6 +10,8 @@ export interface Scenario {
   answer: Answer;
   sources: Source[];
   office: OfficeMatch | null;
+  /** Early `office` event when it differs from the final one (contract v1.7: refused answers drop it). */
+  earlyOffice?: OfficeMatch;
 }
 
 /**
@@ -145,6 +147,9 @@ const OFF_TOPIC: Scenario = {
   office: null,
 };
 
+/** Contract v1.7: off topic, but retrieval matched an office first; `final` drops it. */
+const OFF_TOPIC_EARLY_OFFICE: Scenario = { ...OFF_TOPIC, earlyOffice: SAMPLE_OFFICE };
+
 /** J4 step 2: not found. */
 const NOT_FOUND: Scenario = {
   answer: {
@@ -204,6 +209,7 @@ const RULES: [RegExp, Scenario][] = [
   [/onlayn almashtir/, ONLINE_PASSPORT],
   [/таътил/, LEAVE_LEGAL],
   [/регистр|прописк/, RESIDENCE_RU],
+  [/idora.*ob-havo|#provisional/, OFF_TOPIC_EARLY_OFFICE],
   [/ob-havo|#offtopic/, OFF_TOPIC],
   [/^namuna savol: tugʻilganlik haqida guvohnoma$/, NOT_FOUND],
   [/tugʻilganlik/, BIRTH_CERTIFICATE],

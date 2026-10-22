@@ -13,6 +13,7 @@ import { OfficeCard } from "./OfficeCard";
 import { SourcesCard } from "./SourcesCard";
 import { nextSkeleton } from "./skeleton";
 import { StepsCard } from "./StepsCard";
+import { useLeavingOffice } from "./useLeavingOffice";
 
 /** Props of {@link AnswerView}. */
 interface AnswerViewProps {
@@ -33,6 +34,7 @@ interface AnswerViewProps {
 /**
  * An answer (partial or final) in schema order for its type (screens 8–11). Text is always plain text.
  * Sources, disclaimer, feedback and follow-ups are added below the content on `final`, so nothing moves.
+ * A refused answer withdraws an early office card with an exit animation (contract v1.7).
  *
  * @param props Answer, sources, office, message id, streaming flag, feedback slot, ask callback.
  * @returns The answer blocks.
@@ -54,11 +56,24 @@ export function AnswerView({
   // Chips and feedback only once the stream has closed, so a click is never swallowed by the running stream.
   const done = complete && !streaming;
   const shared = { index, messageId };
+  const refused = type === "not_found" || type === "off_topic";
+  // Contract v1.7: a refused answer withdraws the early office card, which animates out.
+  const officeSlot = useLeavingOffice(refused ? null : office);
+  const officeCard = officeSlot.office && (
+    <div
+      className={officeSlot.leaving ? "office-leave" : "office-slot"}
+      inert={officeSlot.leaving}
+      onAnimationEnd={(event) => event.target === event.currentTarget && officeSlot.onLeft()}
+    >
+      <OfficeCard match={officeSlot.office} />
+    </div>
+  );
 
-  if (type === "not_found" || type === "off_topic") {
+  if (refused) {
     return (
       <>
         <NotFoundCard answer={answer} onAsk={done ? onAsk : undefined} />
+        {officeCard}
         <Disclaimer />
         {done && feedback}
       </>
@@ -108,7 +123,7 @@ export function AnswerView({
           {...shared}
         />
       )}
-      {office && <OfficeCard match={office} />}
+      {officeCard}
       <LawPointsCard points={answer.law_points} {...shared} />
       {done && <SourcesCard sources={sources} messageId={messageId} />}
       {done && <Disclaimer />}

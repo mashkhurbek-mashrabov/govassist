@@ -97,7 +97,7 @@ export function turnReducer(turn: LiveTurn | null, action: Action): LiveTurn | n
     case "partial":
       return { ...turn, partialAnswer: action.answer };
     case "final":
-      return { ...turn, finalMessage: action.message, office: action.message.office ?? turn.office };
+      return { ...turn, finalMessage: action.message, office: action.message.office };
     case "fail":
       return { ...turn, failure: action.failure, failedAt: action.at, isStreaming: false };
     case "end":

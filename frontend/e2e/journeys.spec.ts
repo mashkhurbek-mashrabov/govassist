@@ -104,14 +104,19 @@ test("J3 · Russian question: region fallback with unknown hours → Google Maps
   await expectAccessible(page);
 });
 
-test("J4 · off topic → topic → not found → rephrase → office in the lunch break", async ({ page }) => {
+test("J4 · off topic (early office withdrawn) → topic → not found → rephrase → office in the lunch break", async ({
+  page,
+}) => {
   // A Thursday 13:30 in Tashkent: inside the 13:00–14:00 break.
   await page.clock.setFixedTime(new Date("2026-10-22T13:30:00+05:00"));
   await logInSeedUser(page);
-  await ask(page, "NAMUNA: Ertaga ob-havo qanday boʻladi?");
+  // Contract v1.7: this off-topic question still gets an early office event; the refused answer drops it.
+  await ask(page, "NAMUNA: Idora oldida ertaga ob-havo qanday boʻladi?");
   await expect(page.getByText(/davlat xizmatlari va Oʻzbekiston qonunlari/)).toBeVisible({
     timeout: STREAM_TIMEOUT_MS,
   });
+  await waitForFinal(page);
+  await expect(page.getByRole("region", { name: "Qayerga borish kerak" })).toHaveCount(0);
   await expectAccessible(page);
   await page.getByRole("button", { name: "NAMUNA savol: tugʻilganlik haqida guvohnoma" }).click();
   await expect(page.getByRole("heading", { name: "NAMUNA: aniq javob topilmadi" })).toBeVisible({

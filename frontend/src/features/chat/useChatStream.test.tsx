@@ -1,6 +1,8 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { sampleAssistantMessage } from "../../mocks/db";
+import { SAMPLE_OFFICE } from "../../mocks/fixtures";
 import { encodeFrame } from "../../mocks/sse";
 import { server } from "../../mocks/server";
 import { queryWrapper, signInSeedUser, testQueryClient } from "../../test/render";
@@ -50,6 +52,14 @@ describe("useChatStream", () => {
     expect(turn?.sourceCount).toBe(2);
     expect(turn?.office?.match).toBe("district");
     expect(turn?.finalMessage?.answer?.title).toBe("Pasportni almashtirish");
+  });
+
+  it("ends a refused answer without an office (contract v1.7)", async () => {
+    const { result } = mountStream();
+    act(() => result.current.send("NAMUNA: idora oldida ob-havo qanday?", null));
+    await waitFor(() => expect(result.current.turn?.isStreaming).toBe(false));
+    expect(result.current.turn?.finalMessage?.answer?.answer_type).toBe("off_topic");
+    expect(result.current.turn?.office).toBeNull();
   });
 
   it("does not report a new conversation when continuing one", async () => {
@@ -119,6 +129,14 @@ describe("turnReducer", () => {
       isStreaming: false,
       failure: { kind: "network" },
     });
+  });
+
+  it("withdraws the early office when final has none (contract v1.7)", () => {
+    const started = turnReducer(null, { type: "start", text: "Q", conversationId: null });
+    const withOffice = turnReducer(started, { type: "office", office: SAMPLE_OFFICE });
+    expect(withOffice?.office).toBe(SAMPLE_OFFICE);
+    const message = { ...sampleAssistantMessage("a"), office: null };
+    expect(turnReducer(withOffice, { type: "final", message })?.office).toBeNull();
   });
 
   it("ignores events when idle", () => {

@@ -1916,6 +1916,21 @@
   .prose ul {
     list-style: disc;
   }
+  /* Contract v1.7: a refused answer withdraws the early office card. */
+  .office-slot,
+  .office-leave {
+    display: grid;
+    min-width: 0;
+  }
+  .office-leave {
+    animation: office-leave var(--motion-duration-slow) var(--motion-ease-exit) forwards;
+  }
+  @keyframes office-leave {
+    to {
+      opacity: 0;
+      transform: translateY(calc(-1 * var(--space-2)));
+    }
+  }
   .chip--skeleton {
     width: var(--size-tile-min);
   }
