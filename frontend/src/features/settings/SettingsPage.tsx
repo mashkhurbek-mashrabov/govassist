@@ -10,7 +10,7 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { LanguageSelect } from "../../components/ui/LanguageSelect";
 import { TextField } from "../../components/ui/TextField";
 import { PlaceFields, type Place } from "../onboarding/PlaceFields";
-import { placeErrors } from "../onboarding/placeErrors";
+import { placeErrors, serverPlaceErrors } from "../onboarding/placeErrors";
 import { ChangePasswordForm } from "./ChangePasswordForm";
 
 /**
@@ -61,7 +61,8 @@ function PlaceCard({ initial }: PlaceCardProps) {
   const update = useUpdateMe();
   const [place, setPlace] = useState(initial);
   const [submitted, setSubmitted] = useState(false);
-  const errors = submitted ? placeErrors(place) : {};
+  const serverErrors = update.isError ? serverPlaceErrors(update.error) : null;
+  const errors = { ...(submitted ? placeErrors(place) : {}), ...serverErrors };
 
   /** Validate and save region + district in one request. */
   const save = () => {
@@ -87,7 +88,7 @@ function PlaceCard({ initial }: PlaceCardProps) {
           district: errors.district && t(errors.district),
         }}
       />
-      {update.isError && <Alert tone="danger">{t("error.server")}</Alert>}
+      {update.isError && serverErrors === null && <Alert tone="danger">{t("error.server")}</Alert>}
       <div className="row-actions">
         {update.isSuccess ? (
           <p className="feedback__saved" role="status">
