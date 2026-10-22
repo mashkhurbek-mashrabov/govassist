@@ -25,12 +25,12 @@ All 17 screens (0–16) from `01-design-plan.md` §4, then the end-to-end journe
 - **Components:** Button (google, primary block), divider-text, TextField, PasswordField with strength, Turnstile slot, Alert (danger), inline privacy note, links.
 - **States:** `default` · `errors` (error summary, invalid email, weak/short password, Turnstile failed; also used for `error.email_taken` and `error.password_common`) · `submitting` (fields disabled, button spinner "Hisob yaratilmoqda…") · `server-error` (danger alert, form kept).
 - **Copy:** `signup.*`, `auth.*`, `error.form_summary`, `error.email_invalid`, `error.email_taken`, `error.password_short`, `error.password_common`, `error.turnstile`, `error.server`.
-- **Data:** POST `/_allauth/browser/v1/auth/signup` `{email, password, turnstile_token}`; Google via `auth/provider/redirect` (`provider=google`, `process=login`). allauth field errors map to the field errors above. Success → screen 3.
+- **Data:** POST `/_allauth/browser/v1/auth/signup` `{email, password, turnstile_token}`; Google via `auth/provider/redirect` (`provider=google`, `process=login`). allauth `400 errors[].code` map to copy keys (never the raw `message`; table in `copy.md` → Error codes): `turnstile_failed`, `email_taken`, `password_too_short`, `password_too_common`, `password_entirely_numeric`, `password_too_similar`; `param` says which field gets the error. Success → screen 3.
 
 ## 2. Log in `/login` · [`login.html`](prototype/login.html)
 
 - **Components:** as signup, without strength or Turnstile; "Parolni unutdingizmi?" link.
-- **States:** `default` · `wrong-credentials` (danger alert, values kept) · `social-error` (arriving at `/login?error=social`) · `submitting`.
+- **States:** `default` · `wrong-credentials` (`email_password_mismatch`: danger alert, values kept) · `social-error` (arriving at `/login?error=social`) · `too-many` (`too_many_login_attempts`: warning alert) · `submitting`.
 - **Copy:** `login.*`, `auth.*`, `error.login_failed`, `error.social`.
 - **Data:** POST `auth/login` `{email, password}`. Unverified email → screen 3; incomplete profile → screen 6.
 
@@ -139,7 +139,7 @@ Each journey is one file (`j1.html` … `j6.html`); every step is a `<section cl
 | J2 | 11 | Landing → Log in → chat with history (desktop sidebar) → New chat with the uz-Cyrl labour-law question typed → streaming: searching → found → summary → law points → "what you can do" → **legal answer** (two law points: quote + plain explanation + badges; Cyrillic content, uz-Latn UI) → tap badge 1 → source highlighted (opens lex.uz) |
 | J3 | 9 | Russian question typed → streaming → office card `match=region` with unknown hours arrives early → **Russian service answer** (one document uncited, processing time not stated) → "Google Xaritada ochish" opens Maps in a new tab |
 | J4 | 14 | Off-topic question → `off_topic` card with topic chips → tap a topic → `not_found` card → rephrased question typed → service answer with an FHDYo office in the lunch break |
-| J5 | 18 | Question → streaming → **Stop** → partial cards + "Javob toʻxtatildi" → reload → stored `error_code: "stopped"` with Retry → Retry streams → final → next question → `rate_limited` (21 min) → `quota_exceeded` `scope=user` → `scope=global` → offline banner → back online |
+| J5 | 18 | Question → streaming → **Stop** → partial cards + "Javob toʻxtatildi" → reload → stored `error_code: "stopped"` with Retry → Retry re-sends the same text as a new message, so the thread keeps both attempts (contract v1.2) → streams → final → next question → `rate_limited` (21 min) → `quota_exceeded` `scope=user` → `scope=global` → offline banner → back online |
 | J6 | 16 | History → open an old chat → history → delete "NAMUNA suhbat 3" → confirm → deleted toast → Settings → switch to Русский (UI updates) → change password → saved → Log out → Russian landing. Then Log in → Forgot password → sent → reset → success → Log in |
 
 Rules the journeys follow: every primary action leads to the next step (checked by `shoot.cjs`: no dead ends, no link to a missing step); states with no in-app action (an email arriving, a reload, the next limit state) carry a dashed **Prototype** note with the link. The UI language is the user's `ui_language` (uz-Latn) while answer content follows the question's script (`answer.language`), as in J2 and J3; only J6 switches the UI itself.

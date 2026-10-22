@@ -102,6 +102,9 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `error.password_short` | Parol kamida 10 ta belgidan iborat boʻlsin. | Password must be at least 10 characters. | 60 |
 | `error.password_common` | Bu parol juda oddiy. Boshqasini tanlang. | This password is too common. Choose another one. | 60 |
 | `error.turnstile` | Tekshiruvdan oʻtmadi. Qayta urinib koʻring. | The check did not pass. Please try again. | 60 |
+| `error.password_numeric` | Parol faqat raqamlardan iborat boʻlmasin. | Your password can’t be only numbers. | 60 |
+| `error.password_similar` | Parol elektron pochtangizga juda oʻxshash. Boshqasini tanlang. | Your password is too similar to your email. Choose another one. | 80 |
+| `error.too_many_logins` | Juda koʻp urinish boʻldi. Birozdan soʻng qayta kiring. | Too many attempts. Please try logging in again later. | 70 |
 | `error.server` | Nimadir xato ketdi. Birozdan soʻng qayta urinib koʻring. | Something went wrong. Please try again in a moment. | 80 |
 | `error.login_failed` | Elektron pochta yoki parol notoʻgʻri. | The email or password is incorrect. | 60 |
 | `error.social` | Google orqali kirib boʻlmadi. Qayta urinib koʻring yoki elektron pochta bilan kiring. | We could not log you in with Google. Try again or use your email. | 110 |
@@ -398,3 +401,28 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `error_page.title` | Nimadir buzildi | Something broke | 30 |
 | `error_page.lead` | Sahifani yangilang. Muammo takrorlansa, birozdan soʻng qayta kiring. | Reload the page. If it keeps happening, come back a little later. | 90 |
 | `error_page.reload` | Sahifani yangilash | Reload page | 24 |
+
+## Error codes → copy keys
+
+The SPA maps codes, never raw `message` text (contract §1, §2, §4). Unknown codes fall back to `error.server`.
+
+| Source | `code` | Copy key |
+|---|---|---|
+| allauth 400 | `turnstile_failed` | `error.turnstile` |
+| allauth 400 | `email_taken` | `error.email_taken` |
+| allauth 400 | `email_password_mismatch` | `error.login_failed` |
+| allauth 400 | `too_many_login_attempts` | `error.too_many_logins` |
+| allauth 400 | `password_too_short` | `error.password_short` |
+| allauth 400 | `password_too_common` | `error.password_common` |
+| allauth 400 | `password_entirely_numeric` | `error.password_numeric` |
+| allauth 400 | `password_too_similar` | `error.password_similar` |
+| problem+json / SSE | `rate_limited` | `chat_error.rate_limited` (or `check_email.rate_limited` on resend) |
+| problem+json / SSE | `quota_exceeded` + `scope: user` | `chat_error.quota_user` |
+| problem+json / SSE | `quota_exceeded` + `scope: global` | `chat_error.quota_global` |
+| problem+json | `stream_in_progress` | `chat_error.stream_in_progress` |
+| SSE / `error_code` | `llm_unavailable` | `chat_error.llm_unavailable` |
+| SSE / `error_code` | `llm_timeout` | `chat_error.llm_timeout` |
+| SSE / `error_code` | `invalid_answer` | `chat_error.invalid_answer` |
+| `error_code` | `stopped` | `chat_error.stopped_title` + `chat_error.stopped` |
+| any | `internal_error`, unknown | `error.server` |
+| any | 401 `not_authenticated` | `chat_error.session_ended` (on the login screen) |
