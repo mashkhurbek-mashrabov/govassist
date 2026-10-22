@@ -65,6 +65,18 @@ Request and response shapes follow **allauth's own spec**. In dev it is served a
 | Google login | `POST /_allauth/browser/v1/auth/provider/redirect` (form post: `provider=google`, `callback_url`, `process=login`) |
 | Change / set password | `POST /_allauth/browser/v1/account/password/change` `{current_password, new_password}`. Omit `current_password` when `Me.has_password` is false (Google-only account setting a first password) |
 
+**Auth errors.** allauth returns `400 {"status": 400, "errors": [{"message": str, "code": str, "param": str?}]}`. The SPA maps `code` to an i18n message and falls back to a generic error for unknown codes. It never shows `message` raw.
+
+| `code` | `param` | When |
+|---|---|---|
+| `turnstile_failed` | `turnstile_token` | Turnstile verification failed or the token is missing (**our** code, set by the backend) |
+| `email_taken` | `email` | Signup with an existing email |
+| `email_password_mismatch` | — | Wrong email or password at login |
+| `too_many_login_attempts` | — | allauth login rate limit |
+| `password_too_short`, `password_too_common`, `password_entirely_numeric`, `password_too_similar` | `password` | Django password validators |
+
+The non-Turnstile codes come from allauth/Django. The backend PR confirms the exact set against the installed allauth version and lists any extra codes.
+
 To resend the verification email, use the app endpoint `POST /api/v1/auth/resend-verification` (§3). To "use another email" before verification, go back to `/signup`; there is no change-email endpoint.
 
 `turnstile_token` is a Cloudflare Turnstile token. The backend verifies it during signup. In dev, a Turnstile test key always passes.
@@ -165,7 +177,7 @@ A keep-alive comment `: ping` is sent every 15 s.
 | `error` | `{"code": "llm_unavailable" \| "llm_timeout" \| "invalid_answer" \| "quota_exceeded" \| "internal_error", "message": str, "scope"?: "user" \| "global"}` | The assistant message is stored with `status: "failed"` and `error_code` = `code`. `scope` is present only for `quota_exceeded` |
 | `done` | `{}` | Last event on success |
 
-**Stop:** the client aborts the request. The backend detects the disconnect and stores the assistant message with `status: "failed"`, `error_code: "stopped"` and `answer: null`. The partial answer is **not** stored. The UI keeps the partial cards on screen for the current view only. After a reload, history shows "Answer stopped" with Retry.
+**Stop:** the client aborts the request. The backend detects the disconnect and stores the assistant message with `status: "failed"`, `error_code: "stopped"` and `answer: null`. The partial answer is **not** stored. The UI keeps the partial cards on screen for the current view only. After a reload, history shows "Answer stopped" with Retry. **Retry** sends the same text again as a new `POST /chat`, so history keeps both attempts (the stopped one and the retried one). That is intended.
 
 Example wire format:
 
@@ -358,3 +370,4 @@ The example values below are layout placeholders for design and mocks. Never pre
 
 *Contract v1.0, 2026-10-22: initial version.*
 *Contract v1.1, 2026-10-22: added the change-password endpoint and `Me.has_password`; `POST /auth/resend-verification`; `GET /sources` + `SourceSummary`; assistant `error_code` (incl. `"stopped"`) and the Stop behaviour; `scope` on `quota_exceeded`; clarified `match: "region"`. These answer the design open questions in PR #1.*
+*Contract v1.2, 2026-10-22: auth error codes table (`turnstile_failed` and the allauth/Django codes). Retry after Stop re-sends the question as a new user message, so history shows both attempts.*
