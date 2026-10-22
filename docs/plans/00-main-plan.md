@@ -146,7 +146,7 @@ govassist/
 | Backend | **Jasur** (Claude) | `feat/backend-mvp` | `backend/`, compose files, `tasks.py`, `.env.example`, `.github/workflows/backend.yml`, `deploy/`, `docs/schema/`, `docs/corpus-sources.md` |
 | Frontend | **Madina** (Claude) | `feat/frontend-mvp` | `frontend/`, `.github/workflows/frontend.yml` |
 
-Each lane works in its **own git worktree at `.claude/worktree/<lane>`** (gitignored), touches only the files it owns and opens a PR to `main`. Then it **removes its worktree** (`AGENTS.md` → Worktrees).
+Each lane works in its **own git worktree at `.claude/worktrees/<lane>`** (gitignored), touches only the files it owns and opens a PR to `main`. Then it **removes its worktree** (`AGENTS.md` → Worktrees).
 
 The backend and frontend owners (Claude) may run **Antigravity helpers (Gemini Flash) in parallel** for simple tasks. The design lane never uses Antigravity. Claude keeps the complex ones, checks every helper's work and merges it (`AGENTS.md` → Delegation). Every feature is tested when it's finished (`AGENTS.md` → Testing). The main session merges lane PRs into `main` once they pass `AGENTS.md` → Merging. Contract changes go through the main session only.
 

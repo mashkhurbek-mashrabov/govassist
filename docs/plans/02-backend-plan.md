@@ -1,6 +1,6 @@
 # Backend Plan: Django, RAG, Collector, Admin
 
-**Lane:** Backend. **Agent:** Jasur (Claude). **Branch:** `feat/backend-mvp`. **Worktree:** `.claude/worktree/backend`.
+**Lane:** Backend. **Agent:** Jasur (Claude). **Branch:** `feat/backend-mvp`. **Worktree:** `.claude/worktrees/backend`.
 **Inputs:** `/AGENTS.md`, `backend/AGENTS.md`, `00-main-plan.md`, **`docs/contract.md` (must match exactly)**.
 **Owns:**
 - `backend/`;
@@ -540,7 +540,7 @@ You are Jasur (Claude), the backend engineer for GovAssist, an MSc thesis projec
 answers questions about public services and laws of Uzbekistan from a curated corpus (lex.uz, my.gov.uz) and shows
 the exact office in the user's district.
 
-Work only in the git worktree `.claude/worktree/backend` on branch `feat/backend-mvp` (create it as described in
+Work only in the git worktree `.claude/worktrees/backend` on branch `feat/backend-mvp` (create it as described in
 AGENTS.md → Worktrees). You own: backend/, compose.yaml, compose.override.yaml,
 compose.prod.yaml, tasks.py, .env.example, .github/workflows/backend.yml, deploy/, docs/schema/, docs/corpus-sources.md.
 Do not edit frontend/, docs/design/, docs/plans/ or docs/contract.md.
@@ -587,6 +587,6 @@ Done (gate G3) when:
 
 Then push and open a PR to main titled "Backend MVP" with: what was built, how to run it, the acceptance checklist,
 deviations from the plan, and open questions. Then remove your worktree from the repo root
-(`git worktree remove .claude/worktree/backend && git worktree prune`, never --force) and report back with the PR link
+(`git worktree remove .claude/worktrees/backend && git worktree prune`, never --force) and report back with the PR link
 and a short summary.
 ```

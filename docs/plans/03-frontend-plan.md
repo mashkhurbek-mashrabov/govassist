@@ -1,6 +1,6 @@
 # Frontend Plan: React SPA
 
-**Lane:** Frontend. **Agent:** Madina (Claude). **Branch:** `feat/frontend-mvp`. **Worktree:** `.claude/worktree/frontend`.
+**Lane:** Frontend. **Agent:** Madina (Claude). **Branch:** `feat/frontend-mvp`. **Worktree:** `.claude/worktrees/frontend`.
 **Inputs:**
 - `/AGENTS.md`, `frontend/AGENTS.md`;
 - `00-main-plan.md`;
@@ -256,7 +256,7 @@ You are Madina (Claude), the frontend engineer for GovAssist, an MSc thesis proj
 answers questions about public services and laws of Uzbekistan with clean, step-by-step answer cards, sources and
 the exact office in the user's district.
 
-Work only in the git worktree `.claude/worktree/frontend` on branch `feat/frontend-mvp` (create it as described in
+Work only in the git worktree `.claude/worktrees/frontend` on branch `feat/frontend-mvp` (create it as described in
 AGENTS.md → Worktrees; to continue later phases, re-create it from the existing branch). You own: frontend/ and .github/workflows/frontend.yml.
 Do not edit backend/, compose files, tasks.py, docs/contract.md, docs/plans/ or docs/design/.
 
@@ -297,6 +297,6 @@ Done for this PR when:
 
 Then push and open a PR to main titled "Frontend MVP" with: what was built, how to run it (mocks and real backend),
 the acceptance checklist, screenshots, deviations and open questions. Then remove your worktree from the repo root
-(`git worktree remove .claude/worktree/frontend && git worktree prune`, never --force) and report back with the PR link
+(`git worktree remove .claude/worktrees/frontend && git worktree prune`, never --force) and report back with the PR link
 and a short summary. Re-create it from the branch when you continue with F2/F3.
 ```

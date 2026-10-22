@@ -194,6 +194,45 @@ describe("auth flows", () => {
     expect(db.users[SEED_EMAIL]?.district?.id).toBe(1726269);
   });
 
+  it("puts a server validation_error on its field, not in a silent or generic alert", async () => {
+    signInSeedUser();
+    const seed = db.users[SEED_EMAIL];
+    if (seed) Object.assign(seed, { region: null, district: null, profile_complete: false });
+    server.use(
+      http.patch(
+        "/api/v1/me",
+        () =>
+          HttpResponse.json(
+            {
+              type: "about:blank",
+              title: "validation_error",
+              status: 400,
+              code: "validation_error",
+              errors: { district_id: ["SAMPLE: district does not belong to region"] },
+            },
+            { status: 400, headers: { "Content-Type": "application/problem+json" } },
+          ),
+        { once: true },
+      ),
+    );
+    const user = userEvent.setup();
+    renderApp("/onboarding");
+    await user.click(await screen.findByRole("button", { name: "Keyingi" }));
+    await user.click(await screen.findByRole("combobox", { name: "Viloyat" }));
+    await user.click(await screen.findByRole("option", { name: "Toshkent shahri" }));
+    await user.click(screen.getByRole("combobox", { name: "Tuman yoki shahar" }));
+    await user.click(await screen.findByRole("option", { name: "Chilonzor tumani" }));
+    await user.click(screen.getByRole("button", { name: "Saqlash va boshlash" }));
+
+    expect(await screen.findByText("Tuman yoki shaharni tanlang.")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Tuman yoki shahar" })).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    expect(screen.queryByText("Nimadir xato ketdi. Birozdan soʻng qayta urinib koʻring.")).toBeNull();
+    expect(screen.queryByText(/SAMPLE: district/)).toBeNull();
+  });
+
   it("shows the session-ended notice after a 401", async () => {
     renderApp("/login?session=ended");
     expect(await screen.findByText("Sessiya tugadi. Qaytadan kiring.")).toBeInTheDocument();

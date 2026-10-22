@@ -2,10 +2,10 @@
 
 ## Claude Code notes
 
-- Start each lane in its own git worktree at `.claude/worktree/<lane>`, on the branch named in `AGENTS.md`. Remove it when the task is done (`AGENTS.md` → Worktrees).
+- Start each lane in its own git worktree at `.claude/worktrees/<lane>`, on the branch named in `AGENTS.md`. Remove it when the task is done (`AGENTS.md` → Worktrees).
 - Before finishing a task, run the lane's checks (`invoke check` or the npm scripts) and report the real results.
 - **Delegation:** you own your lane. In the backend and frontend lanes only (**never design**), send simple, exactly specified tasks to Antigravity with the `antigravity-delegate` skill. Follow `AGENTS.md` → Delegation, which overrides the skill:
-  - worktree at `.claude/worktree/ag-<lane>-<task>`;
+  - worktree at `.claude/worktrees/ag-<lane>-<task>`;
   - a full diff review plus checks before merging;
   - Antigravity runs Gemini Flash only, for simple tasks;
   - complex tasks stay with you, or with your own Claude Code subagents (Agent tool, `isolation: "worktree"`, no `model` parameter). Never use Claude through `agy`.
