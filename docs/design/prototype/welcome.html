@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="uz-Latn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Landing · GovAssist prototype</title>
+  <link rel="stylesheet" href="../fonts/inter.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<nav class="proto-bar" aria-label="Prototype states" data-default="default"><a href="index.html">← Index</a><span>States:</span><button type="button" data-state="default" aria-pressed="false">default</button><button type="button" data-state="ru" aria-pressed="false">Russian UI</button></nav>
+<div data-when="default"><div class="auth landing">
+  <header class="auth__header"><a class="wordmark" href="login.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><div class="row-actions"><div class="lang-switch"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg><label class="sr-only" for="lang-l">Til</label><select class="select" id="lang-l"><option selected>Oʻzbekcha (lotin)</option><option>Ўзбекча (кирилл)</option><option>Русский</option><option>English</option></select></div><a class="btn btn--ghost btn--sm" href="login.html">Kirish</a></div></header>
+  <main class="landing__main" id="main">
+    <section class="landing__hero" aria-labelledby="l-title">
+      <div class="landing__intro">
+        <h1 class="t-display" id="l-title">Davlat xizmatini qanday olishni va qaysi idoraga borishni aniq aytib beramiz.</h1>
+        <p class="t-body-lg t-muted">Savolingizni oddiy soʻzlar bilan yozing. Javob koʻrib chiqilgan rasmiy manbalardan tuziladi.</p>
+        <div class="landing__actions"><a class="btn btn--primary" href="signup.html"><span>Roʻyxatdan oʻtish</span></a><a class="btn btn--secondary" href="login.html"><span>Kirish</span></a></div>
+        <p class="t-small t-muted">Savol berish uchun roʻyxatdan oʻting. Bu bir daqiqa oladi.</p>
+      </div>
+      <figure class="landing__preview" aria-labelledby="pv-cap">
+  <figcaption id="pv-cap" class="t-small t-muted">Javob namunasi · NAMUNA</figcaption>
+  <div class="card card--raised">
+    <p class="answer-head__kind t-small" lang="uz-Latn"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p>
+    <p class="t-h3 t-strong" lang="uz-Latn">Pasportni almashtirish</p>
+    <ol class="steps" lang="uz-Latn"><li><p>Arizani onlayn yoki Davlat xizmatlari markazida topshiring.<span class="cites"><span class="cite" aria-hidden="true">1</span></span></p></li><li><p>Davlat bojini toʻlang.<span class="cites"><span class="cite" aria-hidden="true">1</span></span></p></li><li><p>Tayyor hujjatni markazdan oling.<span class="cites"><span class="cite" aria-hidden="true">2</span></span></p></li></ol>
+    <div class="office__type"><span class="office__type-label" lang="uz-Latn"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>Davlat xizmatlari markazi</span><span class="badge badge--open" lang="uz-Latn">Hozir ochiq · 18:00 gacha</span></div>
+    <p class="office__row" lang="uz-Latn"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>NAMUNA koʻchasi, 1-uy, Chilonzor tumani</span></p>
+  </div>
+</figure>
+    </section>
+    <section class="section" aria-labelledby="l-how"><h2 id="l-how">Qanday ishlaydi</h2><ol class="how"><li class="card how-step"><span class="how-step__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><h3>Soʻrang</h3><p class="t-muted">Masalan: “Pasportimni qanday yangilayman?”</p></li><li class="card how-step"><span class="how-step__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg></span><h3>Qadamlarni oling</h3><p class="t-muted">Qadamlar, kerakli hujjatlar, toʻlov va muddat — manbalari bilan.</p></li><li class="card how-step"><span class="how-step__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span><h3>Toʻgʻri idoraga boring</h3><p class="t-muted">Tumaningizdagi idora manzili, ish vaqti va xaritadagi joyi.</p></li></ol></section>
+    <p class="disclaimer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>GovAssist — mustaqil talaba loyihasi, rasmiy davlat xizmati emas.</span></p>
+  </main>
+  <footer class="auth__footer"><p class="footer-note">Rasmiy davlat xizmati emas</p><nav class="footer-links" aria-label="Footer"><a href="about.html">Loyiha haqida</a><a href="about.html#privacy">Maxfiylik haqida</a></nav></footer>
+</div></div><div data-when="ru"><div lang="ru"><div class="auth landing">
+  <header class="auth__header"><a class="wordmark" href="login.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><div class="row-actions"><div class="lang-switch"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg><label class="sr-only" for="lang-l">Язык</label><select class="select" id="lang-l"><option>Oʻzbekcha (lotin)</option><option>Ўзбекча (кирилл)</option><option selected>Русский</option><option>English</option></select></div><a class="btn btn--ghost btn--sm" href="login.html">Войти</a></div></header>
+  <main class="landing__main" id="main">
+    <section class="landing__hero" aria-labelledby="l-title">
+      <div class="landing__intro">
+        <h1 class="t-display" id="l-title">Узнайте, как получить государственную услугу и в какое учреждение обратиться.</h1>
+        <p class="t-body-lg t-muted">Спросите простыми словами. Ответы составляются по проверенным официальным источникам.</p>
+        <div class="landing__actions"><a class="btn btn--primary" href="signup.html"><span>Зарегистрироваться</span></a><a class="btn btn--secondary" href="login.html"><span>Войти</span></a></div>
+        <p class="t-small t-muted">Чтобы задавать вопросы, зарегистрируйтесь. Это займёт минуту.</p>
+      </div>
+      <figure class="landing__preview" aria-labelledby="pv-cap">
+  <figcaption id="pv-cap" class="t-small t-muted">Пример ответа · NAMUNA</figcaption>
+  <div class="card card--raised">
+    <p class="answer-head__kind t-small" lang="uz-Latn"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p>
+    <p class="t-h3 t-strong" lang="uz-Latn">Pasportni almashtirish</p>
+    <ol class="steps" lang="uz-Latn"><li><p>Arizani onlayn yoki Davlat xizmatlari markazida topshiring.<span class="cites"><span class="cite" aria-hidden="true">1</span></span></p></li><li><p>Davlat bojini toʻlang.<span class="cites"><span class="cite" aria-hidden="true">1</span></span></p></li><li><p>Tayyor hujjatni markazdan oling.<span class="cites"><span class="cite" aria-hidden="true">2</span></span></p></li></ol>
+    <div class="office__type"><span class="office__type-label" lang="uz-Latn"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>Davlat xizmatlari markazi</span><span class="badge badge--open" lang="uz-Latn">Hozir ochiq · 18:00 gacha</span></div>
+    <p class="office__row" lang="uz-Latn"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>NAMUNA koʻchasi, 1-uy, Chilonzor tumani</span></p>
+  </div>
+</figure>
+    </section>
+    <section class="section" aria-labelledby="l-how"><h2 id="l-how">Как это работает</h2><ol class="how"><li class="card how-step"><span class="how-step__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><h3>Спросите</h3><p class="t-muted">Например: «Как заменить паспорт?»</p></li><li class="card how-step"><span class="how-step__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg></span><h3>Получите шаги</h3><p class="t-muted">Шаги, документы, пошлина и срок — со ссылками на источники.</p></li><li class="card how-step"><span class="how-step__icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span><h3>Идите в нужное учреждение</h3><p class="t-muted">Адрес, часы работы и место на карте в вашем районе.</p></li></ol></section>
+    <p class="disclaimer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>GovAssist — независимый студенческий проект, а не официальная государственная услуга.</span></p>
+  </main>
+  <footer class="auth__footer"><p class="footer-note">Не является официальной государственной услугой</p><nav class="footer-links" aria-label="Footer"><a href="about.html">О проекте</a><a href="about.html#privacy">О конфиденциальности</a></nav></footer>
+</div></div></div>
+<script>
+  /* Prototype only: show the elements whose data-when lists the current state (#state in the URL). */
+  (function () {
+    var bar = document.querySelector(".proto-bar");
+    function show(state) {
+      document.querySelectorAll("[data-when]").forEach(function (el) {
+        el.hidden = el.getAttribute("data-when").split(" ").indexOf(state) < 0;
+      });
+      bar.querySelectorAll("[data-state]").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.getAttribute("data-state") === state));
+      });
+      document.body.classList.toggle("drawer-open", state.indexOf("drawer") === 0);
+    }
+    function current() { return location.hash.slice(1) || bar.getAttribute("data-default"); }
+    document.addEventListener("click", function (e) {
+      var t = e.target.closest("[data-state], [data-goto], [data-drawer]");
+      if (!t) return;
+      e.preventDefault();
+      if (t.hasAttribute("data-drawer")) {
+        document.body.classList.toggle("drawer-open", t.getAttribute("data-drawer") === "open");
+        return;
+      }
+      location.hash = t.getAttribute("data-state") || t.getAttribute("data-goto");
+    });
+    window.addEventListener("hashchange", function () { show(current()); });
+    show(current());
+  })();
+</script>
+</body>
+</html>
