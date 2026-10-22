@@ -26,7 +26,7 @@ convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "**/migrations/*" = ["D", "ANN", "E501", "RUF"]
-"**/tests/**" = ["S101", "S105", "S106", "PLR2004"]
+"**/tests/**" = ["S101", "S105", "S106", "PLR2004", "PLR0917"]
 "conftest.py" = ["S105", "S106"]
 "config/settings/*" = ["F405", "F403"]
 

@@ -7,6 +7,7 @@ Counters live in the Django cache (Redis in dev/prod). ``cache.add`` is an atomi
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.core.cache import BaseCache, cache
@@ -16,6 +17,11 @@ from apps.common.problems import QuotaExceeded, RateLimited, StreamInProgress
 
 HOUR_TTL_S = 3600
 DAY_TTL_S = 90_000
+
+
+def local_now() -> datetime:
+    """Current time in ``LOCAL_TIME_ZONE`` (Tashkent), where quota windows reset."""
+    return timezone.localtime(timezone=ZoneInfo(settings.LOCAL_TIME_ZONE))
 
 
 @dataclass(frozen=True)
@@ -34,7 +40,7 @@ class QuotaService:
     def __init__(
         self,
         store: BaseCache = cache,
-        clock: Callable[[], datetime] = timezone.localtime,
+        clock: Callable[[], datetime] = local_now,
     ) -> None:
         self._store = store
         self._clock = clock

@@ -24,13 +24,42 @@ class Problem(exceptions.APIException):
     default_code = "validation_error"
     default_detail = "Bad request."
 
-    def __init__(self, detail: str | None = None, *, retry_after: int | None = None) -> None:
+    def __init__(
+        self,
+        detail: str | None = None,
+        *,
+        retry_after: int | None = None,
+        errors: dict[str, list[str]] | None = None,
+    ) -> None:
         super().__init__(detail=detail)
         self.retry_after = retry_after
+        self.errors = errors
 
     def extensions(self) -> dict[str, Any]:
         """Extra problem members for this error (none by default)."""
         return {}
+
+
+class InvalidInput(Problem):
+    """Request body failed validation; ``errors`` lists messages per field."""
+
+    default_detail = "Invalid input."
+
+
+class NotSignedIn(Problem):
+    """No session (for views outside DRF)."""
+
+    status_code = status.HTTP_401_UNAUTHORIZED
+    default_code = "not_authenticated"
+    default_detail = "Authentication credentials were not provided."
+
+
+class ResourceNotFound(Problem):
+    """Resource missing or not the user's own (for views outside DRF)."""
+
+    status_code = status.HTTP_404_NOT_FOUND
+    default_code = "not_found"
+    default_detail = "Not found."
 
 
 class EmailNotVerified(Problem):
@@ -148,6 +177,7 @@ def problem_response(problem: Problem) -> JsonResponse:
         problem.status_code,
         str(problem.default_code),
         str(problem.detail),
+        errors=problem.errors,
         retry_after=problem.retry_after,
         extensions=problem.extensions(),
     )
@@ -171,7 +201,7 @@ def _classify(exc: Exception) -> tuple[int, str, str, dict[str, Any] | None, int
     match exc:
         case Problem():
             code = str(exc.default_code)
-            return exc.status_code, code, str(exc.detail), None, exc.retry_after
+            return exc.status_code, code, str(exc.detail), exc.errors, exc.retry_after
         case exceptions.NotAuthenticated() | exceptions.AuthenticationFailed():
             return 401, "not_authenticated", str(exc.detail), None, None
         case exceptions.ValidationError():

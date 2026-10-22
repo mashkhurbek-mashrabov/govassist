@@ -206,7 +206,8 @@ SPECTACULAR_SETTINGS = {
 
 # --- i18n / static --------------------------------------------------------------------
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = "Asia/Tashkent"
+TIME_ZONE = "UTC"  # API timestamps are UTC (contract §1)
+LOCAL_TIME_ZONE = "Asia/Tashkent"  # quota day/hour windows, office times
 USE_I18N = True
 USE_TZ = True
 
