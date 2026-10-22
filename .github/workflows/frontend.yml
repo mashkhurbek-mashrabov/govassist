@@ -41,6 +41,9 @@ jobs:
       - name: Copy (uz-Latn/en from docs/design/copy.md, uz-Cyrl generated)
         run: npm run check:copy && npm run check:i18n
       - name: Build and initial JS budget
+        env:
+          # Cloudflare's public test site key (always passes); the build fails without a key.
+          VITE_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
         run: npm run build && npm run check:size
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
@@ -58,8 +61,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
+      - name: Build without the Turnstile site key fails
+        run: "! docker build --target build ."
       - name: Build image
-        run: docker build -t govassist-web:ci .
+        run: docker build --build-arg VITE_TURNSTILE_SITE_KEY=1x00000000000000000000AA -t govassist-web:ci .
       - name: Image size ≤ 60 MB
         run: |
           size=$(docker image inspect govassist-web:ci --format '{{.Size}}')

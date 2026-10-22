@@ -6,6 +6,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci --ignore-scripts --no-audit --no-fund
 COPY . .
+# Public Turnstile site key, baked in by Vite; the build fails without it (scripts/build-env.ts).
+ARG VITE_TURNSTILE_SITE_KEY
+ENV VITE_TURNSTILE_SITE_KEY=$VITE_TURNSTILE_SITE_KEY
 RUN npm run build && rm -f dist/mockServiceWorker.js
 
 # ── runtime: static files + reverse proxy, non-root on 8080 ───────────────────
