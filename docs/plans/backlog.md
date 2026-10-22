@@ -18,16 +18,9 @@ From Dilshod's review of PR #3 (2026-10-22). Line references are at a77ac16.
 - [ ] **Dead code:** `LLMUnavailable` and `clean_working_hours` (or use it in `Office.clean()`).
 - [ ] **WhiteNoise is sync-only**, so every request goes through a thread. Consider serving static files from nginx in prod.
 
-## Frontend (Madina)
-
-From Kamola's review of PR #2 (2026-10-22):
-
-- [ ] **Onboarding field errors** (`OnboardingPage.tsx:102`). Map `problem.errors` on a 400 `validation_error` to the fields, so Save is never silent.
-- [ ] **Stored `streaming` messages.** Poll or refetch while any stored assistant message is `streaming`, with a Retry after a timeout. Pairs with the backend item "stuck streaming rows".
-- [ ] **Stale "writing" copy.** A follow-up asked before the post-answer refetch briefly shows the previous answer's stale "writing" copy.
-
 ## Integration (main session, G4)
 
+- [ ] **Google login callback:** the backend mounts only `allauth.headless.urls`, but Google redirects to allauth's provider callback `/accounts/google/login/callback/`. Mount `allauth.urls` under `accounts/` (backend), and forward `/accounts/` to the backend in the Vite dev proxy and nginx (frontend). Register these redirect URIs in Google Cloud: `http://localhost:5173/…`, `http://localhost:8080/…`, `https://<domain>/…`.
 - [ ] Add the `web` service to compose (build `frontend/`, target runtime), passing `VITE_TURNSTILE_SITE_KEY` as a **build arg**, because the build fails without it. Use Cloudflare's test key in dev.
 - [ ] Upstream the generic auth rate-limit string from `frontend/src/i18n/extra-copy.json` into `docs/design/copy.md`.
 

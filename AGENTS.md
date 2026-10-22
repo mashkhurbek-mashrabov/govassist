@@ -22,7 +22,7 @@ GovAssist is an MSc thesis project (ITPU/EPAM): a RAG-based web assistant. A sig
 | Backend | Jasur (Claude) | `feat/backend-mvp` | `backend/`, compose files, `tasks.py`, `.env.example`, `deploy/`, `docs/schema/`, `docs/corpus-sources.md`, `.github/workflows/backend.yml` |
 | Frontend | Madina (Claude) | `feat/frontend-mvp` | `frontend/`, `.github/workflows/frontend.yml` |
 
-- Work in your own git worktree at `.claude/worktree/<lane>` (`design`, `backend`, `frontend`). See *Worktrees* below.
+- Work in your own git worktree at `.claude/worktrees/<lane>` (`design`, `backend`, `frontend`). See *Worktrees* below.
 - Touch only the files you own.
 - Open a PR to `main`.
 - **Never edit `docs/contract.md` from a lane.** Put the proposed change in your PR under "Contract change request".
@@ -44,7 +44,7 @@ Each lane is **owned by a Claude session**. **The design lane never uses Antigra
 
 **How Claude runs a helper** (`antigravity-delegate` skill, with these project rules overriding it):
 
-1. **Worktree:** one per run, at `.claude/worktree/ag-<lane>-<task>`, on branch `ag/<lane>/<task>` cut from the lane branch. One run per worktree.
+1. **Worktree:** one per run, at `.claude/worktrees/ag-<lane>-<task>`, on branch `ag/<lane>/<task>` cut from the lane branch. One run per worktree.
 2. **Brief file (lean):**
    - the worktree path;
    - the allowed and forbidden files;
@@ -178,23 +178,23 @@ Frontend commands are in `frontend/package.json`: `npm run dev | lint | typechec
 
 ## Worktrees
 
-Every lane works in its own worktree under `.claude/worktree/` (gitignored). **Remove it yourself when your task is done.**
+Every lane works in its own worktree under `.claude/worktrees/` (gitignored). **Remove it yourself when your task is done.**
 
 Run these from the repo root. Replace `<lane>` (`design` / `backend` / `frontend`) and `<branch>`.
 
 1. Start a new task:
    ```bash
    git fetch origin
-   git worktree add .claude/worktree/<lane> -b <branch> origin/main
+   git worktree add .claude/worktrees/<lane> -b <branch> origin/main
    ```
 2. Continue an existing branch (review changes, a later phase):
    ```bash
    git fetch origin
-   git worktree add .claude/worktree/<lane> -B <branch> origin/<branch>
+   git worktree add .claude/worktrees/<lane> -B <branch> origin/<branch>
    ```
 3. Finish: all work committed and pushed, PR open.
    ```bash
-   git worktree remove .claude/worktree/<lane>
+   git worktree remove .claude/worktrees/<lane>
    git worktree prune
    ```
 
