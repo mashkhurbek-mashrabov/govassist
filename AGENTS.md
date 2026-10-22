@@ -94,7 +94,7 @@ Never merge with failing or missing checks, never bypass branch protection, neve
 
 ## Commands (invoke)
 
-Install once: `python3 -m venv .venv && .venv/bin/pip install -r backend/requirements-dev.txt`.
+Install once: `python3 -m venv .venv && .venv/bin/pip install -r backend/requirements/dev.txt`.
 
 | Area | Commands |
 |---|---|
