@@ -188,7 +188,8 @@ Read first, fully:
 Your job: produce the complete design system, all screens defined in 01-design-plan.md §4–§5, and the clickable
 end-to-end journeys J1–J6 in §4a (prototype and design canvas), as the deliverables listed in §7:
 docs/design/{README.md, design-system.md, tokens.json, tokens.css, components.md, screens.md, copy.md,
-prototype/*.html, screenshots/*.png}.
+prototype/*.html, prototype/journeys.html, prototype/flow.js, screenshots/*.png, screenshots/journeys/*.png},
+plus the design canvas (every screen as artboards, one row per journey, prototype links between artboards).
 
 Hard rules:
 - You own this lane and do all of it yourself. Do NOT use Antigravity (`agy`) for any design work.
@@ -197,9 +198,11 @@ Hard rules:
 - Must not look like an official government site: no emblem, no flag branding, no my.gov.uz look-alike.
   Include "Not an official government service" and the answer disclaimer.
 - tokens.css is the single source of design values; the prototype CSS uses only its variables (no raw hex).
-- The prototype is static HTML + CSS (tiny inline JS for state toggles only), no build step, no CDN, semantic markup.
+- The prototype is static HTML + CSS, no build step, no CDN, semantic markup. JS: small inline toggles plus one
+  shared vanilla `prototype/flow.js` for journey navigation and timed streaming playback.
 - The font must render Uzbek Latin oʻ gʻ (U+02BB) and Uzbek Cyrillic ў қ ғ ҳ; prove it in a screenshot.
-- Use only the illustrative data from docs/contract.md §6. Never invent real-looking fees, addresses or phone numbers.
+- Base content on docs/contract.md §6. Content the journeys need beyond it (legal, Russian, off-topic answers) is
+  written as NAMUNA/SAMPLE placeholders. Never invent real-looking fees, addresses, phone numbers or law articles.
 - Do not change docs/contract.md. If a screen needs data the contract lacks, list it under "Open questions"
   in docs/design/README.md instead of designing around it.
 - Make screenshots with a headless browser (Playwright) at 375×812 and 1440×900.
