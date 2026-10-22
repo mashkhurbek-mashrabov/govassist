@@ -62,14 +62,14 @@ const SETTLE_TIMEOUT_MS = 5000;
 
 /**
  * Wait until the latest answer has settled: the stream closed and the stored copy replaced the live one
- * (the live turn's status regions are gone), so its chips no longer change under a click.
+ * (nothing busy, the live turn's status regions are gone), so its chips no longer change under a click.
  */
 async function waitForSettledAnswer(): Promise<void> {
   await waitFor(
     () => {
       const assistants = document.querySelectorAll("li.assistant");
       const latest = assistants[assistants.length - 1];
-      expect(latest).toHaveAttribute("aria-busy", "false");
+      expect((latest as HTMLElement).querySelector('[aria-busy="true"]')).toBeNull();
       expect(within(latest as HTMLElement).queryAllByRole("status")).toHaveLength(0);
     },
     { timeout: SETTLE_TIMEOUT_MS },

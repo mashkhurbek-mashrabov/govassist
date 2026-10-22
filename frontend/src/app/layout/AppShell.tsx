@@ -1,5 +1,6 @@
 import { Menu, SquarePen } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate, Outlet, useLocation } from "react-router";
 import { useViewer } from "../../api/queries";
@@ -10,6 +11,9 @@ import { MeContext } from "./meContext";
 import { OfflineBanner } from "./OfflineBanner";
 import { Sidebar, SIDEBAR_ID } from "./Sidebar";
 import { useTopbarTitle } from "./useTopbarTitle";
+
+/** Where the sidebar stops being a drawer (tokens.css breakpoint `lg`, as in the stylesheet). */
+const PERSISTENT_SIDEBAR_QUERY = "(min-width: 1280px)";
 
 /**
  * Apply the profile's UI language whenever it changes.
@@ -57,11 +61,23 @@ function Shell({ me }: ShellProps) {
   const menuRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
-  /** Close the drawer and give focus back to the menu button. */
+  /** Close the drawer and give focus back to the menu button (after the page stops being inert). */
   const closeDrawer = useCallback(() => {
-    setDrawerPath(null);
+    flushSync(() => setDrawerPath(null));
     menuRef.current?.focus();
   }, []);
+
+  // Widening to the persistent sidebar closes the drawer, so the page is never left inert behind it.
+  useEffect(() => {
+    if (!drawerOpen || typeof window.matchMedia !== "function") return;
+    const query = window.matchMedia(PERSISTENT_SIDEBAR_QUERY);
+    /** Close the drawer once the sidebar is persistent. */
+    const onChange = () => {
+      if (query.matches) setDrawerPath(null);
+    };
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, [drawerOpen]);
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -86,7 +102,8 @@ function Shell({ me }: ShellProps) {
       <div className={drawerOpen ? "shell drawer-open" : "shell"}>
         <Sidebar showHistory={me.profile_complete} onClose={closeDrawer} closeRef={closeRef} />
         <div className="scrim scrim--drawer" aria-hidden="true" onClick={closeDrawer} />
-        <div className="main-col">
+        {/* The open drawer is modal: the top bar, page and composer behind the scrim are inert. */}
+        <div className="main-col" inert={drawerOpen}>
           <header className="topbar">
             <IconButton
               ref={menuRef}

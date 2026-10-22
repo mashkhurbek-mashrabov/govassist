@@ -221,3 +221,23 @@ test("J6 · history → delete → Russian UI → change password → log out �
   await page.getByRole("link", { name: "Войти" }).last().click();
   await expect(page.getByRole("heading", { name: "Вход в аккаунт" })).toBeVisible();
 });
+
+test("the phone drawer is modal: Tab stays in the sidebar, Esc returns focus to the menu", async ({
+  page,
+}) => {
+  test.skip((page.viewportSize()?.width ?? 0) >= 1280, "the sidebar is persistent on desktop");
+  await logInSeedUser(page);
+  const menu = page.getByRole("button", { name: "Menyu" });
+  await menu.click();
+  await expect(page.getByRole("button", { name: "Yopish" })).toBeFocused();
+  for (let step = 0; step < 15; step += 1) {
+    await page.keyboard.press("Tab");
+    const inSidebar = await page.evaluate(() => document.activeElement?.closest("#sidebar") !== null);
+    const onPage = await page.evaluate(() => document.activeElement?.closest(".main-col") !== null);
+    expect(onPage, `Tab ${String(step + 1)} reached the page behind the drawer`).toBe(false);
+    if (!inSidebar) break;
+  }
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeFocused();
+  await expectAccessible(page);
+});

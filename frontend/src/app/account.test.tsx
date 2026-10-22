@@ -144,8 +144,11 @@ describe("account pages", () => {
     await user.click(menu);
     expect(menu).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("button", { name: "Yopish" })).toHaveFocus();
+    // Modal on phones: the top bar, page and composer behind the drawer are inert.
+    expect(menu.closest(".main-col")).toHaveAttribute("inert");
     await user.keyboard("{Escape}");
     expect(menu).toHaveAttribute("aria-expanded", "false");
+    expect(menu.closest(".main-col")).not.toHaveAttribute("inert");
     expect(menu).toHaveFocus();
   });
 });

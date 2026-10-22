@@ -1203,7 +1203,13 @@
     gap: var(--space-5);
     min-width: 0;
   }
-  .assistant > * {
+  .assistant__answer {
+    display: grid;
+    gap: var(--space-5);
+    min-width: 0;
+  }
+  .assistant > :not(.assistant__answer),
+  .assistant__answer > * {
     animation: rise-in var(--motion-duration-slow) var(--motion-ease-standard) both;
   }
   @keyframes rise-in {

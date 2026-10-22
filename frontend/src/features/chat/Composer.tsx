@@ -114,9 +114,7 @@ export function Composer({ streaming, blocked, onSend, onStop, inputRef }: Compo
             {t("app.not_official")}. {t("app.may_be_wrong")}
           </p>
           {text.length >= COUNTER_FROM && (
-            <span className={counterClass} aria-live="polite">
-              {t("chat.counter", { n: text.length })}
-            </span>
+            <span className={counterClass}>{t("chat.counter", { n: text.length })}</span>
           )}
         </div>
       </form>
