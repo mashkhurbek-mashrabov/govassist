@@ -39,7 +39,7 @@ def index_document(document_id: UUID, embedder: Embedder | None = None) -> int:
     if document is None:
         logger.info("Skip indexing: document not approved/active", extra={"id": str(document_id)})
         return 0
-    drafts = chunk_document(document.text, title=document.title, lang=document.language)
+    drafts = chunk_document(document.text, lang=document.language)
     inputs = [DocumentInput(document.title, draft.heading_path, draft.text) for draft in drafts]
     vectors = async_to_sync((embedder or GeminiEmbedder()).embed_documents)(inputs)
     chunks = [

@@ -10,7 +10,11 @@ HEADING_SEPARATOR = " › "
 
 @dataclass(frozen=True)
 class ChunkDraft:
-    """A chunk ready to embed and store."""
+    """A chunk ready to embed and store.
+
+    ``heading_path`` joins the open headings (``2-bob › 14-modda``); the document title is
+    not part of it (the embedder prepends the title).
+    """
 
     order: int
     heading_path: str
@@ -23,12 +27,11 @@ class ChunkDraft:
         return len(self.text)
 
 
-def chunk_document(text: str, *, title: str, lang: str) -> list[ChunkDraft]:
+def chunk_document(text: str, *, lang: str) -> list[ChunkDraft]:
     """Split parsed document text into overlapping, heading-aware chunks.
 
     Args:
-        text: Parsed text with ``#``-level heading marker lines.
-        title: Document title, the root of every ``heading_path``.
+        text: Parsed text with ``#``-level heading marker lines (``## 2-bob``).
         lang: Document ``Lang``, used for ``text_normalized``.
 
     Raises:
