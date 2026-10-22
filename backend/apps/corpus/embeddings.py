@@ -64,12 +64,14 @@ class GeminiEmbedder:
         dimensions: int | None = None,
         concurrency: int | None = None,
         max_tries: int | None = None,
+        honor_server_delay: bool = True,
     ) -> None:
         self._client = client or get_client()
         self.model_name = model or settings.GEMINI_EMBEDDING_MODEL
         self._dimensions = dimensions or settings.EMBEDDING_DIM
         self._semaphore = asyncio.Semaphore(concurrency or settings.EMBED_CONCURRENCY)
         self._max_tries = max_tries or settings.EMBED_MAX_TRIES
+        self._honor_server_delay = honor_server_delay
 
     async def _embed_one(self, content: str) -> list[float]:
         """Embed one text with retries, bounded by the concurrency semaphore.
@@ -87,6 +89,7 @@ class GeminiEmbedder:
                     model=self.model_name, contents=content, config=config
                 ),
                 max_tries=self._max_tries,
+                honor_server_delay=self._honor_server_delay,
             )
         if not response.embeddings or response.embeddings[0].values is None:
             msg = "Gemini returned no embedding."

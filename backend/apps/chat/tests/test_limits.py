@@ -63,10 +63,31 @@ async def test_global_token_cap(quota: QuotaService) -> None:
 
 
 async def test_stream_lock(quota: QuotaService) -> None:
-    """Only one stream per user until released."""
-    await quota.aacquire_stream("u1")
+    """Only one stream per user until released; a stale token never releases a new lock."""
+    first = await quota.aacquire_stream("u1")
     with pytest.raises(StreamInProgress):
         await quota.aacquire_stream("u1")
     await quota.aacquire_stream("u2")
-    await quota.arelease_stream("u1")
-    await quota.aacquire_stream("u1")
+    await quota.arelease_stream("u1", first)
+    second = await quota.aacquire_stream("u1")
+    await quota.arelease_stream("u1", first)  # e.g. a stream whose lock expired long ago
+    assert await quota.astream_active("u1")
+    await quota.arelease_stream("u1", second)
+    assert not await quota.astream_active("u1")
+
+
+async def test_redis_release_is_compare_and_delete() -> None:
+    """On real Redis the Lua script deletes only the matching token."""
+    from django.conf import settings  # noqa: PLC0415
+    from django.core.cache.backends.redis import RedisCache  # noqa: PLC0415
+
+    redis_cache = RedisCache(settings.TEST_REDIS_URL, {"KEY_PREFIX": "test-lock"})
+    quota = QuotaService(redis_cache, clock=lambda: NOW)
+    token = await quota.aacquire_stream("lua")
+    try:
+        await quota.arelease_stream("lua", token + 1)
+        assert await quota.astream_active("lua")
+        await quota.arelease_stream("lua", token)
+        assert not await quota.astream_active("lua")
+    finally:
+        await redis_cache.adelete("stream:lua")

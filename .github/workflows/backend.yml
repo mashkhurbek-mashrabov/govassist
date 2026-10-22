@@ -50,8 +50,15 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U govassist" --health-interval 5s
           --health-timeout 3s --health-retries 20
+      redis:
+        image: redis:8.8-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s
+          --health-timeout 3s --health-retries 20
     env:
       TEST_DATABASE_URL: postgres://govassist:govassist@localhost:5432/govassist
+      TEST_REDIS_URL: redis://localhost:6379/15
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6

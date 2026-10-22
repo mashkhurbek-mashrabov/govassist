@@ -111,3 +111,10 @@ class FeedbackRating(models.IntegerChoices):
 
     UP = 1, "Up"
     DOWN = -1, "Down"
+
+
+STREAM_LOCK_PREFIX = "stream:"
+LOCK_TOKEN_BITS = 62  # an int: Django's RedisCache stores ints raw, so Lua can compare them
+RELEASE_LOCK_LUA = (
+    'if redis.call("get", KEYS[1]) == ARGV[1] then return redis.call("del", KEYS[1]) end return 0'
+)

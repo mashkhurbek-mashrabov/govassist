@@ -278,6 +278,31 @@ class AnswerService:
             raise AnswerError("llm_unavailable", "The answer service is unavailable.") from exc
         return await sync_to_async(self._search)(question, lang, query_vector=vector)
 
+    async def _ground(
+        self, user: User, question: Message, run: _Run
+    ) -> tuple[_Context, dict[str, Any] | None]:
+        """Retrieve context and look up the office within ``CHAT_PREPARE_TIMEOUT_S``.
+
+        Raises:
+            AnswerError: ``llm_timeout`` when the deadline passes; ``llm_unavailable`` when
+                the query embedding fails.
+        """
+        started = time.perf_counter()
+        try:
+            async with asyncio.timeout(settings.CHAT_PREPARE_TIMEOUT_S):
+                hits = await self._retrieve(question.text, Lang(question.language))
+                run.retrieval_ms = int((time.perf_counter() - started) * MS_PER_S)
+                context = await sync_to_async(build_context)(hits)
+                office = await sync_to_async(self._locate)(
+                    list(dict.fromkeys(hit.document_id for hit in context.hits)),
+                    district_id=user.district_id,
+                    region_id=user.region_id,
+                    lang=user.ui_language,
+                )
+        except TimeoutError as exc:
+            raise AnswerError("llm_timeout", "Searching took too long.") from exc
+        return context, office
+
     async def _generate(
         self, generator: AnswerGenerator, prompt: Prompt, fragments: list[str]
     ) -> AsyncGenerator[Event]:
@@ -398,18 +423,8 @@ class AnswerService:
             },
         )
         yield Event("status", {"stage": "searching"})
-        retrieval_started = time.perf_counter()
-        hits = await self._retrieve(question.text, Lang(question.language))
-        run.retrieval_ms = int((time.perf_counter() - retrieval_started) * MS_PER_S)
-        context = await sync_to_async(build_context)(hits)
+        context, office = await self._ground(user, question, run)
         yield Event("status", {"stage": "found", "source_count": len(context.blocks)})
-
-        office = await sync_to_async(self._locate)(
-            list(dict.fromkeys(hit.document_id for hit in context.hits)),
-            district_id=user.district_id,
-            region_id=user.region_id,
-            lang=user.ui_language,
-        )
         if office is not None:
             yield Event("office", office)
         yield Event("status", {"stage": "writing"})
@@ -452,7 +467,7 @@ class AnswerService:
             text: The raw question (scrubbed before anything else).
         """
         try:
-            await self._quota.aacquire_stream(user.id)
+            lock_token = await self._quota.aacquire_stream(user.id)
         except StreamInProgress as exc:
             yield Event("error", {"code": exc.default_code, "message": str(exc.detail)})
             return
@@ -473,4 +488,4 @@ class AnswerService:
             yield Event("error", {"code": "internal_error", "message": "Something went wrong."})
         finally:
             await events.aclose()
-            await self._quota.arelease_stream(user.id)
+            await self._quota.arelease_stream(user.id, lock_token)

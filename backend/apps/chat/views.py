@@ -27,7 +27,9 @@ from apps.corpus.embeddings import GeminiEmbedder
 def build_answer_service() -> AnswerService:
     """Wire the production collaborators (Gemini embedder and generator, Redis quotas)."""
     return AnswerService(
-        embedder=GeminiEmbedder(), generator_factory=GeminiAnswerGenerator, quota=QuotaService()
+        embedder=GeminiEmbedder(max_tries=settings.CHAT_EMBED_MAX_TRIES, honor_server_delay=False),
+        generator_factory=GeminiAnswerGenerator,
+        quota=QuotaService(),
     )
 
 

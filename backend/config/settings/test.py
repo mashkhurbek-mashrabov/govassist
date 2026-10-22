@@ -15,6 +15,8 @@ os.environ["DATABASE_URL"] = os.environ.get(
 )
 os.environ.setdefault("SECRET_KEY", "test-only-secret-key")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
+_redis_port = os.environ.get("REDIS_HOST_PORT", "6379")
+TEST_REDIS_URL = os.environ.get("TEST_REDIS_URL", f"redis://localhost:{_redis_port}/15")
 
 from .base import *  # noqa: E402
 

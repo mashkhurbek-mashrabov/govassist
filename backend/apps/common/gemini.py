@@ -85,12 +85,15 @@ def server_retry_delay(exc: BaseException) -> float | None:
     return None
 
 
-async def call_with_retries[T](call: Callable[[], Awaitable[T]], *, max_tries: int) -> T:
+async def call_with_retries[T](
+    call: Callable[[], Awaitable[T]], *, max_tries: int, honor_server_delay: bool = True
+) -> T:
     """Run an async Gemini call, retrying retryable failures with backoff.
 
     Args:
         call: Zero-argument coroutine factory.
         max_tries: Total attempts, including the first.
+        honor_server_delay: Wait Gemini's ``RetryInfo`` delay (off on latency-bound paths).
 
     Returns:
         The call's result.
@@ -105,7 +108,7 @@ async def call_with_retries[T](call: Callable[[], Awaitable[T]], *, max_tries: i
         try:
             return await call()
         except Exception as exc:
-            server_delay = server_retry_delay(exc)
+            server_delay = server_retry_delay(exc) if honor_server_delay else None
             too_long = server_delay is not None and server_delay > RETRY_INFO_CAP_S
             if attempt == max_tries or not is_retryable(exc) or too_long:
                 raise

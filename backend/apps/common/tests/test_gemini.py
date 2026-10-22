@@ -198,3 +198,14 @@ class TestServerRetryDelay:
         with pytest.raises(errors.APIError):
             await call_with_retries(call, max_tries=5)
         assert call.await_count == 1
+
+    async def test_latency_bound_calls_ignore_the_server_delay(self) -> None:
+        """honor_server_delay=False backs off briefly instead of waiting RetryInfo."""
+        from unittest.mock import AsyncMock, patch  # noqa: PLC0415
+
+        from apps.common.gemini import BACKOFF_CAP_S, call_with_retries  # noqa: PLC0415
+
+        call = AsyncMock(side_effect=[self._error("60s"), "ok"])
+        with patch("apps.common.gemini.asyncio.sleep", AsyncMock()) as sleep:
+            assert await call_with_retries(call, max_tries=2, honor_server_delay=False) == "ok"
+        assert sleep.await_args.args[0] <= BACKOFF_CAP_S

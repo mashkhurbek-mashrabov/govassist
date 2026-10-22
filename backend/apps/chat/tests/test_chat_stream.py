@@ -383,11 +383,11 @@ async def test_lost_lock_race_is_one_error_event(
     assert not await Conversation.objects.aexists()
 
 
-def test_lock_ttl_default_follows_llm_timeout() -> None:
-    """The lock outlives the longest answer: LLM_TIMEOUT_S + 30 s by default."""
+def test_lock_ttl_covers_the_whole_budget() -> None:
+    """The lock outlives preparation + generation (+30 s to persist) by default."""
     from config.settings import base  # noqa: PLC0415
 
-    assert base.STREAM_LOCK_TTL_S == base.LLM_TIMEOUT_S + 30
+    assert base.STREAM_LOCK_TTL_S == base.CHAT_PREPARE_TIMEOUT_S + base.LLM_TIMEOUT_S + 30
 
 
 async def test_title_from_question_then_first_answer(
@@ -432,3 +432,35 @@ async def test_off_topic_drops_the_provisional_office(
     assert (message["refused"], message["office"]) == (True, None)
     stored = await Message.objects.aget(id=message["id"])
     assert stored.office_match is None
+
+
+@override_settings(CHAT_PREPARE_TIMEOUT_S=0)
+async def test_slow_retrieval_hits_the_prepare_deadline(
+    client: AsyncClient, recorder: _Recorder, user: User
+) -> None:
+    """A hanging query embedding ends with llm_timeout and frees the lock."""
+
+    class Hanging(FakeEmbedder):
+        """Never answers in time."""
+
+        async def embed_query(self, query: str) -> list[float]:
+            """Sleep past the deadline."""
+            await asyncio.sleep(5)
+            return []
+
+    recorder.embedder = Hanging()
+    events = await _ask(client)
+    assert [name for name, _ in events] == ["meta", "status", "error"]
+    assert events[-1][1]["code"] == "llm_timeout"
+    assert await cache.aget(f"stream:{user.id}") is None
+
+
+def test_chat_embedder_is_latency_bound() -> None:
+    """The chat path embeds with few tries and never waits Gemini's RetryInfo delays."""
+    from unittest.mock import patch  # noqa: PLC0415
+
+    from apps.chat.views import build_answer_service  # noqa: PLC0415
+
+    with patch("apps.chat.views.GeminiEmbedder") as embedder, patch("apps.chat.views.QuotaService"):
+        build_answer_service()
+    assert embedder.call_args.kwargs == {"max_tries": 2, "honor_server_delay": False}

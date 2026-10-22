@@ -252,7 +252,13 @@ HISTORY_TURNS = env.int("HISTORY_TURNS", default=4)
 CHAT_LIMIT_HOUR = env.int("CHAT_LIMIT_HOUR", default=20)
 CHAT_LIMIT_DAY = env.int("CHAT_LIMIT_DAY", default=100)
 GLOBAL_DAILY_TOKEN_CAP = env.int("GLOBAL_DAILY_TOKEN_CAP", default=2_000_000)
-STREAM_LOCK_TTL_S = env.int("STREAM_LOCK_TTL_S", default=LLM_TIMEOUT_S + 30)
+# Chat budget: retrieval + office lookup must finish in CHAT_PREPARE_TIMEOUT_S, generation in
+# LLM_TIMEOUT_S; the stream lock outlives both (plus time to persist the answer).
+CHAT_PREPARE_TIMEOUT_S = env.int("CHAT_PREPARE_TIMEOUT_S", default=20)
+CHAT_EMBED_MAX_TRIES = env.int("CHAT_EMBED_MAX_TRIES", default=2)
+STREAM_LOCK_TTL_S = env.int(
+    "STREAM_LOCK_TTL_S", default=CHAT_PREPARE_TIMEOUT_S + LLM_TIMEOUT_S + 30
+)
 SSE_KEEPALIVE_S = env.int("SSE_KEEPALIVE_S", default=15)
 
 # --- Collector ----------------------------------------------------------------------

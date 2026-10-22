@@ -1,19 +1,29 @@
 """Per-user question quotas, the global daily token cap and the one-stream lock.
 
-Counters live in the Django cache (Redis in dev/prod). ``cache.add`` is an atomic
-``SET NX EX``, which is what the stream lock needs.
+Counters live in the Django cache (Redis in dev/prod). The lock is ``cache.add`` (an atomic
+``SET NX EX``) with a random token, released by a compare-and-delete so a stream can only
+ever remove its own lock.
 """
 
+import secrets
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.core.cache import BaseCache, cache
+from django.core.cache.backends.redis import RedisCache
 from django.utils import timezone
 
-from apps.chat.constants import DAY_TTL_S, HOUR_TTL_S
+from apps.chat.constants import (
+    DAY_TTL_S,
+    HOUR_TTL_S,
+    LOCK_TOKEN_BITS,
+    RELEASE_LOCK_LUA,
+    STREAM_LOCK_PREFIX,
+)
 from apps.common.problems import QuotaExceeded, RateLimited, StreamInProgress
 
 
@@ -148,30 +158,51 @@ class QuotaService:
         """Sync variant of :meth:`atokens_today` for the admin dashboard."""
         return int(self._store.get(self._token_key(), 0))
 
+    @staticmethod
+    def _stream_key(user_id: object) -> str:
+        """Cache key of the user's stream lock."""
+        return f"{STREAM_LOCK_PREFIX}{user_id}"
+
     async def astream_active(self, user_id: object) -> bool:
         """True while the user has an answer streaming (pre-check, takes nothing).
 
         Args:
             user_id: The user's id.
         """
-        return await self._store.aget(f"stream:{user_id}") is not None
+        return await self._store.aget(self._stream_key(user_id)) is not None
 
-    async def aacquire_stream(self, user_id: object) -> None:
+    async def aacquire_stream(self, user_id: object) -> int:
         """Take the user's single stream lock.
 
         Args:
             user_id: The user's id.
 
+        Returns:
+            The lock token, needed to release it.
+
         Raises:
             StreamInProgress: Another answer is still streaming.
         """
-        if not await self._store.aadd(f"stream:{user_id}", 1, settings.STREAM_LOCK_TTL_S):
+        token = secrets.randbits(LOCK_TOKEN_BITS)
+        if not await self._store.aadd(self._stream_key(user_id), token, settings.STREAM_LOCK_TTL_S):
             raise StreamInProgress
+        return token
 
-    async def arelease_stream(self, user_id: object) -> None:
-        """Release the user's stream lock (call in ``finally``).
+    async def arelease_stream(self, user_id: object, token: int) -> None:
+        """Release the lock only if it still holds ``token`` (call in ``finally``).
+
+        On Redis this is one atomic Lua compare-and-delete; other caches (tests, local memory)
+        compare then delete.
 
         Args:
             user_id: The user's id.
+            token: The value returned by :meth:`aacquire_stream`.
         """
-        await self._store.adelete(f"stream:{user_id}")
+        key = self._stream_key(user_id)
+        if isinstance(self._store, RedisCache):
+            raw_key = self._store.make_and_validate_key(key)
+            client = self._store._cache.get_client(raw_key, write=True)
+            await sync_to_async(client.eval)(RELEASE_LOCK_LUA, 1, raw_key, str(token))
+            return
+        if await self._store.aget(key) == token:
+            await self._store.adelete(key)
