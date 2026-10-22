@@ -70,6 +70,7 @@
   - smooth micro-interactions (reduced-motion safe);
   - obvious primary actions;
   - a more modern, friendly feel, while staying calm and not looking like a government site.
+  - **Prettier and more professional:** v1 looked too plain. Aim for a polished, premium product look, like a well-funded modern SaaS app. Use **subtle gradients** (a brand gradient on the primary button, the landing hero, the app background behind the glass, active and selected states, the logo mark), with depth from soft layered shadows and refined borders. Keep the gradients restrained (2 close hues, low contrast), all as tokens, and keep AA contrast for any text on a gradient.
 
 ## 4. Screens
 
