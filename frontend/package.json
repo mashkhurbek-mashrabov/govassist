@@ -29,7 +29,8 @@
     "check:copy": "node scripts/import-copy.ts --check",
     "i18n": "node scripts/import-copy.ts && node scripts/translit-uz.ts",
     "gen:types": "node scripts/gen-types.ts",
-    "check:types": "node scripts/gen-types.ts --check"
+    "check:types": "node scripts/gen-types.ts --check",
+    "e2e:real": "playwright test -c playwright.real.config.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "6.0.0",

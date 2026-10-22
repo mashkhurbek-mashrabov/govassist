@@ -17,6 +17,7 @@ export default tseslint.config(
       "public/mockServiceWorker.js",
       "playwright-report",
       "test-results",
+      "test-results-real",
     ],
   },
   {

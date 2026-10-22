@@ -11,6 +11,8 @@ const EXTERNAL_BASE_URL = process.env.E2E_BASE_URL;
  */
 export default defineConfig({
   testDir: "e2e",
+  // e2e/real needs the real backend: playwright.real.config.ts.
+  testIgnore: "real/**",
   timeout: 60_000,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
