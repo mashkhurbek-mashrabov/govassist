@@ -6,6 +6,7 @@ import type { AssistantMessage } from "../api/types";
 import { server } from "../mocks/server";
 import { encodeFrame } from "../mocks/sse";
 import { db } from "../mocks/db";
+import { STALE_STREAMING_MS } from "../features/chat/streamingMessages";
 import { renderApp, signInSeedUser } from "../test/render";
 
 /**
@@ -197,6 +198,29 @@ describe("chat", () => {
   it("shows a stored stopped answer after reload and retries it", async () => {
     const answer = db.conversations[SEED_CONVERSATION]?.messages[1] as AssistantMessage;
     Object.assign(answer, { status: "failed", error_code: "stopped", answer: null });
+    const user = userEvent.setup();
+    renderApp(`/c/${SEED_CONVERSATION}`);
+    expect(await screen.findByText("Javob toʻxtatildi")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Qayta urinish" }));
+    await waitForFinal();
+  });
+
+  it("polls a stored answer that is still streaming until it completes", async () => {
+    const answer = db.conversations[SEED_CONVERSATION]?.messages[1] as AssistantMessage;
+    const complete = { ...answer };
+    Object.assign(answer, { status: "streaming", answer: null, created_at: new Date().toISOString() });
+    renderApp(`/c/${SEED_CONVERSATION}`);
+    expect(await screen.findByText(/Javob yozilmoqda/)).toBeInTheDocument();
+    Object.assign(answer, complete);
+    expect(
+      await screen.findByRole("heading", { name: "Pasportni almashtirish", level: 2 }, { timeout: 5000 }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows a streaming row older than the stream lock as stopped, with Retry", async () => {
+    const answer = db.conversations[SEED_CONVERSATION]?.messages[1] as AssistantMessage;
+    const longAgo = new Date(Date.now() - STALE_STREAMING_MS - 1000).toISOString();
+    Object.assign(answer, { status: "streaming", answer: null, created_at: longAgo });
     const user = userEvent.setup();
     renderApp(`/c/${SEED_CONVERSATION}`);
     expect(await screen.findByText("Javob toʻxtatildi")).toBeInTheDocument();

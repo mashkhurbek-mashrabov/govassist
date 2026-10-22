@@ -10,6 +10,7 @@ import { Composer } from "./Composer";
 import { EmptyChat } from "./EmptyChat";
 import { useInputBlocked } from "./useInputBlocked";
 import { UserMessage } from "./UserMessage";
+import { settleStaleStreaming } from "./streamingMessages";
 import { retryableQuestion, visibleMessages } from "./visibleMessages";
 
 /**
@@ -21,10 +22,12 @@ export function ChatPage() {
   const { t } = useTranslation();
   const { conversationId = null } = useParams();
   const { turn, send, resend, stop, retry } = useChatContext();
-  const conversation = useConversation(conversationId);
-  const blocked = useInputBlocked(turn);
-  const { messages, showTurn } = visibleMessages(conversation.data?.messages ?? [], turn);
   const streaming = turn?.isStreaming ?? false;
+  const conversation = useConversation(conversationId, !streaming);
+  const blocked = useInputBlocked(turn);
+  // A `streaming` row older than the backend's stream lock is shown as stopped, with Retry.
+  const stored = settleStaleStreaming(conversation.data?.messages ?? [], conversation.dataUpdatedAt);
+  const { messages, showTurn } = visibleMessages(stored, turn);
   const lastAssistantId = messages.findLast((message) => message.role === "assistant")?.id;
   const retryText = showTurn || streaming ? null : retryableQuestion(messages);
   const notFound = conversation.error instanceof ApiError && conversation.error.status === 404;
