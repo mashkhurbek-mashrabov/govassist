@@ -10,6 +10,7 @@ from apps.chat.models import Conversation
 class ConversationSummarySerializer(serializers.ModelSerializer[Conversation]):
     """List item: title, last update and a short preview."""
 
+    title = serializers.CharField()
     last_message_preview = serializers.CharField(allow_blank=True)
 
     class Meta:
@@ -20,6 +21,7 @@ class ConversationSummarySerializer(serializers.ModelSerializer[Conversation]):
 class ConversationSerializer(serializers.ModelSerializer[Conversation]):
     """A conversation with all its messages, oldest first."""
 
+    title = serializers.CharField()
     messages = serializers.SerializerMethodField()
 
     class Meta:

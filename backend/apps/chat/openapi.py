@@ -2,7 +2,13 @@
 
 from typing import Any
 
-from apps.chat.constants import CHAT_PATH, CHAT_REQUEST, PROBLEM
+from apps.chat.constants import (
+    CHAT_PATH,
+    CHAT_REQUEST,
+    NULLABLE_ASSISTANT_FIELDS,
+    PROBLEM,
+    PROBLEM_SCHEMA,
+)
 from apps.chat.schemas import ChatRequest
 
 
@@ -10,6 +16,21 @@ def _problem(description: str) -> dict[str, Any]:
     """A problem+json response entry."""
     content = {"application/problem+json": {"schema": PROBLEM}}
     return {"description": description, "content": content}
+
+
+def _make_nullable(properties: dict[str, Any], names: tuple[str, ...]) -> None:
+    """Allow ``null`` on component-typed fields.
+
+    drf-spectacular renders a pydantic-model field as ``allOf: [$ref]`` and cannot mark it
+    nullable, so the ref is rewritten to ``oneOf: [$ref, null]`` (OpenAPI 3.1).
+
+    Args:
+        properties: A component's ``properties`` map, changed in place.
+        names: The fields to make nullable.
+    """
+    for name in names:
+        field = properties[name]
+        field["oneOf"] = [*field.pop("allOf"), {"type": "null"}]
 
 
 def add_chat_stream(result: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
@@ -20,24 +41,13 @@ def add_chat_stream(result: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
         **kwargs: Hook context (unused).
 
     Returns:
-        The document with the chat path and the shared Problem schema.
+        The document with the chat path, the shared Problem schema and nullable
+        ``AssistantMessage.answer`` / ``office``.
     """
     schemas = result.setdefault("components", {}).setdefault("schemas", {})
     schemas["ChatRequest"] = ChatRequest.model_json_schema()
-    schemas["Problem"] = {
-        "type": "object",
-        "required": ["type", "title", "status", "detail", "code", "errors"],
-        "properties": {
-            "type": {"type": "string"},
-            "title": {"type": "string"},
-            "status": {"type": "integer"},
-            "detail": {"type": "string"},
-            "code": {"type": "string"},
-            "errors": {"type": "object", "nullable": True},
-            "retry_after": {"type": "integer"},
-            "scope": {"type": "string", "enum": ["user", "global"]},
-        },
-    }
+    schemas["Problem"] = PROBLEM_SCHEMA
+    _make_nullable(schemas["AssistantMessage"]["properties"], NULLABLE_ASSISTANT_FIELDS)
     result.setdefault("paths", {})[CHAT_PATH] = {
         "post": {
             "operationId": "chat_stream",

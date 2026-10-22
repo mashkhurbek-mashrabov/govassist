@@ -15,7 +15,9 @@ class SourceListView(APIView):
 
     @extend_schema(
         summary="List knowledge sources",
-        responses=inline_serializer("SourceList", {"items": SourceSummarySerializer(many=True)}),
+        responses=inline_serializer(
+            "SourceSummaryList", {"items": SourceSummarySerializer(many=True)}
+        ),
     )
     def get(self, request: Request) -> Response:
         """Return approved, active sources with their counts.
