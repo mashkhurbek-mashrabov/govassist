@@ -1,0 +1,81 @@
+name: frontend
+
+on:
+  push:
+    branches: [main]
+    paths: ["frontend/**", "docs/design/tokens.css", ".github/workflows/frontend.yml"]
+  pull_request:
+    paths: ["frontend/**", "docs/design/tokens.css", ".github/workflows/frontend.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: frontend
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit and component tests (coverage)
+        run: npm run coverage
+      - name: Tokens in sync with docs/design
+        run: npm run check:tokens
+      - name: Locale files (uz-Cyrl generated from uz-Latn)
+        run: npm run check:i18n
+      - name: Build and initial JS budget
+        run: npm run build && npm run check:size
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: E2E smoke + axe on the mock build
+        run: npm run e2e
+      - uses: actions/upload-artifact@v5
+        if: failure()
+        with:
+          name: playwright-report
+          path: frontend/playwright-report
+          retention-days: 7
+
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build image
+        run: docker build -t govassist-web:ci .
+      - name: Image size ≤ 60 MB
+        run: |
+          size=$(docker image inspect govassist-web:ci --format '{{.Size}}')
+          echo "Image size: $((size / 1024 / 1024)) MB"
+          test "$size" -le $((60 * 1024 * 1024))
+      - name: Runs as non-root and serves the SPA
+        run: |
+          test "$(docker run --rm --entrypoint id govassist-web:ci -u)" != "0"
+          docker run -d --name web -p 8080:8080 govassist-web:ci
+          for attempt in 1 2 3 4 5; do curl -fsS http://localhost:8080/healthz && break; sleep 1; done
+          curl -fsS http://localhost:8080/some/spa/route | grep -q '<div id="root">'
+          docker rm -f web
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: govassist-web:ci
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"

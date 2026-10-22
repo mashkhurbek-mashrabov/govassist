@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/*
+ * Theme intentionally empty until gate G2: F2 runs `npm run sync:tokens` to copy
+ * docs/design/tokens.css into ./tokens.css, then maps those variables here in @theme.
+ */
+@theme {
+}

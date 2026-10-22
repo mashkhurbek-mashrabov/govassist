@@ -1,0 +1,231 @@
+{
+  "app": { "name": "GovAssist" },
+  "nav": {
+    "main": "Asosiy menyu",
+    "newChat": "Yangi suhbat",
+    "history": "Tarix",
+    "settings": "Sozlamalar",
+    "about": "Loyiha haqida",
+    "skipToContent": "Asosiy qismga oʻtish"
+  },
+  "common": {
+    "save": "Saqlash",
+    "saved": "Saqlandi.",
+    "cancel": "Bekor qilish",
+    "delete": "Oʻchirish",
+    "retry": "Qayta urinish",
+    "error": "Xatolik yuz berdi. Qayta urinib koʻring."
+  },
+  "offline": { "banner": "Internet aloqasi yoʻq. Aloqa tiklanganda javoblar yuklanadi." },
+  "profile": {
+    "language": "Til",
+    "region": "Viloyat",
+    "district": "Tuman",
+    "chooseRegion": "Viloyatni tanlang",
+    "chooseDistrict": "Tumanni tanlang",
+    "required": "Iltimos, tanlang."
+  },
+  "auth": {
+    "google": "Google orqali davom etish",
+    "backToLogin": "Kirish sahifasiga qaytish",
+    "fields": {
+      "email": "Elektron pochta",
+      "password": "Parol",
+      "passwordHint": "Kamida {{count}} ta belgi.",
+      "newPassword": "Yangi parol",
+      "confirmPassword": "Yangi parolni takrorlang",
+      "currentPassword": "Joriy parol",
+      "showPassword": "Koʻrsatish",
+      "hidePassword": "Yashirish"
+    },
+    "signup": {
+      "title": "Roʻyxatdan oʻtish",
+      "submit": "Roʻyxatdan oʻtish",
+      "haveAccount": "Akkauntingiz bormi?",
+      "loginLink": "Kirish"
+    },
+    "login": {
+      "title": "Kirish",
+      "submit": "Kirish",
+      "forgot": "Parolni unutdingizmi?",
+      "noAccount": "Akkauntingiz yoʻqmi?",
+      "signupLink": "Roʻyxatdan oʻting"
+    },
+    "checkEmail": {
+      "title": "Pochtangizni tekshiring",
+      "body": "Sizga havola yubordik. Elektron pochtangizni tasdiqlash uchun uni oching va shu yerga qayting."
+    },
+    "verify": {
+      "title": "Pochtani tasdiqlash",
+      "body": "Elektron pochtangizni tasdiqlash uchun tugmani bosing.",
+      "submit": "Tasdiqlash",
+      "success": "Pochtangiz tasdiqlandi. Iltimos, tizimga kiring.",
+      "loginLink": "Kirish"
+    },
+    "forgot": {
+      "title": "Parolni tiklash",
+      "body": "Elektron pochtangizni kiriting, biz tiklash havolasini yuboramiz.",
+      "submit": "Havolani yuborish",
+      "sent": "Agar bu pochta bilan akkaunt boʻlsa, tiklash havolasi yuborildi."
+    },
+    "reset": {
+      "title": "Yangi parol tanlang",
+      "submit": "Parolni saqlash",
+      "success": "Parolingiz oʻzgartirildi. Iltimos, tizimga kiring."
+    },
+    "errors": {
+      "required": "Bu maydonni toʻldiring.",
+      "invalidEmail": "Toʻgʻri elektron pochta manzilini kiriting.",
+      "passwordTooShort": "Kamida {{count}} ta belgidan foydalaning.",
+      "passwordsDiffer": "Parollar mos kelmadi.",
+      "invalidCredentials": "Elektron pochta yoki parol notoʻgʻri.",
+      "emailTaken": "Bu pochta bilan akkaunt allaqachon mavjud.",
+      "tooManyAttempts": "Urinishlar juda koʻp. Biroz kutib, qayta urinib koʻring.",
+      "weakPassword": "Bu parol juda oddiy. Uzunroq va kamroq tarqalgan parol tanlang.",
+      "incorrectPassword": "Joriy parol notoʻgʻri.",
+      "invalidKey": "Bu havola notoʻgʻri yoki muddati oʻtgan.",
+      "turnstile": "Xavfsizlik tekshiruvi oʻtmadi. Qayta urinib koʻring.",
+      "social": "Google orqali kirib boʻlmadi. Qayta urinib koʻring.",
+      "generic": "Xatolik yuz berdi. Qayta urinib koʻring."
+    }
+  },
+  "onboarding": {
+    "title": "Qayerda yashaysiz?",
+    "body": "Sizga kerakli idorani aniq koʻrsatish uchun tumaningizdan foydalanamiz. Keyinroq sozlamalarda oʻzgartirishingiz mumkin.",
+    "submit": "Davom etish"
+  },
+  "chat": {
+    "you": "Siz",
+    "suggestions": "Masalan, soʻrang",
+    "empty": {
+      "title": "Davlat xizmati yoki qonun haqida soʻrang",
+      "body": "Javoblar faqat lex.uz va my.gov.uz kabi rasmiy manbalardan olinadi."
+    },
+    "input": {
+      "label": "Savolingiz",
+      "placeholder": "Masalan: Pasportimni qanday yangilayman?",
+      "send": "Yuborish",
+      "stop": "Toʻxtatish"
+    },
+    "stage": {
+      "searching": "Rasmiy manbalar qidirilmoqda…",
+      "found": "Topilgan manbalar: {{count}}",
+      "writing": "Javob yozilmoqda…"
+    },
+    "errors": {
+      "stopped": "Siz bu javobni toʻxtatdingiz.",
+      "network": "Javob tugamasdan aloqa uzildi.",
+      "generic": "Javob tayyorlanmadi. Qayta urinib koʻring.",
+      "llm_unavailable": "Yordamchi hozir ishlamayapti. Birozdan keyin qayta urinib koʻring.",
+      "llm_unavailable_retry": "Yordamchi hozir ishlamayapti. {{minutes}} daqiqadan keyin qayta urinib koʻring.",
+      "llm_timeout": "Javob juda uzoq tayyorlandi. Qayta urinib koʻring.",
+      "invalid_answer": "Javobni tekshirib boʻlmadi, shuning uchun u koʻrsatilmaydi. Qayta urinib koʻring.",
+      "internal_error": "Bizda xatolik yuz berdi. Qayta urinib koʻring.",
+      "rate_limited": "Qisqa vaqtda juda koʻp savol berdingiz. Biroz kuting.",
+      "rate_limited_retry": "Qisqa vaqtda juda koʻp savol berdingiz. {{minutes}} daqiqadan keyin qayta urinib koʻring.",
+      "quota_exceeded": "Kunlik savollar chegarasiga yetdingiz. Ertaga qayta keling.",
+      "quota_exceeded_retry": "Kunlik savollar chegarasiga yetdingiz. {{minutes}} daqiqadan keyin qayta urinib koʻring.",
+      "stream_in_progress": "Boshqa javob hali yozilmoqda. U tugashini kuting.",
+      "stream_in_progress_retry": "Boshqa javob hali yozilmoqda. {{minutes}} daqiqadan keyin qayta urinib koʻring."
+    },
+    "failedMessage": "Bu javobni yakunlab boʻlmadi.",
+    "streamingElsewhere": "Bu javob hali yozilmoqda. Birozdan keyin sahifani yangilang.",
+    "loadError": "Bu suhbatni yuklab boʻlmadi.",
+    "notFound": "Bu suhbat mavjud emas yoki oʻchirilgan."
+  },
+  "answer": {
+    "steps": "Qadamlar",
+    "whatToDo": "Nima qilishingiz mumkin",
+    "documents": "Kerakli hujjatlar",
+    "fee": "Toʻlov",
+    "processingTime": "Koʻrib chiqish muddati",
+    "lawPoints": "Qonunda nima deyilgan",
+    "sources": "Manbalar",
+    "followUps": "Yana soʻrashingiz mumkin",
+    "citation": "{{n}}-manba",
+    "published": "{{date}} da eʼlon qilingan",
+    "disclaimer": "Bu rasmiy manbalardan olingan umumiy maʼlumot, yuridik maslahat emas. Harakat qilishdan oldin havola qilingan manbalarni tekshiring."
+  },
+  "office": {
+    "title": "Idora",
+    "matchRegion": "Tumaningizda idora topilmadi. Bu {{region}} dagi eng yaqin idora.",
+    "matchNone": "Tumaningiz uchun {{type}} manzili hali bizda yoʻq.",
+    "phone": "Telefon",
+    "map": "Google Xaritada ochish",
+    "dataAsOf": "Maʼlumot {{date}} holatiga koʻra.",
+    "source": "Manba",
+    "break": "tanaffus {{start}}–{{end}}",
+    "status": {
+      "open": "Hozir ochiq · {{time}} da yopiladi",
+      "openUntilBreak": "Hozir ochiq · tushlik {{time}} da",
+      "break": "Tushlik tanaffusi · {{time}} da ochiladi",
+      "opensToday": "Yopiq · bugun {{time}} da ochiladi",
+      "opensOn": "Yopiq · {{day}} {{time}} da ochiladi",
+      "closed": "Yopiq",
+      "unknown": "Ish vaqti nomaʼlum"
+    }
+  },
+  "days": {
+    "mon": "Du",
+    "tue": "Se",
+    "wed": "Ch",
+    "thu": "Pa",
+    "fri": "Ju",
+    "sat": "Sh",
+    "sun": "Ya"
+  },
+  "feedback": {
+    "question": "Bu javob foydali boʻldimi?",
+    "helpful": "Foydali",
+    "notHelpful": "Foydali emas",
+    "comment": "Izoh (ixtiyoriy)",
+    "submit": "Izohni yuborish",
+    "saved": "Rahmat, fikringiz saqlandi.",
+    "error": "Fikringizni saqlab boʻlmadi. Qayta urinib koʻring."
+  },
+  "history": {
+    "title": "Tarix",
+    "empty": "Hali suhbatlar yoʻq.",
+    "loadMore": "Yana yuklash",
+    "delete": "“{{title}}” ni oʻchirish",
+    "deleteConfirmTitle": "Suhbat oʻchirilsinmi?",
+    "deleteConfirmBody": "“{{title}}” butunlay oʻchiriladi.",
+    "error": "Tarixni yuklab boʻlmadi."
+  },
+  "settings": {
+    "title": "Sozlamalar",
+    "profile": "Til va manzil",
+    "quota": {
+      "title": "Savollar chegarasi",
+      "hour": "Shu soatda: {{limit}} tadan {{used}} ta",
+      "day": "Bugun: {{limit}} tadan {{used}} ta"
+    },
+    "password": {
+      "title": "Parolni oʻzgartirish",
+      "submit": "Parolni oʻzgartirish",
+      "saved": "Parolingiz oʻzgartirildi."
+    },
+    "logout": "Chiqish",
+    "deleteAccount": {
+      "title": "Akkauntni oʻchirish",
+      "body": "Akkauntingiz va barcha suhbatlaringiz butunlay oʻchiriladi.",
+      "confirm": "Akkaunt va barcha suhbatlar oʻchirilsinmi? Buni qaytarib boʻlmaydi.",
+      "button": "Akkauntni oʻchirish"
+    }
+  },
+  "about": {
+    "title": "GovAssist haqida",
+    "body": "GovAssist Oʻzbekistonda davlat xizmatidan qanday foydalanishni bosqichma-bosqich tushuntiradi va tumaningizdagi idorani koʻrsatadi.",
+    "sources": "Javoblar faqat lex.uz va my.gov.uz kabi tekshirilgan rasmiy sahifalardan tuziladi va har bir manbaga havola beriladi."
+  },
+  "notFound": {
+    "title": "Sahifa topilmadi",
+    "body": "Bunday sahifa mavjud emas.",
+    "home": "Bosh sahifaga oʻtish"
+  },
+  "errorPage": {
+    "title": "Xatolik yuz berdi",
+    "body": "Iltimos, sahifani yangilang.",
+    "reload": "Yangilash"
+  }
+}
