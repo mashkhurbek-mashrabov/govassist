@@ -11,16 +11,17 @@ Extends `/AGENTS.md`. Full plan: `docs/plans/02-backend-plan.md`.
 | Data | PostgreSQL 18 + pgvector, Redis 8 |
 | Jobs | `django.tasks` + django-tasks DB backend |
 | LLM | Gemini via `google-genai` |
-| Packages | pip + pip-tools: edit `requirements*.in`, then run `invoke compile-deps`. Never hand-edit the `.txt` files, never use uv |
+| Packages | pip + pip-tools: edit `requirements/{base,crawler,dev}.in`, then run `invoke compile-deps`, which writes `requirements/{base,crawler,dev}.txt`. Never hand-edit the `.txt` files, never use uv |
 
 ## Structure per app
 
 | File | Holds |
 |---|---|
-| `models.py` | Models + invariants only |
+| `models.py`, or a **`models/` package** when the app has 2+ models | Models + invariants only. Package layout: one model per module (`models/document.py`, `models/chunk.py`), with `models/__init__.py` re-exporting them |
+| `constants.py` | **All** constants of the app: limits, sizes, choices, regexes, magic strings, default values. No constant values defined anywhere else in the app. Tunables that vary per environment stay in settings/env |
 | `services.py` | Business logic / writes |
 | `selectors.py` | Reusable read queries |
-| `api/` | Serializers, views, urls. **Thin views:** validate → service/selector → serialize |
+| `api/` | Serializers, views, urls. **Thin views:** validate → service/selector → serialize. When the app has 2+ views, use **`api/views/` (and `api/serializers/`) packages**, one module per resource, like `models/` |
 | `admin.py` | Unfold admin |
 | `tasks.py` | Background jobs |
 | `tests/` | Tests |
