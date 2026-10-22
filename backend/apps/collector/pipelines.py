@@ -8,7 +8,7 @@ from typing import Protocol
 from django.conf import settings
 from django.db import transaction
 
-from apps.collector.constants import REGION_WORDS
+from apps.collector.constants import REGION_NAME_FIELDS, REGION_WORDS
 from apps.collector.extraction import (
     OfficeCandidate,
     OfficeExtractor,
@@ -20,7 +20,6 @@ from apps.common.constants import ReviewStatus
 from apps.common.text import canonicalize, detect_language, detect_script, uz_cyrl_to_latn
 from apps.corpus.constants import DocumentKind
 from apps.corpus.models import Document
-from apps.geo.constants import NAME_FIELDS
 from apps.geo.models import Region
 from apps.offices.matching import match_district
 from apps.offices.models import Office, OfficeType, ServiceOffice
@@ -57,7 +56,7 @@ def find_region(name: str) -> Region | None:
         (
             region
             for region in Region.objects.all()
-            if any(_region_key(getattr(region, field)) == key for field in NAME_FIELDS)
+            if any(_region_key(getattr(region, field)) == key for field in REGION_NAME_FIELDS)
         ),
         None,
     )

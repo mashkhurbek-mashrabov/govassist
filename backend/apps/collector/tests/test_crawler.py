@@ -138,3 +138,19 @@ def test_failure_marks_job_failed_and_reraises() -> None:
     assert job.error == "RuntimeError: pipeline broke"
     assert job.finished_at is not None
     assert not RawPage.objects.exists()
+
+
+def test_blocked_fetch_is_skipped_not_fatal() -> None:
+    """A URL the SSRF guard refuses is counted as skipped and the crawl continues."""
+    from apps.collector.fetchers import BlockedUrlError  # noqa: PLC0415
+
+    class Refusing(FakeFetcher):
+        """Refuses the start page."""
+
+        def fetch(self, url: str) -> FetchResult:
+            """Raise like the guard."""
+            msg = "host 'evil.example' not allowed"
+            raise BlockedUrlError(msg)
+
+    job = _crawl(_source(), Refusing({}), RecordingPipeline())
+    assert (job.status, job.pages_fetched, job.pages_skipped) == (CrawlJob.Status.DONE, 0, 1)

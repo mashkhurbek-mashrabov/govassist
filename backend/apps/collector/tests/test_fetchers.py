@@ -12,10 +12,12 @@ import pytest
 
 from apps.collector.constants import RETRY_AFTER_CAP_S, RETRY_FALLBACK_S
 from apps.collector.fetchers import (
+    BlockedUrlError,
     BrowserFetcher,
     HostRateLimiter,
     HttpFetcher,
     RobotsPolicy,
+    UrlGuard,
     parse_retry_after,
 )
 
@@ -25,6 +27,22 @@ UA = "GovAssist-research/1.0 (+https://github.com/mashkhurbek-mashrabov/govassis
 def _client(handler: Callable[[httpx.Request], httpx.Response]) -> httpx.Client:
     """An httpx client served by ``handler``."""
     return httpx.Client(transport=httpx.MockTransport(handler), headers={"User-Agent": UA})
+
+
+class AllowAllRobots(RobotsPolicy):
+    """Robots policy that allows everything without network."""
+
+    def __init__(self) -> None:
+        pass
+
+    def allowed(self, url: str) -> bool:
+        """Allow."""
+        return True
+
+
+def _guard(*hosts: str, address: str = "93.184.216.34") -> UrlGuard:
+    """A guard for ``hosts`` whose names resolve to ``address`` (public by default)."""
+    return UrlGuard(set(hosts or {"x.example"}), AllowAllRobots(), resolver=lambda host: [address])
 
 
 @pytest.mark.parametrize(
@@ -111,7 +129,7 @@ def test_http_fetcher_waits_out_429_then_succeeds() -> None:
         ]
     )
     slept: list[float] = []
-    fetcher = HttpFetcher(_client(lambda request: next(replies)), sleep=slept.append)
+    fetcher = HttpFetcher(_guard(), _client(lambda request: next(replies)), sleep=slept.append)
     result = fetcher.fetch("https://x.example/a")
     assert (result.status, result.content_type, result.body) == (200, "text/html", b"ok")
     assert slept == [2.0]
@@ -127,7 +145,9 @@ def test_http_fetcher_gives_up_after_max_attempts() -> None:
         calls.append(1)
         return httpx.Response(503)
 
-    result = HttpFetcher(_client(handler), sleep=lambda s: None).fetch("https://x.example/a")
+    result = HttpFetcher(_guard(), _client(handler), sleep=lambda s: None).fetch(
+        "https://x.example/a"
+    )
     assert result.status == 503
     assert len(calls) == 3
 
@@ -144,7 +164,7 @@ def test_browser_fetcher_renders_with_playwright() -> None:
         """Return the fake Playwright context manager."""
         return playwright
 
-    result = BrowserFetcher(factory).fetch("https://x.example/a")
+    result = BrowserFetcher(_guard(), factory).fetch("https://x.example/a")
     assert (result.final_url, result.body, result.status) == (
         "https://x.example/final",
         b"<p>hi</p>",
@@ -166,7 +186,10 @@ def test_http_fetcher_retries_transport_errors() -> None:
         return httpx.Response(200, text="ok")
 
     assert (
-        HttpFetcher(_client(flaky), sleep=lambda s: None).fetch("https://x.example/").status == 200
+        HttpFetcher(_guard(), _client(flaky), sleep=lambda s: None)
+        .fetch("https://x.example/")
+        .status
+        == 200
     )
 
     def down(request: httpx.Request) -> httpx.Response:
@@ -174,4 +197,137 @@ def test_http_fetcher_retries_transport_errors() -> None:
         raise httpx.ConnectError("down")
 
     with pytest.raises(httpx.ConnectError):
-        HttpFetcher(_client(down), sleep=lambda s: None).fetch("https://x.example/")
+        HttpFetcher(_guard(), _client(down), sleep=lambda s: None).fetch("https://x.example/")
+
+
+def test_http_fetcher_does_not_retry_server_errors() -> None:
+    """Only 429/503 are waited out; a 500 is returned at once."""
+    calls: list[int] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        """Always 500."""
+        calls.append(1)
+        return httpx.Response(500)
+
+    assert (
+        HttpFetcher(_guard(), _client(handler), sleep=lambda s: None)
+        .fetch("https://x.example/")
+        .status
+        == 500
+    )
+    assert len(calls) == 1
+
+
+@pytest.mark.parametrize(
+    ("url", "address", "reason"),
+    [
+        ("ftp://x.example/a", "93.184.216.34", "scheme"),
+        ("https://evil.example/a", "93.184.216.34", "host"),
+        ("https://x.example/a", "10.0.0.5", "non-public"),
+        ("https://x.example/a", "127.0.0.1", "non-public"),
+        ("https://x.example/a", "169.254.169.254", "non-public"),
+    ],
+)
+def test_guard_refuses(url: str, address: str, reason: str) -> None:
+    """Wrong scheme, foreign host and private/link-local addresses are refused."""
+    with pytest.raises(BlockedUrlError, match=reason):
+        _guard("x.example", address=address).check(url)
+
+
+def test_guard_respects_robots() -> None:
+    """A robots-disallowed path is refused by the guard too."""
+
+    class NoRobots(AllowAllRobots):
+        """Disallow everything."""
+
+        def allowed(self, url: str) -> bool:
+            """Refuse."""
+            return False
+
+    guard = UrlGuard({"x.example"}, NoRobots(), resolver=lambda host: ["93.184.216.34"])
+    with pytest.raises(BlockedUrlError, match="robots"):
+        guard.check("https://x.example/a")
+
+
+def test_redirects_are_followed_by_hand_and_guarded() -> None:
+    """Same-host redirects are followed; a hop to another host is blocked."""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        """/a → /b on the same host, /b → evil.example."""
+        if request.url.path == "/a":
+            return httpx.Response(302, headers={"location": "/b"})
+        if request.url.path == "/b":
+            return httpx.Response(302, headers={"location": "https://evil.example/steal"})
+        return httpx.Response(200, text="ok")
+
+    fetcher = HttpFetcher(_guard(), _client(handler), sleep=lambda s: None)
+    with pytest.raises(BlockedUrlError, match="host"):
+        fetcher.fetch("https://x.example/a")
+
+
+def test_redirect_chain_is_capped() -> None:
+    """An endless redirect loop stops after CRAWLER_MAX_REDIRECTS."""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        """Always redirect to the next number."""
+        n = int(request.url.path.strip("/") or 0)
+        return httpx.Response(301, headers={"location": f"/{n + 1}"})
+
+    with pytest.raises(BlockedUrlError, match="redirects"):
+        HttpFetcher(_guard(), _client(handler), sleep=lambda s: None).fetch("https://x.example/0")
+
+
+def test_same_host_redirect_returns_final_page() -> None:
+    """A normal redirect lands on the final page with its URL."""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        """/old → /new."""
+        if request.url.path == "/old":
+            return httpx.Response(301, headers={"location": "/new"})
+        return httpx.Response(200, text="new")
+
+    result = HttpFetcher(_guard(), _client(handler), sleep=lambda s: None).fetch(
+        "https://x.example/old"
+    )
+    assert (result.final_url, result.body) == ("https://x.example/new", b"new")
+
+
+def test_oversized_bodies_are_refused(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Declared or streamed bodies over the cap are refused before being buffered."""
+    monkeypatch.setattr("apps.collector.fetchers.CRAWLER_MAX_BYTES", 10)
+    declared = HttpFetcher(
+        _guard(),
+        _client(lambda r: httpx.Response(200, headers={"content-length": "99"}, text="x" * 99)),
+        sleep=lambda s: None,
+    )
+    with pytest.raises(BlockedUrlError, match="declares"):
+        declared.fetch("https://x.example/a")
+    streamed = HttpFetcher(
+        _guard(),
+        _client(lambda r: httpx.Response(200, content=iter([b"x" * 6, b"x" * 6]))),
+        sleep=lambda s: None,
+    )
+    with pytest.raises(BlockedUrlError, match="larger"):
+        streamed.fetch("https://x.example/a")
+
+
+def test_browser_fetcher_checks_navigations_and_final_url() -> None:
+    """Refused navigations are aborted; a final URL off-host raises."""
+    guard = _guard("x.example")
+    route = MagicMock()
+    route.request.is_navigation_request.return_value = True
+    route.request.url = "https://evil.example/"
+    BrowserFetcher(guard)._route(route)
+    route.abort.assert_called_once()
+    route.request.url = "https://x.example/ok"
+    BrowserFetcher(guard)._route(route)
+    route.continue_.assert_called_once()
+
+    page = MagicMock(url="https://evil.example/landed", content=MagicMock(return_value="<p/>"))
+    page.goto.return_value = SimpleNamespace(status=200)
+    browser = MagicMock(new_page=MagicMock(return_value=page))
+    playwright = MagicMock()
+    playwright.__enter__.return_value.chromium.launch.return_value = browser
+    with pytest.raises(BlockedUrlError, match="host"):
+        BrowserFetcher(guard, lambda: playwright).fetch("https://x.example/a")
+    assert browser.close.called

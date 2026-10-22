@@ -269,6 +269,8 @@ CRAWLER_USER_AGENT = env.str(
 CRAWLER_RATE_PER_HOST = env.float("CRAWLER_RATE_PER_HOST", default=1.0)
 CRAWLER_TIMEOUT_S = env.int("CRAWLER_TIMEOUT_S", default=30)
 COLLECTOR_LLM_MAX_TRIES = env.int("COLLECTOR_LLM_MAX_TRIES", default=5)
+# Extra hosts a crawl may be redirected to (besides the source's own host).
+CRAWLER_EXTRA_HOSTS = env.list("CRAWLER_EXTRA_HOSTS", default=[])
 RAW_DATA_DIR = Path(env.str("RAW_DATA_DIR", default=str(BASE_DIR.parent / "data" / "raw")))
 
 # --- Admin (django-unfold) ---------------------------------------------------------

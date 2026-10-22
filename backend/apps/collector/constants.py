@@ -30,7 +30,11 @@ RETRY_FALLBACK_S = 5.0
 
 RETRY_MAX_ATTEMPTS = 3
 
-RETRYABLE_STATUS = frozenset({429, 503})
+CRAWLER_RETRY_STATUS = frozenset({429, 503})
+CRAWLER_MAX_REDIRECTS = 5
+CRAWLER_MAX_BYTES = 10 * 1024 * 1024  # larger responses are skipped, never buffered
+ALLOWED_SCHEMES = frozenset({"http", "https"})
+REDIRECT_STATUS = frozenset({301, 302, 303, 307, 308})
 
 HTTP_CLIENT_ERROR = 400
 
@@ -73,7 +77,7 @@ SECTION_SELECTOR = ".item, .accordionContent"
 
 MAX_TITLE_CHARS = 200
 
-NAME_FIELDS = ("name_uz_latn", "name_uz_cyrl", "name_ru", "name_en")
+REGION_NAME_FIELDS = ("name_uz_latn", "name_uz_cyrl", "name_ru", "name_en")
 
 REGION_WORDS = re.compile(
     r"\b(viloyati|viloyat|shahri|shahar|respublikasi|respublika|oblast|region|city|republic)\b"

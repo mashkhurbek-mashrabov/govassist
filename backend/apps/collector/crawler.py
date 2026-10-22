@@ -10,7 +10,14 @@ from pathlib import Path
 from django.conf import settings
 from django.utils import timezone
 
-from apps.collector.fetchers import Fetcher, FetchResult, HostRateLimiter, RobotsPolicy, host_of
+from apps.collector.fetchers import (
+    BlockedUrlError,
+    Fetcher,
+    FetchResult,
+    HostRateLimiter,
+    RobotsPolicy,
+    host_of,
+)
 from apps.collector.models import CrawlJob, CrawlSource, RawPage
 from apps.collector.parsers import ParsedPage, parse
 from apps.collector.pipelines import Pipeline
@@ -89,7 +96,11 @@ class Crawler:
             self._skip(job, url, "robots.txt")
             return None
         self._limiter.wait(url)
-        page = self._fetcher.fetch(url)
+        try:
+            page = self._fetcher.fetch(url)
+        except BlockedUrlError as exc:
+            self._skip(job, url, f"blocked: {exc}")
+            return None
         if not HTTP_OK_MIN <= page.status <= HTTP_OK_MAX:
             self._skip(job, url, f"HTTP {page.status}")
             return None

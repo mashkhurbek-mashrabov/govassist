@@ -2,7 +2,14 @@
 
 from apps.collector.crawler import Crawler
 from apps.collector.extraction import GeminiOfficeExtractor, GeminiOfficeTypeClassifier
-from apps.collector.fetchers import BrowserFetcher, Fetcher, HttpFetcher
+from apps.collector.fetchers import (
+    BrowserFetcher,
+    Fetcher,
+    HttpFetcher,
+    RobotsPolicy,
+    UrlGuard,
+    host_of,
+)
 from apps.collector.models import CrawlJob, CrawlSource
 from apps.collector.pipelines import DocumentPipeline, OfficePipeline, Pipeline
 
@@ -14,13 +21,15 @@ def build_crawler(source: CrawlSource, *, force: bool = False) -> Crawler:
         source: The source to crawl.
         force: Re-process unchanged pages.
     """
-    fetcher: Fetcher = BrowserFetcher() if source.use_browser else HttpFetcher()
+    robots = RobotsPolicy()
+    guard = UrlGuard({host_of(source.start_url)}, robots)
+    fetcher: Fetcher = BrowserFetcher(guard) if source.use_browser else HttpFetcher(guard)
     pipeline: Pipeline = (
         OfficePipeline(GeminiOfficeExtractor())
         if source.kind == CrawlSource.Kind.OFFICE
         else DocumentPipeline(GeminiOfficeTypeClassifier())
     )
-    return Crawler(fetcher=fetcher, pipeline=pipeline, force=force)
+    return Crawler(fetcher=fetcher, pipeline=pipeline, robots=robots, force=force)
 
 
 def run_job(job: CrawlJob, *, force: bool = False) -> CrawlJob:

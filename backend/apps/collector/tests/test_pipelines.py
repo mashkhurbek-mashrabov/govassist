@@ -139,6 +139,7 @@ def test_office_pipeline_requires_office_type() -> None:
 def test_find_region_by_any_name(district: District) -> None:
     """Regions match by any language, with or without 'viloyati'."""
     assert find_region("Тест вилояти") == district.region
+    assert find_region("Test region") == district.region  # English name (name_en)
     assert find_region("test") == district.region
     assert find_region("") is None
 
