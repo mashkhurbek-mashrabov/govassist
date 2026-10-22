@@ -29,7 +29,7 @@ Use the latest stable version of each. Pin exact versions in `package-lock.json`
 | Forms | react-hook-form 7 + zod 4 |
 | i18n | i18next + react-i18next. Locales `uz-Latn` (default), `uz-Cyrl`, `ru`, `en` |
 | Styling | **Tailwind CSS 4**, with the theme taken **only** from `docs/design/tokens.css` (`@theme` maps the CSS variables). No raw hex or px values outside the tokens |
-| Primitives | Native HTML first. Radix primitives only where native isn't enough (Dialog, Select/Combobox, DropdownMenu). Icons: `lucide-react` |
+| Primitives | Native HTML first. Radix primitives only where native isn't enough (Dialog, Select/Combobox, DropdownMenu). Icons: `lucide-react` only, at the same Lucide version as `docs/design` (icon names from the inventory in `docs/design/components.md`) |
 | Streaming | `fetch` + `ReadableStream` + `eventsource-parser`; `partial-json` for live answer parsing |
 | Mocks | MSW 3 (browser + Node), handlers built from the contract examples |
 | Testing | Vitest 5 + Testing Library + MSW; `@axe-core/playwright` + Playwright for E2E smoke and a11y |

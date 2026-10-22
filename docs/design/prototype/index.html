@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GovAssist prototype</title>
+  <link rel="stylesheet" href="../fonts/inter.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<main class="page" id="main">
+<h1>GovAssist prototype v1</h1>
+<p><a class="btn btn--primary" href="journeys.html">Clickable journeys J1–J6 →</a></p>
+<p>Static HTML + CSS. Open any file directly; no build step, no network. Use the dashed bar at the top of each page to switch states (also <code>#state</code> in the URL).</p>
+<p class="disclaimer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>All data is illustrative (contract §6) and keeps the NAMUNA / SAMPLE markers. Rasmiy davlat xizmati emas.</span></p>
+<ol class="prose" style="padding-left: var(--space-6)"><li><a href="welcome.html">Landing</a> <span class="t-small t-muted">· 2 state(s) · Public first visit (/welcome). The preview card is NAMUNA data from contract §6.</span></li><li><a href="signup.html">Sign up</a> <span class="t-small t-muted">· 4 state(s)</span></li><li><a href="login.html">Log in</a> <span class="t-small t-muted">· 5 state(s)</span></li><li><a href="check-email.html">Check your email</a> <span class="t-small t-muted">· 3 state(s) · rate-limited uses an illustrative 5 min wait; the real value comes from retry_after.</span></li><li><a href="verify-email.html">Verify email</a> <span class="t-small t-muted">· 3 state(s)</span></li><li><a href="password.html">Forgot / reset password</a> <span class="t-small t-muted">· 5 state(s)</span></li><li><a href="onboarding.html">Onboarding</a> <span class="t-small t-muted">· 6 state(s) · Region and district lists use contract names plus NAMUNA placeholders; real names come from /geo.</span></li><li><a href="chat-empty.html">Chat: empty</a> <span class="t-small t-muted">· 3 state(s) · Suggestion chips: two contract questions plus NAMUNA placeholders (real ones come from /suggestions).</span></li><li><a href="chat-streaming.html">Chat: answering</a> <span class="t-small t-muted">· 7 state(s) · The final state is answer-service.html#complete. Cards stay in schema order; skeletons hold space for the next block.</span></li><li><a href="answer-service.html">Answer: service</a> <span class="t-small t-muted">· 9 state(s)</span></li><li><a href="answer-legal.html">Answer: legal</a> <span class="t-small t-muted">· 1 state(s) · No legal example exists in the contract; every text is a NAMUNA placeholder.</span></li><li><a href="answer-not-found.html">Answer: not found / off topic</a> <span class="t-small t-muted">· 2 state(s) · Title and summary are model output (NAMUNA placeholders here); the help line and topic chips are static UI.</span></li><li><a href="chat-errors.html">Chat errors</a> <span class="t-small t-muted">· 11 state(s) · 21 min is illustrative: minutes = ceil(retry_after / 60).</span></li><li><a href="history.html">History</a> <span class="t-small t-muted">· 6 state(s) · On desktop the same list lives in the sidebar; /history is the mobile route.</span></li><li><a href="settings.html">Settings</a> <span class="t-small t-muted">· 10 state(s) · Change password: allauth account/password/change; current password hidden when Me.has_password is false.</span></li><li><a href="about.html">About</a> <span class="t-small t-muted">· 1 state(s) · Source list from GET /api/v1/sources (SourceSummary). Rows are NAMUNA; the first is the contract example.</span></li><li><a href="404.html">404 / error</a> <span class="t-small t-muted">· 2 state(s)</span></li><li><a href="components.html">Components</a> <span class="t-small t-muted">· 1 state(s)</span></li><li><a href="type.html">Type and long strings</a> <span class="t-small t-muted">· 1 state(s) · Russian and Cyrillic strings are UI test strings, not translations for production; NAMUNA marks sample data.</span></li></ol>
+</main>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="uz-Latn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat errors · GovAssist prototype</title>
+  <link rel="stylesheet" href="../fonts/inter.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<nav class="proto-bar" aria-label="Prototype states" data-default="stream-error"><a href="index.html">← Index</a><span>States:</span><button type="button" data-state="stream-error" aria-pressed="false">llm_unavailable + retry</button><button type="button" data-state="timeout" aria-pressed="false">llm_timeout</button><button type="button" data-state="invalid" aria-pressed="false">invalid_answer</button><button type="button" data-state="stopped-reload" aria-pressed="false">stopped (after reload)</button><button type="button" data-state="rate-limited" aria-pressed="false">rate_limited (N min)</button><button type="button" data-state="quota-user" aria-pressed="false">quota_exceeded scope=user</button><button type="button" data-state="quota-global" aria-pressed="false">quota_exceeded scope=global</button><button type="button" data-state="busy" aria-pressed="false">stream_in_progress</button><button type="button" data-state="offline" aria-pressed="false">offline banner</button><button type="button" data-state="back-online" aria-pressed="false">back online</button><button type="button" data-state="too-long" aria-pressed="false">too long (counter)</button></nav>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="chat-empty.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">NAMUNA suhbat 2</span><span class="history__preview"><span class="history__date">Kecha</span> · NAMUNA: [PASSPORT] raqamli pasport boʻyicha savol</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA suhbat 2” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">NAMUNA suhbat 3</span><span class="history__preview"><span class="history__date">18.10.2026</span> · NAMUNA: oxirgi xabar matni</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA suhbat 3” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">Pasportni almashtirish</p>
+  <a class="icon-btn js-new-chat" href="chat-empty.html" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+<div class="banner" data-when="offline" role="status"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01"/><path d="M8.5 16.4a5 5 0 0 1 7 0"/><path d="M5 12.9a10 10 0 0 1 5.2-2.7"/><path d="M19 12.9a10 10 0 0 0-2-1.5"/><path d="M2 8.8a15 15 0 0 1 4.2-2.6"/><path d="M22 8.8a15 15 0 0 0-11.3-3.8"/><path d="m2 2 20 20"/></svg><span>Internet aloqasi yoʻq. Ulanganingizdan soʻng qayta urinib koʻring.</span></div>
+<main class="page page--chat" id="main">
+<div data-when="stream-error"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant"><div class="alert alert--danger" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><div class="alert__body"><p class="alert__title">Javob olinmadi</p><p>Javob berish xizmati vaqtincha ishlamayapti. Birozdan soʻng qayta urinib koʻring.</p><div class="alert__actions"><button class="btn btn--secondary btn--sm" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.8 9.8 0 0 1 6.7 2.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.8 9.8 0 0 1-6.7-2.7L3 16"/><path d="M8 16H3v5"/></svg><span>Qayta urinish</span></button></div></div></div></li></ol></div><div data-when="timeout"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant"><div class="alert alert--danger" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><div class="alert__body"><p class="alert__title">Javob olinmadi</p><p>Javob juda uzoq kechikdi. Qayta urinib koʻring.</p><div class="alert__actions"><button class="btn btn--secondary btn--sm" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.8 9.8 0 0 1 6.7 2.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.8 9.8 0 0 1-6.7-2.7L3 16"/><path d="M8 16H3v5"/></svg><span>Qayta urinish</span></button></div></div></div></li></ol></div><div data-when="invalid"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant"><div class="alert alert--danger" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><div class="alert__body"><p class="alert__title">Javob olinmadi</p><p>Javobni toʻgʻri tuzib boʻlmadi. Qayta urinib koʻring.</p><div class="alert__actions"><button class="btn btn--secondary btn--sm" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.8 9.8 0 0 1 6.7 2.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.8 9.8 0 0 1-6.7-2.7L3 16"/><path d="M8 16H3v5"/></svg><span>Qayta urinish</span></button></div></div></div></li></ol></div><div data-when="stopped-reload"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p><div class="alert__actions"><button class="btn btn--secondary btn--sm" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.8 9.8 0 0 1 6.7 2.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.8 9.8 0 0 1-6.7-2.7L3 16"/><path d="M8 16H3v5"/></svg><span>Qayta urinish</span></button></div></div></div></li></ol></div><div data-when="rate-limited"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><div class="alert__body"><p class="alert__title">Javob olinmadi</p><p>Bir soatda 20 tagacha savol berish mumkin. 21 daqiqadan soʻng yana soʻrang.</p></div></div></li></ol></div><div data-when="quota-user"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><div class="alert__body"><p class="alert__title">Javob olinmadi</p><p>Bugungi savollar chegarasiga yetdingiz. Ertaga yana soʻrang.</p></div></div></li></ol></div><div data-when="quota-global"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><div class="alert__body"><p class="alert__title">Javob olinmadi</p><p>Bugun xizmatning umumiy chegarasiga yetildi. Ertaga qayta urinib koʻring.</p></div></div></li></ol></div><div data-when="busy"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><div class="alert__body"><p class="alert__title">Javob olinmadi</p><p>Oldingi javob hali yozilmoqda. U tugashini kuting.</p></div></div></li></ol></div><div data-when="offline"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li></ol></div><div data-when="back-online"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li></ol></div><div data-when="too-long"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li></ol></div>
+</main>
+<div data-when="stream-error"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="timeout"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="invalid"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="stopped-reload"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="rate-limited"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note" disabled></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="quota-user"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note" disabled></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="quota-global"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note" disabled></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="busy"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="offline"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note" disabled></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="back-online"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="too-long"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar" data-invalid="true">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note" aria-invalid="true">NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol. NAMUNA uzun savol.</textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    <p class="field__error" id="composer-err"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><span>Savol juda uzun. 1000 belgigacha qisqartiring.</span></p>
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p><span class="counter counter--over" aria-live="polite">1045 / 1000</span></div>
+  </form>
+</div></div>
+</div>
+</div>
+<div class="toast" data-when="back-online" role="status"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Aloqa tiklandi.</span></div>
+<script>
+  /* Prototype only: show the elements whose data-when lists the current state (#state in the URL). */
+  (function () {
+    var bar = document.querySelector(".proto-bar");
+    function show(state) {
+      document.querySelectorAll("[data-when]").forEach(function (el) {
+        el.hidden = el.getAttribute("data-when").split(" ").indexOf(state) < 0;
+      });
+      bar.querySelectorAll("[data-state]").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.getAttribute("data-state") === state));
+      });
+      document.body.classList.toggle("drawer-open", state.indexOf("drawer") === 0);
+    }
+    function current() { return location.hash.slice(1) || bar.getAttribute("data-default"); }
+    document.addEventListener("click", function (e) {
+      var t = e.target.closest("[data-state], [data-goto], [data-drawer]");
+      if (!t) return;
+      e.preventDefault();
+      if (t.hasAttribute("data-drawer")) {
+        document.body.classList.toggle("drawer-open", t.getAttribute("data-drawer") === "open");
+        return;
+      }
+      location.hash = t.getAttribute("data-state") || t.getAttribute("data-goto");
+    });
+    window.addEventListener("hashchange", function () { show(current()); });
+    show(current());
+  })();
+</script>
+</body>
+</html>

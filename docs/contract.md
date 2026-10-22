@@ -38,6 +38,8 @@
 | `not_authenticated` | 401 | No session |
 | `email_not_verified` | 403 | Email not verified yet |
 | `profile_incomplete` | 403 | Region/district missing; go to onboarding |
+| `csrf_failed` | 403 | Missing or invalid CSRF token, on DRF views **and** on the `/chat` view. The SPA refetches `GET /api/v1/csrf` and retries once |
+| `permission_denied` | 403 | Any other forbidden action |
 | `validation_error` | 400 | `errors`: `{field: [messages]}` |
 | `rate_limited` | 429 | Per-user/IP limit; `retry_after` seconds; also a `Retry-After` header |
 | `quota_exceeded` | 429 | Daily limit reached. The body includes `scope`: `"user"` (this user's daily limit) or `"global"` (the service-wide daily token cap) |
@@ -45,6 +47,9 @@
 | `not_found` | 404 | Resource missing or not the user's own |
 | `llm_unavailable` | 503 | Gemini failed before streaming started |
 | `internal_error` | 500 | Unexpected error |
+
+- `retry_after` (seconds) is present only on `rate_limited` and `quota_exceeded`, and omitted otherwise.
+- **Every error under `/api/` is problem+json, never Django HTML.** That includes a 404 for a malformed id (e.g. a non-UUID), CSRF failures and 500s.
 
 ---
 
@@ -103,10 +108,10 @@ Keys in email links are URL-encoded (e.g. `MQ%3A…`). The SPA must POST the **d
 | POST | `/auth/resend-verification` | public | `{"email": str}` | `204` **always**, so it can't reveal whether an account exists. `429 rate_limited` with `retry_after` |
 | GET | `/sources` | public | — | `{"items": [SourceSummary]}`: approved, active sources with at least one approved document or office (About page) |
 | GET | `/me` | user | — | `Me` |
-| PATCH | `/me` | user | `{ui_language?, region_id?, district_id?, display_name?}` | `Me`. `district_id` must belong to `region_id` |
+| PATCH | `/me` | user | `{ui_language?, region_id?, district_id?, display_name?}` | `Me`. `district_id` must belong to `region_id`. Changing `region_id` **requires** `district_id` in the same request; otherwise `400 validation_error` |
 | DELETE | `/me` | user | `{"confirm": true}` | `204`. Deletes the account and all its conversations |
 | GET | `/geo/regions` | public | — | `[Region]` |
-| GET | `/geo/regions/{region_id}/districts` | public | — | `[District]` |
+| GET | `/geo/regions/{region_id}/districts` | public | — | `[District]`; `404 not_found` for an unknown region |
 | GET | `/suggestions` | user | — | `{"items": [{"text": str, "category": str}]}`, at most 6, in `ui_language` |
 | GET | `/conversations` | user | — | paginated `[ConversationSummary]`, newest first |
 | GET | `/conversations/{id}` | user | — | `Conversation` (with `messages`) |
@@ -131,6 +136,9 @@ Keys in email links are URL-encoded (e.g. `MQ%3A…`). The SPA must POST the **d
 
 // ConversationSummary
 { "id": "uuid", "title": "Pasportni almashtirish", "updated_at": "…", "last_message_preview": "…" }
+// title: never empty. Set from the scrubbed first question (≤ 60 chars) when the conversation is created,
+//        then replaced by the first successful answer's `title`.
+// last_message_preview: the last USER message (scrubbed), ≤ 120 chars.
 
 // Conversation
 { "id": "uuid", "title": "…", "created_at": "…", "updated_at": "…", "messages": [Message] }
@@ -149,7 +157,7 @@ Keys in email links are URL-encoded (e.g. `MQ%3A…`). The SPA must POST the **d
 
 // SourceSummary (GET /sources)
 { "publisher": "lex.uz", "name": "NAMUNA Oila kodeksi", "kind": "law",   // "law" | "service_page" | "office" | "other"
-  "url": "https://lex.uz/", "documents": 12, "last_fetched_at": "2026-10-20T08:00:00Z" }
+  "url": "https://lex.uz/", "documents": 12, "last_fetched_at": "2026-10-20T08:00:00Z" }   // last_fetched_at: string | null (the UI hides the date when null)
 ```
 
 User text is stored **after PII scrubbing**. The history therefore shows placeholders such as `[PASSPORT]`, `[PINFL]`, `[PHONE]` and `[EMAIL]`.
@@ -294,6 +302,8 @@ interface WorkingHours {
 }
 ```
 
+Localization: `office_type.label`, `district.name` and `region.name` come in the user's `ui_language`. `office.name` and `address` are shown **as stored**, in the source's language, and are never translated.
+
 `map_url` takes one of two forms:
 - with coordinates: `https://www.google.com/maps/search/?api=1&query=<lat>,<lng>`;
 - without: `…&query=<url-encoded name + address>`.
@@ -374,3 +384,10 @@ The example values below are layout placeholders for design and mocks. Never pre
 *Contract v1.1, 2026-10-22: added the change-password endpoint and `Me.has_password`; `POST /auth/resend-verification`; `GET /sources` + `SourceSummary`; assistant `error_code` (incl. `"stopped"`) and the Stop behaviour; `scope` on `quota_exceeded`; clarified `match: "region"`. These answer the design open questions in PR #1.*
 *Contract v1.2, 2026-10-22: auth error codes table (`turnstile_failed` and the allauth/Django codes). Retry after Stop re-sends the question as a new user message, so history shows both attempts.*
 *Contract v1.3, 2026-10-22: from backend findings on allauth 65.20. Removed `email_taken` (enumeration prevention: signup with an existing email looks like a new signup) and `password_too_similar` (never fires at signup). Added the `account_reset_password` → `/forgot-password` frontend URL and the decoded-key rule for email links.*
+*Contract v1.4, 2026-10-22: from the frontend's cross-check of PR #3.
+- Errors: `csrf_failed` and `permission_denied`; all `/api/` errors are problem+json; `retry_after` only on rate/quota errors.
+- PATCH /me: changing the region requires a district.
+- Districts endpoint returns 404 for an unknown region.
+- Conversation `title` is never empty; `last_message_preview` = the last user message.
+- `SourceSummary.last_fetched_at` is nullable.*
+*Contract v1.5, 2026-10-22: office localization. Type, district and region labels follow `ui_language`; office name and address are shown as stored.*
