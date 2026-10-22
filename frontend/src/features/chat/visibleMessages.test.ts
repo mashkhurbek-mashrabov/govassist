@@ -53,6 +53,12 @@ describe("visibleMessages", () => {
     const done = turn({ isStreaming: false, finalMessage: assistant });
     expect(visibleMessages([], done)).toEqual({ messages: [], showTurn: true });
   });
+
+  it("keeps a finished turn over a stored copy fetched mid-stream", () => {
+    const done = turn({ isStreaming: false, finalMessage: assistant });
+    const midStream = { ...assistant, status: "streaming" as const, answer: null };
+    expect(visibleMessages([user, midStream], done)).toEqual({ messages: [], showTurn: true });
+  });
 });
 
 /** Retry after reload resends the question of a failed latest answer. */

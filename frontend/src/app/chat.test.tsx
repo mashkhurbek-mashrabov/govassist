@@ -57,6 +57,25 @@ async function ask(user: ReturnType<typeof userEvent.setup>, text: string): Prom
   await user.keyboard("{Enter}");
 }
 
+/** A whole mock stream plus the history refetch; slow CI runners with coverage need more than 1 s. */
+const SETTLE_TIMEOUT_MS = 5000;
+
+/**
+ * Wait until the latest answer has settled: the stream closed and the stored copy replaced the live one
+ * (the live turn's status regions are gone), so its chips no longer change under a click.
+ */
+async function waitForSettledAnswer(): Promise<void> {
+  await waitFor(
+    () => {
+      const assistants = document.querySelectorAll("li.assistant");
+      const latest = assistants[assistants.length - 1];
+      expect(latest).toHaveAttribute("aria-busy", "false");
+      expect(within(latest as HTMLElement).queryAllByRole("status")).toHaveLength(0);
+    },
+    { timeout: SETTLE_TIMEOUT_MS },
+  );
+}
+
 /**
  * Wait until an answer is final (its feedback bar is shown).
  *
@@ -154,10 +173,10 @@ describe("chat", () => {
     renderApp("/");
     await ask(user, "NAMUNA: Ertaga ob-havo qanday boʻladi?");
     expect(await screen.findByText(/davlat xizmatlari va Oʻzbekiston qonunlari/)).toBeInTheDocument();
-    await user.click(
-      await screen.findByRole("button", { name: "NAMUNA savol: tugʻilganlik haqida guvohnoma" }),
-    );
-    expect(await screen.findByRole("heading", { name: "NAMUNA: aniq javob topilmadi" })).toBeInTheDocument();
+    await waitForSettledAnswer();
+    await user.click(screen.getByRole("button", { name: "NAMUNA savol: tugʻilganlik haqida guvohnoma" }));
+    await waitForSettledAnswer();
+    expect(screen.getByRole("heading", { name: "NAMUNA: aniq javob topilmadi" })).toBeInTheDocument();
     expect(screen.getByText(/boshqa soʻzlar bilan/)).toBeInTheDocument();
   });
 
