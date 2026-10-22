@@ -40,7 +40,7 @@
 | `profile_incomplete` | 403 | Region/district missing; go to onboarding |
 | `validation_error` | 400 | `errors`: `{field: [messages]}` |
 | `rate_limited` | 429 | Per-user/IP limit; `retry_after` seconds; also a `Retry-After` header |
-| `quota_exceeded` | 429 | Daily limit or global token cap reached |
+| `quota_exceeded` | 429 | Daily limit reached. The body includes `scope`: `"user"` (this user's daily limit) or `"global"` (the service-wide daily token cap) |
 | `stream_in_progress` | 409 | The user already has an answer streaming |
 | `not_found` | 404 | Resource missing or not the user's own |
 | `llm_unavailable` | 503 | Gemini failed before streaming started |
@@ -63,6 +63,9 @@ Request and response shapes follow **allauth's own spec**. In dev it is served a
 | Request password reset | `POST /_allauth/browser/v1/auth/password/request` `{email}` |
 | Reset password | `POST /_allauth/browser/v1/auth/password/reset` `{key, password}` |
 | Google login | `POST /_allauth/browser/v1/auth/provider/redirect` (form post: `provider=google`, `callback_url`, `process=login`) |
+| Change / set password | `POST /_allauth/browser/v1/account/password/change` `{current_password, new_password}`. Omit `current_password` when `Me.has_password` is false (Google-only account setting a first password) |
+
+To resend the verification email, use the app endpoint `POST /api/v1/auth/resend-verification` (§3). To "use another email" before verification, go back to `/signup`; there is no change-email endpoint.
 
 `turnstile_token` is a Cloudflare Turnstile token. The backend verifies it during signup. In dev, a Turnstile test key always passes.
 
@@ -83,6 +86,8 @@ Frontend URLs that allauth puts in emails and redirects (`HEADLESS_FRONTEND_URLS
 |---|---|---|---|---|
 | GET | `/health` | public | — | `200 {"status":"ok","checks":{"db":"ok","redis":"ok"}}` or `503` with the failing checks |
 | GET | `/csrf` | public | — | `204` (sets the `csrftoken` cookie) |
+| POST | `/auth/resend-verification` | public | `{"email": str}` | `204` **always**, so it can't reveal whether an account exists. `429 rate_limited` with `retry_after` |
+| GET | `/sources` | public | — | `{"items": [SourceSummary]}`: approved, active sources with at least one approved document or office (About page) |
 | GET | `/me` | user | — | `Me` |
 | PATCH | `/me` | user | `{ui_language?, region_id?, district_id?, display_name?}` | `Me`. `district_id` must belong to `region_id` |
 | DELETE | `/me` | user | `{"confirm": true}` | `204`. Deletes the account and all its conversations |
@@ -99,7 +104,7 @@ Frontend URLs that allauth puts in emails and redirects (`HEADLESS_FRONTEND_URLS
 
 ```jsonc
 // Me
-{ "id": "uuid", "email": "user@example.com", "email_verified": true,
+{ "id": "uuid", "email": "user@example.com", "email_verified": true, "has_password": true,
   "display_name": null, "ui_language": "uz-Latn",
   "region": { "id": 1726, "name": "Toshkent shahri" },        // null until onboarding
   "district": { "id": 1726269, "name": "Chilonzor tumani" },  // null until onboarding
@@ -121,11 +126,16 @@ Frontend URLs that allauth puts in emails and redirects (`HEADLESS_FRONTEND_URLS
 
 // Message (assistant)
 { "id": "uuid", "role": "assistant", "created_at": "…", "status": "complete",   // "streaming" | "complete" | "failed"
+  "error_code": null,   // set when status is "failed": "stopped" | "llm_unavailable" | "llm_timeout" | "invalid_answer" | "quota_exceeded" | "internal_error"
   "answer": Answer | null, "sources": [Source], "office": OfficeMatch | null,
   "refused": false, "feedback": Feedback | null }
 
 // Feedback
 { "rating": 1, "comment": "" }
+
+// SourceSummary (GET /sources)
+{ "publisher": "lex.uz", "name": "NAMUNA Oila kodeksi", "kind": "law",   // "law" | "service_page" | "office" | "other"
+  "url": "https://lex.uz/", "documents": 12, "last_fetched_at": "2026-10-20T08:00:00Z" }
 ```
 
 User text is stored **after PII scrubbing**. The history therefore shows placeholders such as `[PASSPORT]`, `[PINFL]`, `[PHONE]` and `[EMAIL]`.
@@ -152,8 +162,10 @@ A keep-alive comment `: ping` is sent every 15 s.
 | `office` | `OfficeMatch` | At most once, before the first `delta`. Sent only when a retrieved service maps to an office type |
 | `delta` | `{"text": "<raw JSON fragment>"}` | Concatenate all fragments to get a growing, partial `Answer` JSON. Parse it with a partial-JSON parser |
 | `final` | `{"message": Message (assistant)}` | Validated answer, resolved `sources`, `office`, `refused`. **Replaces** the live-parsed answer |
-| `error` | `{"code": "llm_unavailable" \| "llm_timeout" \| "invalid_answer" \| "quota_exceeded" \| "internal_error", "message": str}` | The assistant message is stored with `status: "failed"` |
+| `error` | `{"code": "llm_unavailable" \| "llm_timeout" \| "invalid_answer" \| "quota_exceeded" \| "internal_error", "message": str, "scope"?: "user" \| "global"}` | The assistant message is stored with `status: "failed"` and `error_code` = `code`. `scope` is present only for `quota_exceeded` |
 | `done` | `{}` | Last event on success |
+
+**Stop:** the client aborts the request. The backend detects the disconnect and stores the assistant message with `status: "failed"`, `error_code: "stopped"` and `answer: null`. The partial answer is **not** stored. The UI keeps the partial cards on screen for the current view only. After a reload, history shows "Answer stopped" with Retry.
 
 Example wire format:
 
@@ -239,7 +251,7 @@ interface Source {
 
 ```ts
 interface OfficeMatch {
-  match: "district" | "region" | "none";   // "none" means: office type known, no office in the DB
+  match: "district" | "region" | "none";   // "region": an approved office of this type elsewhere in the user's region (not the nearest; no distance is computed). "none": office type known, no office in the DB
   office_type: { code: string; label: string };
   office: Office | null;
 }
@@ -345,3 +357,4 @@ The example values below are layout placeholders for design and mocks. Never pre
 ---
 
 *Contract v1.0, 2026-10-22: initial version.*
+*Contract v1.1, 2026-10-22: added the change-password endpoint and `Me.has_password`; `POST /auth/resend-verification`; `GET /sources` + `SourceSummary`; assistant `error_code` (incl. `"stopped"`) and the Stop behaviour; `scope` on `quota_exceeded`; clarified `match: "region"`. These answer the design open questions in PR #1.*

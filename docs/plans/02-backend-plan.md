@@ -384,6 +384,12 @@ Document every view with `@extend_schema`. The SSE view's description links to c
 - `GET /api/v1/csrf` uses `ensure_csrf_cookie` and returns 204.
 - `GET/PATCH/DELETE /api/v1/me` per the contract. PATCH validates `district.region == region`.
 - `GET /api/v1/geo/regions`, `GET /api/v1/geo/regions/{id}/districts`: localized names, cached.
+- **Contract v1.1 additions:**
+  - `Me.has_password` (`user.has_usable_password()`);
+  - `POST /api/v1/auth/resend-verification` returns 204 always (no account enumeration), is rate-limited (429 + `retry_after`), and calls allauth's verification-email sender for an unverified address;
+  - public `GET /api/v1/sources`: approved, active `CrawlSource`s with document/office counts and `last_fetched_at`;
+  - `quota_exceeded` problem and SSE `error` carry `scope` (`user` | `global`);
+  - a client disconnect stores the assistant message as `failed` with `error_code="stopped"` and `answer=None`.
 - **Turnstile:** the allauth signup form/adapter verifies `turnstile_token` server-side (`https://challenges.cloudflare.com/turnstile/v0/siteverify`) before the account is created.
 - **`seed_geo`:**
   - Loads `apps/geo/fixtures/soato.json`, built **from an official/public SOATO source**, recorded in `docs/corpus-sources.md`.
