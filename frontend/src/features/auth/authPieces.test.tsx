@@ -20,7 +20,7 @@ function authError(code: string, param?: string): AuthError {
   return new AuthError(400, [{ code, message: "Raw allauth text", ...(param && { param }) }]);
 }
 
-/** allauth codes → copy keys and target fields (contract v1.8 §2). */
+/** allauth codes → copy keys and target fields (contract v1.9 §2). */
 describe("authErrorInfo", () => {
   it.each([
     [
@@ -46,6 +46,9 @@ describe("authErrorInfo", () => {
       { key: "error.current_password_wrong", field: "current_password", warning: false },
     ],
     [new AuthError(429, []), { key: "error.too_many_attempts", field: null, warning: true }],
+    [authError("required", "email"), { key: "error.required", field: "email", warning: false }],
+    [authError("invalid", "email"), { key: "error.email_invalid", field: "email", warning: false }],
+    [authError("invalid", "key"), { key: "error.server", field: null, warning: false }],
     [authError("something_new"), { key: "error.server", field: null, warning: false }],
     [new Error("network"), { key: "error.server", field: null, warning: false }],
   ])("%o", (error, expected) => {

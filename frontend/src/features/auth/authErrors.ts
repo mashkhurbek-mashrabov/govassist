@@ -22,6 +22,12 @@ const CODES: Record<string, Omit<AuthErrorInfo, "field"> & { field?: AuthErrorIn
   enter_current_password: { key: "error.current_password_wrong", field: "current_password", warning: false },
 };
 
+/** Generic field codes (contract v1.9): the copy depends on the field named by `param`. */
+const FIELD_CODES: Record<string, Partial<Record<NonNullable<AuthErrorInfo["field"]>, string>>> = {
+  required: { email: "error.required", password: "error.required", current_password: "error.required" },
+  invalid: { email: "error.email_invalid" },
+};
+
 /** Fallback for unknown codes and non-allauth failures. */
 const SERVER_ERROR: AuthErrorInfo = { key: "error.server", field: null, warning: false };
 
@@ -43,6 +49,10 @@ export function authErrorInfo(error: unknown): AuthErrorInfo {
   for (const item of error.errors) {
     const known = CODES[item.code];
     if (known) return { key: known.key, warning: known.warning, field: known.field ?? null };
+    const byField = FIELD_CODES[item.code];
+    const field = item.param as NonNullable<AuthErrorInfo["field"]> | undefined;
+    const key = field && byField?.[field];
+    if (field && key) return { key, field, warning: false };
   }
   return SERVER_ERROR;
 }

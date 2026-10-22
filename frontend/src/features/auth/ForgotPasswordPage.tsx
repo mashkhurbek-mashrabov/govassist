@@ -6,6 +6,7 @@ import { Link } from "react-router";
 import { requestPasswordReset } from "../../api/auth";
 import { Mail } from "lucide-react";
 import { Alert } from "../../components/ui/Alert";
+import { authErrorInfo } from "./authErrors";
 import { Button } from "../../components/ui/Button";
 import { TextField } from "../../components/ui/TextField";
 import { emailSchema, type EmailValues } from "./schemas";
@@ -18,6 +19,8 @@ import { emailSchema, type EmailValues } from "./schemas";
 export function ForgotPasswordPage() {
   const { t } = useTranslation();
   const mutation = useMutation({ mutationFn: requestPasswordReset });
+  // An unknown email answers 200 like a known one (contract v1.9); failures are rate limits or server errors.
+  const failure = mutation.isError ? authErrorInfo(mutation.error) : null;
   const {
     register,
     handleSubmit,
@@ -38,7 +41,7 @@ export function ForgotPasswordPage() {
         </Alert>
       ) : (
         <form className="form" noValidate onSubmit={(event) => void onSubmit(event)}>
-          {mutation.isError && <Alert tone="danger">{t("error.server")}</Alert>}
+          {failure && <Alert tone={failure.warning ? "warning" : "danger"}>{t(failure.key)}</Alert>}
           <TextField
             label={t("auth.email")}
             type="email"

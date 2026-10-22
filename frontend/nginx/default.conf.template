@@ -52,6 +52,11 @@ server {
         proxy_pass $backend;
     }
 
+    # Google's OAuth redirect lands on allauth's provider callback (/accounts/google/login/callback/).
+    location /accounts/ {
+        proxy_pass $backend;
+    }
+
     location /static/ {
         proxy_pass $backend;
     }
