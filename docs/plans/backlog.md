@@ -20,7 +20,7 @@ From Dilshod's review of PR #3 (2026-10-22). Line references are at a77ac16.
 
 ## Integration (main session, G4)
 
-- [ ] **Google login callback:** the backend mounts only `allauth.headless.urls`, but Google redirects to allauth's provider callback `/accounts/google/login/callback/`. Mount `allauth.urls` under `accounts/` (backend), and forward `/accounts/` to the backend in the Vite dev proxy and nginx (frontend). Register these redirect URIs in Google Cloud: `http://localhost:5173/…`, `http://localhost:8080/…`, `https://<domain>/…`.
+- [ ] **Google login end to end:** the callback route is mounted (#8) and `/accounts` is proxied (PR #7). Still to do: test a real Google sign-in once the author's OAuth client is in `.env`.
 - [ ] Add the `web` service to compose (build `frontend/`, target runtime), passing `VITE_TURNSTILE_SITE_KEY` as a **build arg**, because the build fails without it. Use Cloudflare's test key in dev.
 - [ ] Upstream the generic auth rate-limit string from `frontend/src/i18n/extra-copy.json` into `docs/design/copy.md`.
 
