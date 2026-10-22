@@ -22,7 +22,7 @@ GovAssist is an MSc thesis project (ITPU/EPAM): a RAG-based web assistant. A sig
 | Backend | Jasur (Claude) | `feat/backend-mvp` | `backend/`, compose files, `tasks.py`, `.env.example`, `deploy/`, `docs/schema/`, `docs/corpus-sources.md`, `.github/workflows/backend.yml` |
 | Frontend | Madina (Claude) | `feat/frontend-mvp` | `frontend/`, `.github/workflows/frontend.yml` |
 
-- Work in your own git worktree.
+- Work in your own git worktree at `.claude/worktree/<lane>` (`design`, `backend`, `frontend`). See *Worktrees* below.
 - Touch only the files you own.
 - Open a PR to `main`.
 - **Never edit `docs/contract.md` from a lane.** Put the proposed change in your PR under "Contract change request".
@@ -110,6 +110,31 @@ Frontend commands are in `frontend/package.json`: `npm run dev | lint | typechec
 - Branch per lane or feature, PR to `main`, CI green before merge.
 - Never force-push `main`, never commit generated secrets or `data/`.
 - PR description: what and why, how to test, the acceptance checklist, deviations, open questions.
+
+## Worktrees
+
+Every lane works in its own worktree under `.claude/worktree/` (gitignored). **Remove it yourself when your task is done.**
+
+Run these from the repo root. Replace `<lane>` (`design` / `backend` / `frontend`) and `<branch>`.
+
+1. Start a new task:
+   ```bash
+   git fetch origin
+   git worktree add .claude/worktree/<lane> -b <branch> origin/main
+   ```
+2. Continue an existing branch (review changes, a later phase):
+   ```bash
+   git fetch origin
+   git worktree add .claude/worktree/<lane> -B <branch> origin/<branch>
+   ```
+3. Finish: all work committed and pushed, PR open.
+   ```bash
+   git worktree remove .claude/worktree/<lane>
+   git worktree prune
+   ```
+
+- Never pass `--force` to `git worktree remove`. If git refuses, there are uncommitted changes: commit and push them, or ask the author.
+- The local branch can stay. The main session deletes merged branches.
 
 ## Definition of done (any change)
 

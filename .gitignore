@@ -41,3 +41,7 @@ data/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Agent git worktrees (one per lane; removed when the task is done)
+.claude/worktree/
+.claude/worktrees/

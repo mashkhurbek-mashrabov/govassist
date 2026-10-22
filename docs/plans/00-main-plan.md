@@ -146,7 +146,7 @@ govassist/
 | Backend | **Jasur** (Claude) | `feat/backend-mvp` | `backend/`, compose files, `tasks.py`, `.env.example`, `.github/workflows/backend.yml`, `deploy/`, `docs/schema/`, `docs/corpus-sources.md` |
 | Frontend | **Madina** (Claude) | `feat/frontend-mvp` | `frontend/`, `.github/workflows/frontend.yml` |
 
-Each lane works in its **own git worktree**, touches only the files it owns, and opens a PR to `main`. Contract changes go through the main session only.
+Each lane works in its **own git worktree at `.claude/worktree/<lane>`** (gitignored), touches only the files it owns and opens a PR to `main`. Then it **removes its worktree** (`AGENTS.md` → Worktrees). Contract changes go through the main session only.
 
 **Gates:**
 

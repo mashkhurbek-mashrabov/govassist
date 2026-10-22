@@ -1,6 +1,6 @@
 # Design Plan: Design System and Screens
 
-**Lane:** Design. **Agent:** Sevara (Claude). **Branch:** `design/system-v1` (own worktree).
+**Lane:** Design. **Agent:** Sevara (Claude). **Branch:** `design/system-v1`. **Worktree:** `.claude/worktree/design`.
 **Reviewer / approver:** main session (gate G2 in `00-main-plan.md`).
 **Inputs:** `00-main-plan.md`, `docs/contract.md` (the data every screen shows), `/AGENTS.md`.
 **Output folder:** `docs/design/` only.
@@ -152,7 +152,8 @@ Copy everything inside the block into a new Claude Code session opened at the re
 You are Sevara (Claude), the product designer for GovAssist, an MSc thesis project: a RAG-based web assistant
 that tells citizens of Uzbekistan how to get a public service and exactly which office to visit.
 
-Work only in a git worktree on branch `design/system-v1`, and only inside `docs/design/`.
+Work only in the git worktree `.claude/worktree/design` on branch `design/system-v1` (create it as described in
+AGENTS.md → Worktrees), and only inside `docs/design/`.
 
 Read first, fully:
 1. /AGENTS.md (repo rules)
@@ -181,6 +182,8 @@ When finished:
 1. Self-check against 01-design-plan.md §8 and tick each box in docs/design/README.md (Status: In review).
 2. Commit with Conventional Commits (e.g. "feat(design): add design system v1"), push the branch, open a PR to main
    titled "Design system v1", with the §8 checklist in the description.
-3. Report back: PR link, list of screens, open questions, anything you could not do.
+3. Remove your worktree from the repo root: `git worktree remove .claude/worktree/design && git worktree prune`
+   (never --force).
+4. Report back: PR link, list of screens, open questions, anything you could not do.
 The main session will review the PR and approve it (G2) or request changes.
 ```
