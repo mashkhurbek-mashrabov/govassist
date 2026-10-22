@@ -72,6 +72,29 @@
   - a more modern, friendly feel, while staying calm and not looking like a government site.
   - **Prettier and more professional:** v1 looked too plain. Aim for a polished, premium product look, like a well-funded modern SaaS app. Use **subtle gradients** (a brand gradient on the primary button, the landing hero, the app background behind the glass, active and selected states, the logo mark), with depth from soft layered shadows and refined borders. Keep the gradients restrained (2 close hues, low contrast), all as tokens, and keep AA contrast for any text on a gradient.
 
+## 3a. Design v1.2: language switcher + landing (author feedback, 2026-10-22)
+
+- **Language switcher.** The native `<select>` "Oʻzbekcha (lotin)" looks bad: system styling, long label, inconsistent with the design. Replace it with a compact **language menu button** everywhere it appears (landing, auth, onboarding, app header or sidebar, settings):
+  - **Trigger:** globe icon + short code (`UZ` / `ЎЗ` / `RU` / `EN`).
+  - **Popover listbox:** 4 options, each with its native name (Oʻzbekcha, Ўзбекча, Русский, English) and a small code tag. A check mark on the current one.
+  - **Phones:** the same list as a bottom sheet.
+  - **Accessibility:** the menu-button pattern: arrow keys, Enter, Esc, focus return, `aria-expanded`, 44 px targets, no layout shift when the label changes.
+  - **Behaviour:** switching updates the UI in place, with a subtle transition (reduced-motion safe). Signed in: saved via PATCH /me.
+  - Onboarding's language step keeps large radio cards, restyled to match.
+- **Landing, prettier and more professional:**
+  - a richer hero: gradient mesh background, a bigger headline with gradient text, and a clear primary CTA plus a secondary one;
+  - an **auto-playing preview of a streaming answer** (summary → steps → office card), with the reduced-motion version shown static;
+  - feature highlights:
+    - the exact office in your district;
+    - sources from official documents (text chips "lex.uz · my.gov.uz", **no official logos**);
+    - 4 languages;
+    - free;
+  - "How it works" in 3 steps;
+  - a short FAQ (accordion);
+  - a closing CTA band, and a polished footer with the "not an official government service" note.
+
+  Phone-first, AA contrast, fast (no heavy images; SVG/CSS only), every value a token.
+
 ## 4. Screens
 
 Routes match `03-frontend-plan.md`. Each screen gets mobile (375) and desktop (1280) layouts, plus every state listed.
