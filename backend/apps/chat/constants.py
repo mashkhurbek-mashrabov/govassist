@@ -5,6 +5,7 @@ from pathlib import Path
 from django.db import models
 
 from apps.common.constants import Lang
+from apps.corpus.constants import DocumentKind
 
 FEEDBACK_COMMENT_MAX_CHARS = 1000
 
@@ -136,6 +137,9 @@ class MessageErrorCode(models.TextChoices):
     QUOTA_EXCEEDED = "quota_exceeded", "Quota exceeded"
     INTERNAL_ERROR = "internal_error", "Internal error"
 
+
+# Source.kind values, for the stable ``KindEnum`` schema name (SourceSummary.kind adds "office").
+SOURCE_KINDS = list(DocumentKind.values)
 
 # One-value choice sets: the ``role`` discriminator of each message variant.
 USER_ROLE = [MessageRole.USER]

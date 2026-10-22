@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1.7
 # Targets: runtime (API, ≤ 300 MB) and crawler (db_worker + Chromium).
+# Both start through docker/entrypoint.sh: CMD is the role (web / worker / migrate / manage).
 
 FROM python:3.14-slim-trixie AS base
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -28,11 +29,13 @@ RUN SECRET_KEY=collectstatic-only \
 FROM base AS runtime
 COPY --from=builder /opt/venv /opt/venv
 COPY --from=builder /app /app
+COPY --chmod=0755 docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
 USER app
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=4)"]
-CMD ["uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "2", "--proxy-headers"]
+  CMD ["python", "-c", "import os, urllib.request; urllib.request.urlopen(f\"http://127.0.0.1:{os.environ.get('PORT', '8000')}/api/v1/health\", timeout=4)"]
+CMD ["web"]
 
 FROM base AS crawler
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
@@ -44,5 +47,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
  && playwright install --with-deps chromium \
  && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app /app
+COPY --chmod=0755 docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
 USER app
-CMD ["python", "manage.py", "db_worker"]
+CMD ["worker"]

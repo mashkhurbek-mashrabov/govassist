@@ -31,10 +31,15 @@ services:
       ENVIRONMENT_NAME: PROD
     deploy: {resources: {limits: {cpus: "1.0", memory: 1g}}}
 
+  web:
+    <<: *prod
+    deploy: {resources: {limits: {cpus: "0.5", memory: 128m}}}
+
+  # Tunnel ingress points at http://web:8080 (nginx), never at the backend directly.
   cloudflared:
     <<: *prod
     image: cloudflare/cloudflared:2026.10.0
     command: ["tunnel", "--no-autoupdate", "run"]
     environment:
       TUNNEL_TOKEN: ${TUNNEL_TOKEN:?set TUNNEL_TOKEN in .env}
-    depends_on: [backend]
+    depends_on: [web]

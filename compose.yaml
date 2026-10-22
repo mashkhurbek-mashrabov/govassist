@@ -34,6 +34,7 @@ services:
     <<: *backend-env
     build: {context: ./backend, target: runtime}
     image: govassist-backend:latest
+    command: web
     read_only: true
     tmpfs: [/tmp]
 
@@ -41,7 +42,35 @@ services:
     <<: *backend-env
     build: {context: ./backend, target: crawler}
     image: govassist-worker:latest
+    command: worker
     volumes: [./data:/data]
+
+  # SPA + reverse proxy on one origin (frontend/nginx/default.conf.template).
+  web:
+    build:
+      context: ./frontend
+      target: runtime
+      args:
+        VITE_TURNSTILE_SITE_KEY: ${VITE_TURNSTILE_SITE_KEY:-}  # build fails if empty
+    image: govassist-web:latest
+    environment:
+      ADMIN_URL: ${ADMIN_URL:-admin/}
+    depends_on:
+      backend: {condition: service_healthy}
+    init: true
+    read_only: true
+    # nginx (uid 101) renders its config into conf.d at start and writes pid/temp files.
+    tmpfs:
+      - /tmp:uid=101,gid=101
+      - /var/cache/nginx:uid=101,gid=101
+      - /etc/nginx/conf.d:uid=101,gid=101
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
 
 volumes:
   pgdata:
