@@ -7,6 +7,7 @@ from typing import Any
 
 import pytest
 from asgiref.sync import sync_to_async
+from django.conf import settings
 from django.core.cache import cache
 from django.db import connections
 from django.test import AsyncClient, override_settings
@@ -145,7 +146,10 @@ async def test_happy_path_event_order_and_persistence(
     assert "[PHONE]" in prompt.user
     assert "998 90" not in prompt.user
     assistant = await Message.objects.aget(id=meta["assistant_message_id"])
-    assert (assistant.model, assistant.prompt_version) == ("fake-generator", "v1")
+    assert (assistant.model, assistant.prompt_version) == (
+        "fake-generator",
+        settings.PROMPT_VERSION,
+    )
     assert (assistant.prompt_tokens, assistant.completion_tokens) == (100, 50)
     assert assistant.latency_ms is not None
     assert assistant.retrieval_ms is not None
