@@ -1,7 +1,9 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 import { db, newUser, SEED_EMAIL, WRONG_PASSWORD } from "../mocks/db";
+import { server } from "../mocks/server";
 import { renderApp, signInSeedUser } from "../test/render";
 
 /**
@@ -101,6 +103,45 @@ describe("auth flows", () => {
     expect(router.state.location.pathname).toBe("/check-email");
     expect(screen.getByText("Havola qayta yuborildi.")).toBeInTheDocument();
     vi.restoreAllMocks();
+  });
+
+  it("keeps the link on a server error during verification and lets the user retry it", async () => {
+    server.use(
+      http.post(
+        "/_allauth/browser/v1/auth/email/verify",
+        () => HttpResponse.json({ status: 500 }, { status: 500 }),
+        {
+          once: true,
+        },
+      ),
+    );
+    const user = userEvent.setup();
+    renderApp("/verify-email/any-key");
+    expect(
+      await screen.findByText("Nimadir xato ketdi. Birozdan soʻng qayta urinib koʻring."),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Havola yaroqsiz yoki muddati oʻtgan" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Qayta urinish" }));
+    await screen.findByRole("heading", { name: "Havola yaroqsiz yoki muddati oʻtgan" });
+  });
+
+  it("shows the rate-limit warning on a throttled reset request", async () => {
+    server.use(
+      http.post(
+        "/_allauth/browser/v1/auth/password/request",
+        () => HttpResponse.json({ status: 429 }, { status: 429 }),
+        {
+          once: true,
+        },
+      ),
+    );
+    const user = userEvent.setup();
+    renderApp("/forgot-password");
+    await user.type(await screen.findByLabelText("Elektron pochta"), "kimdir@example.com");
+    await user.click(screen.getByRole("button", { name: "Havolani yuborish" }));
+    expect(
+      await screen.findByText("Juda koʻp urinish boʻldi. Birozdan soʻng qayta urinib koʻring."),
+    ).toBeInTheDocument();
   });
 
   it("resets a password with the emailed (URL-encoded) key", async () => {

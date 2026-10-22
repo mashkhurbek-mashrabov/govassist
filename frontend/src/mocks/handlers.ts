@@ -312,7 +312,7 @@ const authHandlers = [
       const { key = "" } = (await request.json()) as { key?: string };
       const email = db.verificationKeys[key];
       const me = email ? db.users[email] : undefined;
-      if (!email || !me) return authError("invalid", "key");
+      if (!email || !me) return authError("invalid_or_expired_key", "key");
       Object.assign(me, { email_verified: true });
       Reflect.deleteProperty(db.verificationKeys, key);
       db.pendingEmail = null;
