@@ -178,9 +178,10 @@ def chunk_document(text: str, *, lang: str) -> list[ChunkDraft]:
     for section in _sections(text):
         packed = _pack(section.body)
         kept = packed if len(packed) == 1 else [c for c in packed if len(c) >= CHUNK_MIN_CHARS]
+        start = len(drafts)
         drafts.extend(
             ChunkDraft(
-                order=len(drafts) + index,
+                order=start + index,
                 heading_path=section.heading_path,
                 text=chunk,
                 text_normalized=normalize_for_search(chunk, lang),

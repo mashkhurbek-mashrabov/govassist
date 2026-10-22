@@ -351,3 +351,12 @@ class TestOverlapRegressions:
         """A single token longer than the limit is cut, never exceeding it."""
         chunks = chunk_document("x" * (CHUNK_MAX_CHARS + 50), lang=Lang.UZ_LATN)
         assert chunks[0].char_count == CHUNK_MAX_CHARS
+
+
+def test_order_is_consecutive_across_multi_chunk_sections() -> None:
+    """Orders are 0..n-1 with no gaps or repeats, even when sections have several chunks."""
+    long_section = "\n\n".join(_sentences(20, f"P{i}") for i in range(3))
+    text = f"## A\n\n{long_section}\n\n## B\n\n{long_section}"
+    chunks = chunk_document(text, lang=Lang.UZ_LATN)
+    assert len(chunks) > 4
+    assert [chunk.order for chunk in chunks] == list(range(len(chunks)))
