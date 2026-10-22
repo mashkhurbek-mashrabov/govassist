@@ -15,7 +15,11 @@ environ.Env.read_env(BASE_DIR.parent / ".env", overwrite=False)
 # --- Core -------------------------------------------------------------------
 SECRET_KEY = env.str("SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+# Loopback is always allowed: the image's HEALTHCHECK calls http://127.0.0.1:$PORT from
+# inside the container. Safe because outside traffic reaches the app only through the
+# Cloudflare Tunnel and nginx, with the real hostname.
+LOOPBACK_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = list(dict.fromkeys([*env.list("ALLOWED_HOSTS", default=[]), *LOOPBACK_HOSTS]))
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 FRONTEND_URL = env.str("FRONTEND_URL", default="http://localhost:5173").rstrip("/")
 ADMIN_URL = env.str("ADMIN_URL", default="admin/")
