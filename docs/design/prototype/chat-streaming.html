@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="uz-Latn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat: answering · GovAssist prototype</title>
+  <link rel="stylesheet" href="../fonts/inter.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<nav class="proto-bar" aria-label="Prototype states" data-default="searching"><a href="index.html">← Index</a><span>States:</span><button type="button" data-state="searching" aria-pressed="false">1 searching</button><button type="button" data-state="found" aria-pressed="false">2 found sources</button><button type="button" data-state="office" aria-pressed="false">3 office card early</button><button type="button" data-state="summary" aria-pressed="false">4 summary streaming</button><button type="button" data-state="steps" aria-pressed="false">5 steps streaming</button><button type="button" data-state="documents" aria-pressed="false">6 documents</button><button type="button" data-state="stopped" aria-pressed="false">stopped</button></nav>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="chat-empty.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">NAMUNA suhbat 2</span><span class="history__preview"><span class="history__date">Kecha</span> · NAMUNA: [PASSPORT] raqamli pasport boʻyicha savol</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA suhbat 2” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">NAMUNA suhbat 3</span><span class="history__preview"><span class="history__date">18.10.2026</span> · NAMUNA: oxirgi xabar matni</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA suhbat 3” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">Pasportni almashtirish</p>
+  <a class="icon-btn js-new-chat" href="chat-empty.html" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<div data-when="searching"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span>Hujjatlar qidirilmoqda…</span></p></li></ol></div><div data-when="found"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span class="progress__found"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>4 ta manba topildi</span><span></span></p></li></ol></div><div data-when="office"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span class="progress__found"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>4 ta manba topildi</span> · <span>Javob yozilmoqda…</span></p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><span class="skeleton skeleton--title"></span><span class="skeleton"></span><span class="skeleton skeleton--w80"></span></header><section class="card office" aria-labelledby="h-office">
+  <h3 class="card__head" id="h-office"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>Qayerga borish kerak</h3>
+  
+  <div class="office__type"><span class="office__type-label"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>Davlat xizmatlari markazi</span><span class="badge badge--open">Hozir ochiq · 18:00 gacha</span></div>
+  <p class="t-h3 t-strong">NAMUNA Chilonzor tumani Davlat xizmatlari markazi</p>
+  <p class="office__row"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>NAMUNA koʻchasi, 1-uy, Chilonzor tumani, Toshkent shahri</span></p>
+  <details class="hours"><summary><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Ish vaqti</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><table><caption class="sr-only">Ish vaqti</caption><tbody><tr class="is-today"><th scope="row">Dushanba – Juma</th><td>09:00 – 18:00<span class="hours__break">Tushlik tanaffusi: 13:00 – 14:00</span></td></tr><tr class=""><th scope="row">Shanba</th><td>09:00 – 13:00</td></tr><tr class=""><th scope="row">Yakshanba</th><td>Dam olish kuni</td></tr></tbody></table></details>
+  <div class="office__actions"><a class="btn btn--secondary" href="tel:+998710000000"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg><span><span class="sr-only">Qoʻngʻiroq qilish: </span><span class="nowrap">+998 71 000 00 00</span></span></a><a class="btn btn--primary" href="https://www.google.com/maps/search/?api=1&amp;query=NAMUNA" target="_blank" rel="noopener noreferrer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>Google Xaritada ochish</span><span class="sr-only"> (yangi oynada ochiladi)</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a></div>
+  <p class="office__meta"><span>Maʼlumot 20.10.2026 holatiga</span><a href="https://example.org/offices" target="_blank" rel="noopener noreferrer">Manba<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="sr-only"> (yangi oynada ochiladi)</span></a></p>
+</section></li></ol></div><div data-when="summary"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span class="progress__found"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>4 ta manba topildi</span> · <span>Javob yozilmoqda…</span></p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>Pasportni almashtirish</h2><p class="t-body-lg typing">Pasportni almashtirish uchun ariza topshirasiz</p></header><section class="card" aria-labelledby="h-steps"><h3 class="card__head" id="h-steps"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Nima qilish kerak</h3><ol class="steps"><li aria-hidden="true"><p><span class="skeleton"></span><span class="skeleton skeleton--w60"></span></p></li><li aria-hidden="true"><p><span class="skeleton"></span><span class="skeleton skeleton--w60"></span></p></li></ol></section><section class="card office" aria-labelledby="h-office">
+  <h3 class="card__head" id="h-office"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>Qayerga borish kerak</h3>
+  
+  <div class="office__type"><span class="office__type-label"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>Davlat xizmatlari markazi</span><span class="badge badge--open">Hozir ochiq · 18:00 gacha</span></div>
+  <p class="t-h3 t-strong">NAMUNA Chilonzor tumani Davlat xizmatlari markazi</p>
+  <p class="office__row"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>NAMUNA koʻchasi, 1-uy, Chilonzor tumani, Toshkent shahri</span></p>
+  <details class="hours"><summary><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Ish vaqti</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><table><caption class="sr-only">Ish vaqti</caption><tbody><tr class="is-today"><th scope="row">Dushanba – Juma</th><td>09:00 – 18:00<span class="hours__break">Tushlik tanaffusi: 13:00 – 14:00</span></td></tr><tr class=""><th scope="row">Shanba</th><td>09:00 – 13:00</td></tr><tr class=""><th scope="row">Yakshanba</th><td>Dam olish kuni</td></tr></tbody></table></details>
+  <div class="office__actions"><a class="btn btn--secondary" href="tel:+998710000000"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg><span><span class="sr-only">Qoʻngʻiroq qilish: </span><span class="nowrap">+998 71 000 00 00</span></span></a><a class="btn btn--primary" href="https://www.google.com/maps/search/?api=1&amp;query=NAMUNA" target="_blank" rel="noopener noreferrer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>Google Xaritada ochish</span><span class="sr-only"> (yangi oynada ochiladi)</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a></div>
+  <p class="office__meta"><span>Maʼlumot 20.10.2026 holatiga</span><a href="https://example.org/offices" target="_blank" rel="noopener noreferrer">Manba<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="sr-only"> (yangi oynada ochiladi)</span></a></p>
+</section></li></ol></div><div data-when="steps"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span class="progress__found"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>4 ta manba topildi</span> · <span>Javob yozilmoqda…</span></p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>Pasportni almashtirish</h2><p class="t-body-lg">Pasportni almashtirish uchun ariza topshirasiz va tayyor hujjatni olasiz.</p></header><section class="card" aria-labelledby="h-steps"><h3 class="card__head" id="h-steps"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Nima qilish kerak</h3><ol class="steps"><li><p><span class="">Arizani onlayn yoki Davlat xizmatlari markazida topshiring.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span class="">Davlat bojini toʻlang.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span class="typing">Tayyor hujjatni</span></p></li></ol></section><section class="card" aria-hidden="true"><span class="skeleton skeleton--title"></span><span class="skeleton"></span><span class="skeleton skeleton--w60"></span></section><section class="card office" aria-labelledby="h-office">
+  <h3 class="card__head" id="h-office"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>Qayerga borish kerak</h3>
+  
+  <div class="office__type"><span class="office__type-label"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>Davlat xizmatlari markazi</span><span class="badge badge--open">Hozir ochiq · 18:00 gacha</span></div>
+  <p class="t-h3 t-strong">NAMUNA Chilonzor tumani Davlat xizmatlari markazi</p>
+  <p class="office__row"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>NAMUNA koʻchasi, 1-uy, Chilonzor tumani, Toshkent shahri</span></p>
+  <details class="hours"><summary><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Ish vaqti</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><table><caption class="sr-only">Ish vaqti</caption><tbody><tr class="is-today"><th scope="row">Dushanba – Juma</th><td>09:00 – 18:00<span class="hours__break">Tushlik tanaffusi: 13:00 – 14:00</span></td></tr><tr class=""><th scope="row">Shanba</th><td>09:00 – 13:00</td></tr><tr class=""><th scope="row">Yakshanba</th><td>Dam olish kuni</td></tr></tbody></table></details>
+  <div class="office__actions"><a class="btn btn--secondary" href="tel:+998710000000"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg><span><span class="sr-only">Qoʻngʻiroq qilish: </span><span class="nowrap">+998 71 000 00 00</span></span></a><a class="btn btn--primary" href="https://www.google.com/maps/search/?api=1&amp;query=NAMUNA" target="_blank" rel="noopener noreferrer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>Google Xaritada ochish</span><span class="sr-only"> (yangi oynada ochiladi)</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a></div>
+  <p class="office__meta"><span>Maʼlumot 20.10.2026 holatiga</span><a href="https://example.org/offices" target="_blank" rel="noopener noreferrer">Manba<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="sr-only"> (yangi oynada ochiladi)</span></a></p>
+</section></li></ol></div><div data-when="documents"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span class="progress__found"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>4 ta manba topildi</span> · <span>Javob yozilmoqda…</span></p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>Pasportni almashtirish</h2><p class="t-body-lg">Pasportni almashtirish uchun ariza topshirasiz va tayyor hujjatni olasiz.</p></header><section class="card" aria-labelledby="h-steps"><h3 class="card__head" id="h-steps"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Nima qilish kerak</h3><ol class="steps"><li><p><span class="">Arizani onlayn yoki Davlat xizmatlari markazida topshiring.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span class="">Davlat bojini toʻlang.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span class="">Tayyor hujjatni markazdan oling.</span><span class="cites"><a class="cite" href="#src-2" aria-label="2-manba">2</a></span></p></li></ol></section><section class="card" aria-labelledby="h-docs"><h3 class="card__head" id="h-docs"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Oʻzingiz bilan oling</h3><p class="field__hint">Tayyorlaganingizni belgilang. Belgilar saqlanmaydi.</p><ul class="doc-list"><li><label class="check"><input type="checkbox"><span>Eski pasport<span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></span></label></li><li><label class="check"><input type="checkbox"><span>Toʻlov kvitansiyasi<span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></span></label></li></ul></section><div class="facts" aria-hidden="true"><div class="card"><span class="skeleton skeleton--w40"></span><span class="skeleton"></span></div><div class="card"><span class="skeleton skeleton--w40"></span><span class="skeleton"></span></div></div><section class="card office" aria-labelledby="h-office">
+  <h3 class="card__head" id="h-office"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>Qayerga borish kerak</h3>
+  
+  <div class="office__type"><span class="office__type-label"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>Davlat xizmatlari markazi</span><span class="badge badge--open">Hozir ochiq · 18:00 gacha</span></div>
+  <p class="t-h3 t-strong">NAMUNA Chilonzor tumani Davlat xizmatlari markazi</p>
+  <p class="office__row"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>NAMUNA koʻchasi, 1-uy, Chilonzor tumani, Toshkent shahri</span></p>
+  <details class="hours"><summary><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Ish vaqti</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><table><caption class="sr-only">Ish vaqti</caption><tbody><tr class="is-today"><th scope="row">Dushanba – Juma</th><td>09:00 – 18:00<span class="hours__break">Tushlik tanaffusi: 13:00 – 14:00</span></td></tr><tr class=""><th scope="row">Shanba</th><td>09:00 – 13:00</td></tr><tr class=""><th scope="row">Yakshanba</th><td>Dam olish kuni</td></tr></tbody></table></details>
+  <div class="office__actions"><a class="btn btn--secondary" href="tel:+998710000000"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg><span><span class="sr-only">Qoʻngʻiroq qilish: </span><span class="nowrap">+998 71 000 00 00</span></span></a><a class="btn btn--primary" href="https://www.google.com/maps/search/?api=1&amp;query=NAMUNA" target="_blank" rel="noopener noreferrer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>Google Xaritada ochish</span><span class="sr-only"> (yangi oynada ochiladi)</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a></div>
+  <p class="office__meta"><span>Maʼlumot 20.10.2026 holatiga</span><a href="https://example.org/offices" target="_blank" rel="noopener noreferrer">Manba<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="sr-only"> (yangi oynada ochiladi)</span></a></p>
+</section></li></ol></div><div data-when="stopped"><ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>Pasportimni qanday yangilayman?</p></li><li class="assistant" aria-busy="false"><p class="sr-only">GovAssist javobi:</p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>Pasportni almashtirish</h2><p class="t-body-lg">Pasportni almashtirish uchun ariza topshirasiz va tayyor hujjatni olasiz.</p></header><section class="card" aria-labelledby="h-steps"><h3 class="card__head" id="h-steps"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Nima qilish kerak</h3><ol class="steps"><li><p><span class="">Arizani onlayn yoki Davlat xizmatlari markazida topshiring.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span class="">Davlat bojini toʻlang.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li></ol></section><p class="progress progress--done" role="status"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Javob toʻxtatildi. Savolni qayta yuborishingiz mumkin.</span></p></li></ol></div>
+</main>
+<div data-when="searching"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="found"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="office"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="summary"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="steps"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="documents"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div><div data-when="stopped"><div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div></div>
+</div>
+</div>
+
+<script>
+  /* Prototype only: show the elements whose data-when lists the current state (#state in the URL). */
+  (function () {
+    var bar = document.querySelector(".proto-bar");
+    function show(state) {
+      document.querySelectorAll("[data-when]").forEach(function (el) {
+        el.hidden = el.getAttribute("data-when").split(" ").indexOf(state) < 0;
+      });
+      bar.querySelectorAll("[data-state]").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.getAttribute("data-state") === state));
+      });
+      document.body.classList.toggle("drawer-open", state.indexOf("drawer") === 0);
+    }
+    function current() { return location.hash.slice(1) || bar.getAttribute("data-default"); }
+    document.addEventListener("click", function (e) {
+      var t = e.target.closest("[data-state], [data-goto], [data-drawer]");
+      if (!t) return;
+      e.preventDefault();
+      if (t.hasAttribute("data-drawer")) {
+        document.body.classList.toggle("drawer-open", t.getAttribute("data-drawer") === "open");
+        return;
+      }
+      location.hash = t.getAttribute("data-state") || t.getAttribute("data-goto");
+    });
+    window.addEventListener("hashchange", function () { show(current()); });
+    show(current());
+  })();
+</script>
+</body>
+</html>
