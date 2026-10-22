@@ -29,7 +29,7 @@ GovAssist is an MSc thesis project (ITPU/EPAM): a RAG-based web assistant. A sig
 
 ## Delegation: Claude + Antigravity (Gemini)
 
-Each lane is **owned by a Claude session**. The owner may run **Antigravity** helpers in parallel: the `agy` CLI with the newest Gemini Flash `-high` model (`agy models`), **never Pro**. Claude takes the complex tasks; Gemini takes the simple ones.
+Each lane is **owned by a Claude session**. **The design lane never uses Antigravity: all design work is done by Claude.** The backend and frontend owners may run **Antigravity** helpers in parallel: the `agy` CLI with the newest Gemini Flash `-high` model (`agy models`), **never Pro**. Claude takes the complex tasks; Gemini takes the simple ones.
 
 | Gemini via Antigravity (simple, exactly specified) | Claude only (complex or risky) |
 |---|---|
