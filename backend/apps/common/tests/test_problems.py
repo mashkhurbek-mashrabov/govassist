@@ -3,6 +3,7 @@
 from typing import Any
 
 import pytest
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from rest_framework import exceptions
 
@@ -21,6 +22,7 @@ CASES: list[tuple[Exception, int, str]] = [
     (exceptions.NotFound(), 404, "not_found"),
     (Http404(), 404, "not_found"),
     (exceptions.PermissionDenied(), 403, "permission_denied"),
+    (PermissionDenied(), 403, "permission_denied"),
     (exceptions.MethodNotAllowed("PUT"), 405, "method_not_allowed"),
     (QuotaExceeded(), 429, "quota_exceeded"),
     (RuntimeError("boom"), 500, "internal_error"),
@@ -66,3 +68,11 @@ def test_problem_response_for_plain_views() -> None:
     assert response["Content-Type"] == PROBLEM_CONTENT_TYPE
     assert response["Retry-After"] == "60"
     assert b'"code": "rate_limited"' in response.content
+
+
+def test_quota_scope_in_both_renderers() -> None:
+    """``quota_exceeded`` carries ``scope`` in DRF and plain responses."""
+    drf = exception_handler(QuotaExceeded(scope="global"), {})
+    assert drf.data["scope"] == "global"
+    assert b'"scope": "user"' in problem_response(QuotaExceeded()).content
+    assert "scope" not in exception_handler(RateLimited(), {}).data

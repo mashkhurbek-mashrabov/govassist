@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "apps.offices",
     "apps.collector",
     "apps.corpus",
+    "apps.retrieval",
     "apps.chat",
 ]
 
@@ -187,6 +188,7 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "anon": env.str("THROTTLE_ANON", default="60/min"),
         "user": env.str("THROTTLE_USER", default="120/min"),
+        "resend_verification": env.str("THROTTLE_RESEND_VERIFICATION", default="3/hour"),
     },
     "EXCEPTION_HANDLER": "apps.common.problems.exception_handler",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",

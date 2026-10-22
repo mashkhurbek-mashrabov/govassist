@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
+from allauth.account.models import EmailAddress
 from django.db import transaction
+from django.http import HttpRequest
 
 from apps.accounts.models import User
 from apps.geo.models import District, Region
@@ -53,3 +55,18 @@ def delete_account(user: User) -> None:
         user: The user to delete.
     """
     user.delete()
+
+
+def resend_verification(request: HttpRequest, email: str) -> None:
+    """Send a new verification email when ``email`` is an unverified address.
+
+    Does nothing otherwise, so callers can answer the same way for every email and never
+    reveal whether an account exists.
+
+    Args:
+        request: The current request (allauth builds the link from it).
+        email: The address typed by the user.
+    """
+    address = EmailAddress.objects.filter(email__iexact=email, verified=False).first()
+    if address is not None:
+        address.send_confirmation(request)

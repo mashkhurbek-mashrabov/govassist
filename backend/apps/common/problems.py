@@ -2,7 +2,7 @@
 
 import logging
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Literal
 
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, JsonResponse
@@ -27,6 +27,10 @@ class Problem(exceptions.APIException):
     def __init__(self, detail: str | None = None, *, retry_after: int | None = None) -> None:
         super().__init__(detail=detail)
         self.retry_after = retry_after
+
+    def extensions(self) -> dict[str, Any]:
+        """Extra problem members for this error (none by default)."""
+        return {}
 
 
 class EmailNotVerified(Problem):
@@ -68,6 +72,20 @@ class QuotaExceeded(Problem):
     default_code = "quota_exceeded"
     default_detail = "Daily limit reached. Try again tomorrow."
 
+    def __init__(
+        self,
+        detail: str | None = None,
+        *,
+        retry_after: int | None = None,
+        scope: Literal["user", "global"] = "user",
+    ) -> None:
+        super().__init__(detail, retry_after=retry_after)
+        self.scope = scope
+
+    def extensions(self) -> dict[str, Any]:
+        """``scope``: the user's daily limit or the service-wide token cap."""
+        return {"scope": self.scope}
+
 
 class LLMUnavailable(Problem):
     """Gemini failed before streaming started."""
@@ -84,6 +102,7 @@ def problem_body(
     *,
     errors: dict[str, Any] | None = None,
     retry_after: int | None = None,
+    extensions: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build a problem+json body in the contract's shape.
 
@@ -93,6 +112,7 @@ def problem_body(
         detail: Human-readable explanation.
         errors: Field errors for ``validation_error``.
         retry_after: Seconds until the client may retry.
+        extensions: Extra members such as ``scope``.
 
     Returns:
         The JSON-serializable body.
@@ -107,7 +127,7 @@ def problem_body(
     }
     if retry_after is not None:
         body["retry_after"] = retry_after
-    return body
+    return body | (extensions or {})
 
 
 def _retry_headers(retry_after: int | None) -> dict[str, str]:
@@ -129,6 +149,7 @@ def problem_response(problem: Problem) -> JsonResponse:
         str(problem.default_code),
         str(problem.detail),
         retry_after=problem.retry_after,
+        extensions=problem.extensions(),
     )
     return JsonResponse(
         body,
@@ -164,7 +185,9 @@ def _classify(exc: Exception) -> tuple[int, str, str, dict[str, Any] | None, int
             return 429, "rate_limited", "Too many requests.", None, wait
         case exceptions.NotFound() | Http404():
             return 404, "not_found", "Not found.", None, None
-        case exceptions.PermissionDenied() | PermissionDenied():
+        case exceptions.PermissionDenied():
+            return 403, "permission_denied", str(exc.detail), None, None
+        case PermissionDenied():
             return 403, "permission_denied", "You do not have permission.", None, None
         case exceptions.APIException():
             return exc.status_code, str(exc.default_code), str(exc.detail), None, None
@@ -184,7 +207,10 @@ def exception_handler(exc: Exception, context: dict[str, Any]) -> Response:
         A problem+json response.
     """
     status_code, code, detail, errors, retry_after = _classify(exc)
-    body = problem_body(status_code, code, detail, errors=errors, retry_after=retry_after)
+    extensions = exc.extensions() if isinstance(exc, Problem) else None
+    body = problem_body(
+        status_code, code, detail, errors=errors, retry_after=retry_after, extensions=extensions
+    )
     return Response(
         body,
         status=status_code,

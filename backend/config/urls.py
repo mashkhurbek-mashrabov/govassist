@@ -6,6 +6,7 @@ api_v1 = [
     path("", include("apps.common.api.urls")),
     path("", include("apps.accounts.api.urls")),
     path("", include("apps.geo.api.urls")),
+    path("", include("apps.collector.api.urls")),
     path("", include("apps.chat.api.urls")),
 ]
 

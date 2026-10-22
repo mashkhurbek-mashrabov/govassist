@@ -29,6 +29,7 @@ class MeSerializer(serializers.Serializer[User]):
     id = serializers.UUIDField()
     email = serializers.EmailField()
     email_verified = serializers.SerializerMethodField()
+    has_password = serializers.SerializerMethodField()
     display_name = serializers.CharField(allow_null=True)
     ui_language = serializers.ChoiceField(choices=Lang.choices)
     region = PlaceSerializer(allow_null=True)
@@ -43,6 +44,14 @@ class MeSerializer(serializers.Serializer[User]):
             obj: The user.
         """
         return bool(self.context["email_verified"])
+
+    def get_has_password(self, obj: User) -> bool:
+        """False for Google-only accounts that never set a password.
+
+        Args:
+            obj: The user.
+        """
+        return obj.has_usable_password()
 
     def get_quota(self, obj: User) -> dict[str, int]:
         """Return the quota usage computed by the view.
@@ -102,6 +111,12 @@ class MeUpdateSerializer(serializers.Serializer[Any]):
             display_name=data.get("display_name"),
             display_name_set="display_name" in data,
         )
+
+
+class ResendVerificationSerializer(serializers.Serializer[Any]):
+    """POST ``/auth/resend-verification`` body."""
+
+    email = serializers.EmailField()
 
 
 class DeleteMeSerializer(serializers.Serializer[Any]):

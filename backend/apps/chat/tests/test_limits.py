@@ -45,6 +45,7 @@ async def test_daily_limit(quota: QuotaService) -> None:
     with pytest.raises(QuotaExceeded) as caught:
         await quota.acheck("u1")
     assert caught.value.retry_after == 9 * 3600 + 14 * 60 + 30 + 1
+    assert caught.value.extensions() == {"scope": "user"}
 
 
 @override_settings(GLOBAL_DAILY_TOKEN_CAP=100)
@@ -56,8 +57,9 @@ async def test_global_token_cap(quota: QuotaService) -> None:
     await quota.aadd_tokens(40)
     assert await quota.atokens_today() == 100
     assert quota.tokens_today() == 100
-    with pytest.raises(QuotaExceeded):
+    with pytest.raises(QuotaExceeded) as caught:
         await quota.acheck("u1")
+    assert caught.value.extensions() == {"scope": "global"}
 
 
 async def test_stream_lock(quota: QuotaService) -> None:

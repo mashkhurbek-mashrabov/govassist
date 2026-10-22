@@ -100,11 +100,12 @@ class QuotaService:
         """
         used = await self.ausage(user_id)
         if used.day_used >= used.day_limit:
-            raise QuotaExceeded(retry_after=self._seconds_to_tomorrow())
+            raise QuotaExceeded(retry_after=self._seconds_to_tomorrow(), scope="user")
         if int(await self._store.aget(self._token_key(), 0)) >= settings.GLOBAL_DAILY_TOKEN_CAP:
             raise QuotaExceeded(
                 "The service reached its daily limit. Try again tomorrow.",
                 retry_after=self._seconds_to_tomorrow(),
+                scope="global",
             )
         if used.hour_used >= used.hour_limit:
             raise RateLimited(

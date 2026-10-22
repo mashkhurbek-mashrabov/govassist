@@ -32,6 +32,7 @@ def test_me_shape(auth_api: APIClient, user: User, district: District) -> None:
         "id": str(user.id),
         "email": "user@example.com",
         "email_verified": True,
+        "has_password": True,
         "display_name": None,
         "ui_language": "uz-Latn",
         "region": {"id": district.region_id, "name": "Тестовая область"},
@@ -117,3 +118,12 @@ def test_create_superuser() -> None:
     assert admin.is_staff
     assert admin.is_superuser
     assert str(admin) == "root@example.com"
+
+
+def test_google_only_user_has_no_password(api: APIClient) -> None:
+    """An account without a usable password reports ``has_password: false``."""
+    social = make_user("g@example.com")
+    social.set_unusable_password()
+    social.save()
+    api.force_authenticate(social)
+    assert api.get("/api/v1/me").json()["has_password"] is False
