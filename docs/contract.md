@@ -1,0 +1,347 @@
+# GovAssist API Contract (v1)
+
+**Owner:** main session. Backend and frontend both build against this file.
+**Changes:** only by a PR reviewed by the main session. Bump the version note at the bottom.
+**Generated artifacts:** the backend exports `docs/schema/openapi.json` and `docs/schema/answer.schema.json` (`invoke schema`). If a generated file disagrees with this document, that is a bug. Fix the code or update the contract, never silently diverge.
+
+---
+
+## 1. Conventions
+
+- **Origin:** a single origin. The SPA, API, auth and admin are all served behind the same host by nginx, so there is **no CORS**.
+- **Prefixes:**
+  - App API: `/api/v1/`.
+  - Auth: `/_allauth/browser/v1/` (django-allauth headless, "browser" client).
+  - Admin: path from `ADMIN_URL`.
+- **Format:**
+  - JSON, `snake_case` keys.
+  - IDs are UUID strings, except geo IDs, which are integer SOATO codes.
+  - Timestamps are ISO 8601 UTC (`2026-10-22T09:15:00Z`).
+  - Dates are `YYYY-MM-DD`.
+  - Times of day are `HH:MM` in `Asia/Tashkent`.
+- **Languages:** `uz-Latn` | `uz-Cyrl` | `ru` | `en`. Localized names follow `?lang=`, else the user's `ui_language`, else `Accept-Language`, else `uz-Latn`.
+- **Auth:**
+  - Django session cookie (`sessionid`: HttpOnly, Secure, SameSite=Lax).
+  - The SPA calls `GET /api/v1/csrf` once on boot. On every non-GET request it then sends the `csrftoken` cookie value in the `X-CSRFToken` header.
+  - Requests use `credentials: "same-origin"`. No tokens in localStorage.
+- **Pagination:** cursor-based. The query takes `?cursor=&limit=` (default 20, max 50). The response is `{ "results": [...], "next": "<cursor>" | null }`.
+- **Errors:** RFC 9457 `application/problem+json`:
+
+```json
+{ "type": "about:blank", "title": "Too many requests", "status": 429,
+  "detail": "Hourly question limit reached.", "code": "rate_limited",
+  "retry_after": 1260, "errors": null }
+```
+
+| `code` | Status | Meaning |
+|---|---|---|
+| `not_authenticated` | 401 | No session |
+| `email_not_verified` | 403 | Email not verified yet |
+| `profile_incomplete` | 403 | Region/district missing; go to onboarding |
+| `validation_error` | 400 | `errors`: `{field: [messages]}` |
+| `rate_limited` | 429 | Per-user/IP limit; `retry_after` seconds; also a `Retry-After` header |
+| `quota_exceeded` | 429 | Daily limit or global token cap reached |
+| `stream_in_progress` | 409 | The user already has an answer streaming |
+| `not_found` | 404 | Resource missing or not the user's own |
+| `llm_unavailable` | 503 | Gemini failed before streaming started |
+| `internal_error` | 500 | Unexpected error |
+
+---
+
+## 2. Auth (django-allauth headless, browser client)
+
+Request and response shapes follow **allauth's own spec**. In dev it is served at `/_allauth/openapi.html` (`HEADLESS_SERVE_SPECIFICATION=True`). The SPA uses these endpoints:
+
+| Purpose | Method + path |
+|---|---|
+| Config (enabled providers etc.) | `GET /_allauth/browser/v1/config` |
+| Current session | `GET /_allauth/browser/v1/auth/session` |
+| Log out | `DELETE /_allauth/browser/v1/auth/session` |
+| Sign up | `POST /_allauth/browser/v1/auth/signup` `{email, password, turnstile_token}` |
+| Log in | `POST /_allauth/browser/v1/auth/login` `{email, password}` |
+| Verify email | `POST /_allauth/browser/v1/auth/email/verify` `{key}` |
+| Request password reset | `POST /_allauth/browser/v1/auth/password/request` `{email}` |
+| Reset password | `POST /_allauth/browser/v1/auth/password/reset` `{key, password}` |
+| Google login | `POST /_allauth/browser/v1/auth/provider/redirect` (form post: `provider=google`, `callback_url`, `process=login`) |
+
+`turnstile_token` is a Cloudflare Turnstile token. The backend verifies it during signup. In dev, a Turnstile test key always passes.
+
+Frontend URLs that allauth puts in emails and redirects (`HEADLESS_FRONTEND_URLS`):
+
+| Key | SPA route |
+|---|---|
+| `account_confirm_email` | `/verify-email/{key}` |
+| `account_reset_password_from_key` | `/reset-password/{key}` |
+| `account_signup` | `/signup` |
+| `socialaccount_login_error` | `/login?error=social` |
+
+---
+
+## 3. App endpoints (`/api/v1/`)
+
+| Method | Path | Auth | Body | Response |
+|---|---|---|---|---|
+| GET | `/health` | public | — | `200 {"status":"ok","checks":{"db":"ok","redis":"ok"}}` or `503` with the failing checks |
+| GET | `/csrf` | public | — | `204` (sets the `csrftoken` cookie) |
+| GET | `/me` | user | — | `Me` |
+| PATCH | `/me` | user | `{ui_language?, region_id?, district_id?, display_name?}` | `Me`. `district_id` must belong to `region_id` |
+| DELETE | `/me` | user | `{"confirm": true}` | `204`. Deletes the account and all its conversations |
+| GET | `/geo/regions` | public | — | `[Region]` |
+| GET | `/geo/regions/{region_id}/districts` | public | — | `[District]` |
+| GET | `/suggestions` | user | — | `{"items": [{"text": str, "category": str}]}`, at most 6, in `ui_language` |
+| GET | `/conversations` | user | — | paginated `[ConversationSummary]`, newest first |
+| GET | `/conversations/{id}` | user | — | `Conversation` (with `messages`) |
+| DELETE | `/conversations/{id}` | user | — | `204` |
+| POST | `/chat` | user, verified, profile complete | `{"conversation_id": uuid \| null, "text": str}` (1–1000 chars) | **SSE stream** (§4). Errors raised before the stream starts come back as normal problem+json |
+| POST | `/messages/{id}/feedback` | user | `{"rating": 1 \| -1, "comment": str?}` (≤ 1000 chars) | `201` on create, `200` on update: `Feedback` |
+
+### Objects
+
+```jsonc
+// Me
+{ "id": "uuid", "email": "user@example.com", "email_verified": true,
+  "display_name": null, "ui_language": "uz-Latn",
+  "region": { "id": 1726, "name": "Toshkent shahri" },        // null until onboarding
+  "district": { "id": 1726269, "name": "Chilonzor tumani" },  // null until onboarding
+  "profile_complete": true,
+  "quota": { "hour_limit": 20, "hour_used": 3, "day_limit": 100, "day_used": 10 } }
+
+// Region / District
+{ "id": 1726, "name": "Toshkent shahri" }
+{ "id": 1726269, "name": "Chilonzor tumani" }
+
+// ConversationSummary
+{ "id": "uuid", "title": "Pasportni almashtirish", "updated_at": "…", "last_message_preview": "…" }
+
+// Conversation
+{ "id": "uuid", "title": "…", "created_at": "…", "updated_at": "…", "messages": [Message] }
+
+// Message (user)
+{ "id": "uuid", "role": "user", "text": "Pasportimni qanday yangilayman?", "created_at": "…" }
+
+// Message (assistant)
+{ "id": "uuid", "role": "assistant", "created_at": "…", "status": "complete",   // "streaming" | "complete" | "failed"
+  "answer": Answer | null, "sources": [Source], "office": OfficeMatch | null,
+  "refused": false, "feedback": Feedback | null }
+
+// Feedback
+{ "rating": 1, "comment": "" }
+```
+
+User text is stored **after PII scrubbing**. The history therefore shows placeholders such as `[PASSPORT]`, `[PINFL]`, `[PHONE]` and `[EMAIL]`.
+
+The geo IDs in the examples are illustrative. Real IDs come from the official SOATO classifier.
+
+---
+
+## 4. Chat stream (`POST /api/v1/chat`)
+
+Response headers: `Content-Type: text/event-stream`, `Cache-Control: no-cache`, `X-Accel-Buffering: no`.
+The browser reads the stream with `fetch` + `ReadableStream`, not `EventSource`, because the request is a POST.
+
+### Events, in order
+
+`meta` → `status`* → `office`? → `delta`* → `final` → `done`.
+`error` can replace everything after `meta` and ends the stream.
+A keep-alive comment `: ping` is sent every 15 s.
+
+| Event | `data` | Notes |
+|---|---|---|
+| `meta` | `{"conversation_id": uuid, "user_message_id": uuid, "assistant_message_id": uuid}` | Always first. A new conversation is created when `conversation_id` was null |
+| `status` | `{"stage": "searching" \| "found" \| "writing", "source_count": int?}` | For the progress line. Can repeat |
+| `office` | `OfficeMatch` | At most once, before the first `delta`. Sent only when a retrieved service maps to an office type |
+| `delta` | `{"text": "<raw JSON fragment>"}` | Concatenate all fragments to get a growing, partial `Answer` JSON. Parse it with a partial-JSON parser |
+| `final` | `{"message": Message (assistant)}` | Validated answer, resolved `sources`, `office`, `refused`. **Replaces** the live-parsed answer |
+| `error` | `{"code": "llm_unavailable" \| "llm_timeout" \| "invalid_answer" \| "quota_exceeded" \| "internal_error", "message": str}` | The assistant message is stored with `status: "failed"` |
+| `done` | `{}` | Last event on success |
+
+Example wire format:
+
+```
+event: meta
+data: {"conversation_id":"6f1…","user_message_id":"a12…","assistant_message_id":"b34…"}
+
+event: status
+data: {"stage":"searching"}
+
+event: status
+data: {"stage":"found","source_count":4}
+
+event: office
+data: {"match":"district","office_type":{"code":"public_service_center","label":"Davlat xizmatlari markazi"},"office":{…}}
+
+event: status
+data: {"stage":"writing"}
+
+event: delta
+data: {"text":"{\"answer_type\":\"service\",\"language\":\"uz-Latn\",\"title\":\"Pasportni alm"}
+
+: ping
+
+event: final
+data: {"message":{…}}
+
+event: done
+data: {}
+```
+
+---
+
+## 5. Answer schema
+
+The same schema is sent to Gemini as `response_schema` and validated with Pydantic on the backend. **Field order is fixed** so that the summary streams first. Every field is always present: arrays may be empty, and `fee`/`processing_time` may be null.
+
+```ts
+type Lang = "uz-Latn" | "uz-Cyrl" | "ru" | "en";
+
+interface Answer {
+  answer_type: "service" | "legal" | "not_found" | "off_topic";
+  language: Lang;                 // language/script of the user's question
+  title: string;                  // ≤ 80 chars
+  summary: string;                // 1–2 plain sentences
+  steps: Item[];                  // ≤ 7. service: procedure; legal: what to do next
+  documents: Item[];              // service only: required documents
+  fee: Item | null;
+  processing_time: Item | null;
+  law_points: LawPoint[];         // legal (allowed in service too)
+  follow_up_questions: string[];  // ≤ 3, same language
+}
+
+interface Item { text: string; source_ids: string[] }               // e.g. ["S1", "S3"]
+interface LawPoint { quote: string; explanation: string; source_ids: string[] }
+```
+
+Rules:
+
+- `not_found` / `off_topic`: only `title`, `summary` and optionally `follow_up_questions`. Every other array is empty and the nullable fields are null.
+- `source_ids` refer to the context labels `S1..Sn`. In `final`, unknown IDs are **removed**, and an item can end up with `source_ids: []`, which the UI shows without a citation badge.
+- `office` is **not** part of `Answer`. Office data comes only from the database (`OfficeMatch`).
+- The disclaimer is static UI text per language, not model output.
+
+### Source
+
+```ts
+interface Source {
+  id: string;                     // "S1" …, matches source_ids
+  kind: "law" | "service_page" | "other";
+  title: string;
+  publisher: string;              // "lex.uz", "my.gov.uz"
+  url: string;
+  section: string | null;         // "14-modda" / "Article 14"
+  published_at: string | null;    // YYYY-MM-DD
+  fetched_at: string;             // ISO datetime
+}
+```
+
+`sources` in `final` lists only the sources cited at least once, in order of first citation. The original `S` IDs are kept.
+
+### Office
+
+```ts
+interface OfficeMatch {
+  match: "district" | "region" | "none";   // "none" means: office type known, no office in the DB
+  office_type: { code: string; label: string };
+  office: Office | null;
+}
+
+interface Office {
+  id: string;
+  name: string;
+  office_type: { code: string; label: string };
+  address: string;
+  district: { id: number; name: string };
+  region: { id: number; name: string };
+  phone: string | null;
+  working_hours: WorkingHours[];          // empty = unknown
+  latitude: number | null;
+  longitude: number | null;
+  map_url: string;                        // Google Maps URL from coordinates, else from address
+  data_as_of: string;                     // YYYY-MM-DD
+  source_url: string;
+}
+
+interface WorkingHours {
+  days: ("mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun")[];
+  open: string;                            // "09:00"
+  close: string;                           // "18:00"
+  break: { start: string; end: string } | null;
+}
+```
+
+`map_url` takes one of two forms:
+- with coordinates: `https://www.google.com/maps/search/?api=1&query=<lat>,<lng>`;
+- without: `…&query=<url-encoded name + address>`.
+
+Initial office type codes:
+- `public_service_center`
+- `migration`
+- `civil_registry`
+- `notary`
+- `tax`
+- `cadastre`
+- `khokimiyat`
+- `other`
+
+The admin can add more.
+
+---
+
+## 6. Example `final` (illustrative values, not real facts)
+
+The example values below are layout placeholders for design and mocks. Never present them as real information.
+
+```json
+{
+  "message": {
+    "id": "b34c…", "role": "assistant", "created_at": "2026-10-22T09:15:03Z", "status": "complete",
+    "refused": false, "feedback": null,
+    "answer": {
+      "answer_type": "service",
+      "language": "uz-Latn",
+      "title": "Pasportni almashtirish",
+      "summary": "Pasportni almashtirish uchun ariza topshirasiz va tayyor hujjatni olasiz.",
+      "steps": [
+        { "text": "Arizani onlayn yoki Davlat xizmatlari markazida topshiring.", "source_ids": ["S1"] },
+        { "text": "Davlat bojini toʻlang.", "source_ids": ["S1"] },
+        { "text": "Tayyor hujjatni markazdan oling.", "source_ids": ["S2"] }
+      ],
+      "documents": [
+        { "text": "Eski pasport", "source_ids": ["S1"] },
+        { "text": "Toʻlov kvitansiyasi", "source_ids": ["S1"] }
+      ],
+      "fee": { "text": "NAMUNA: bazaviy hisoblash miqdorining X foizi", "source_ids": ["S1"] },
+      "processing_time": { "text": "NAMUNA: N ish kuni", "source_ids": ["S2"] },
+      "law_points": [],
+      "follow_up_questions": ["Pasportni onlayn almashtirsa boʻladimi?"]
+    },
+    "sources": [
+      { "id": "S1", "kind": "service_page", "title": "NAMUNA xizmat sahifasi", "publisher": "my.gov.uz",
+        "url": "https://my.gov.uz/", "section": null, "published_at": null, "fetched_at": "2026-10-20T08:00:00Z" },
+      { "id": "S2", "kind": "law", "title": "NAMUNA nizom", "publisher": "lex.uz",
+        "url": "https://lex.uz/", "section": "12-band", "published_at": "2024-01-01", "fetched_at": "2026-10-20T08:00:00Z" }
+    ],
+    "office": {
+      "match": "district",
+      "office_type": { "code": "public_service_center", "label": "Davlat xizmatlari markazi" },
+      "office": {
+        "id": "0d7e…", "name": "NAMUNA Chilonzor tumani Davlat xizmatlari markazi",
+        "office_type": { "code": "public_service_center", "label": "Davlat xizmatlari markazi" },
+        "address": "NAMUNA koʻchasi, 1-uy", "district": { "id": 1726269, "name": "Chilonzor tumani" },
+        "region": { "id": 1726, "name": "Toshkent shahri" }, "phone": "+998 71 000 00 00",
+        "working_hours": [
+          { "days": ["mon","tue","wed","thu","fri"], "open": "09:00", "close": "18:00",
+            "break": { "start": "13:00", "end": "14:00" } },
+          { "days": ["sat"], "open": "09:00", "close": "13:00", "break": null }
+        ],
+        "latitude": null, "longitude": null,
+        "map_url": "https://www.google.com/maps/search/?api=1&query=NAMUNA",
+        "data_as_of": "2026-10-20", "source_url": "https://example.org/offices"
+      }
+    }
+  }
+}
+```
+
+---
+
+*Contract v1.0, 2026-10-22: initial version.*
