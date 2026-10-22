@@ -20,6 +20,7 @@
   <nav class="sidebar__nav" aria-label="Menyu">
     <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 17H5" /><path d="M19 7h-9" /><circle cx="17" cy="17" r="3" /><circle cx="7" cy="7" r="3" /></svg><span>Sozlamalar</span></a>
     <a class="nav-link" href="about.html" aria-current="page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg><span>Loyiha haqida</span></a>
+    <div class="lang-menu lang-menu--block lang-menu--up" data-lang-menu><button class="lang-menu__btn" type="button" id="lm34-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="lm34-list"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" /></svg><span class="lang-menu__label" lang="uz-Latn">Oʻzbekcha</span><span class="sr-only">Tilni tanlash: </span><span class="lang-menu__code">UZ</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></button><div class="lang-menu__scrim" aria-hidden="true"></div><div class="lang-menu__panel" id="lm34-list" role="menu" aria-labelledby="lm34-btn" hidden><p class="lang-menu__title" aria-hidden="true">Til</p><button type="button" class="lang-menu__item" role="menuitemradio" tabindex="-1" aria-checked="true" data-lang="uz-Latn" data-code="UZ" data-name="Oʻzbekcha" data-switched="Til oʻzgartirildi"><span class="lang-menu__name"><span lang="uz-Latn">Oʻzbekcha</span><span class="lang-menu__hint">Lotin yozuvi</span></span><span class="lang-tag" aria-hidden="true">UZ</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></button><button type="button" class="lang-menu__item" role="menuitemradio" tabindex="-1" aria-checked="false" data-lang="uz-Cyrl" data-code="ЎЗ" data-name="Ўзбекча" data-switched="Тил ўзгартирилди"><span class="lang-menu__name"><span lang="uz-Cyrl">Ўзбекча</span><span class="lang-menu__hint">Кирилл ёзуви</span></span><span class="lang-tag" aria-hidden="true">ЎЗ</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></button><button type="button" class="lang-menu__item" role="menuitemradio" tabindex="-1" aria-checked="false" data-lang="ru" data-code="RU" data-name="Русский" data-switched="Язык изменён"><span class="lang-menu__name"><span lang="ru">Русский</span></span><span class="lang-tag" aria-hidden="true">RU</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></button><button type="button" class="lang-menu__item" role="menuitemradio" tabindex="-1" aria-checked="false" data-lang="en" data-code="EN" data-name="English" data-switched="Language changed"><span class="lang-menu__name"><span lang="en">English</span></span><span class="lang-tag" aria-hidden="true">EN</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></button></div><p class="sr-only" role="status" data-lang-status></p></div>
     <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
   </nav>
 </aside>
@@ -43,6 +44,7 @@
 </div>
 </div>
 
+<script src="flow.js"></script>
 <script>
   /* Prototype only: show the elements whose data-when lists the current state (#state in the URL). */
   (function () {
@@ -55,8 +57,19 @@
         b.setAttribute("aria-pressed", String(b.getAttribute("data-state") === state));
       });
       document.body.classList.toggle("drawer-open", state.indexOf("drawer") === 0);
+      if (window.GovAssistLang && state === "lang-open") {
+        var m = document.querySelector('[data-when~="lang-open"]:not([hidden]) [data-lang-menu]');
+        if (m) window.GovAssistLang.open(m);
+      }
+      if (window.GovAssistLang && /^(default|uz-Cyrl|ru|en)$/.test(state)) {
+        window.GovAssistLang.set(state === "default" ? "uz-Latn" : state, { instant: true });
+      }
     }
-    function current() { return location.hash.slice(1) || bar.getAttribute("data-default"); }
+    function current() {
+      var h = location.hash.slice(1);
+      var known = Array.prototype.map.call(bar.querySelectorAll("[data-state]"), function (b) { return b.getAttribute("data-state"); });
+      return known.indexOf(h) >= 0 ? h : bar.getAttribute("data-default");
+    }
     document.addEventListener("click", function (e) {
       var t = e.target.closest("[data-state], [data-goto], [data-drawer]");
       if (!t) return;

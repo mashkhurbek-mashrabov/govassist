@@ -1,6 +1,14 @@
 /**
- * GovAssist prototype: journey navigation and timed streaming playback (j1.html … j6.html).
+ * GovAssist prototype: the language menu (every page) and journey playback (j1.html … j6.html).
  * Prototype only; the React app does not use this file.
+ *
+ * Language menu markup (v1.2):
+ *   <div data-lang-menu> <button class="lang-menu__btn" aria-haspopup="menu" aria-expanded aria-controls>
+ *     <div role="menu" hidden> <button role="menuitemradio" aria-checked data-lang="uz-Latn" data-code="UZ"> …
+ *   [data-lang-variant="ru"]  a translated copy of a region; the one matching the chosen language is shown
+ *   [data-lang-region]        cross-fades while the language switches
+ *   [data-lang-status]        polite live region that announces the change
+ *   window.GovAssistLang.set(lang, {instant}) / .open(menuElement) for gallery states and screenshots.
  *
  * Markup it understands:
  *   <section class="flow-step" id="x" data-title="…" [data-auto="ms"]>  one step; the URL hash picks the step
@@ -12,6 +20,133 @@
  * URL flags: ?shot  freezes the page for screenshots (no timers, no typing, no busy delay).
  * Reduced motion: steps still advance on their timer, but text appears at once (the stages jump).
  */
+(function () {
+  "use strict";
+
+  var SWITCH_MS = 200;
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var menus = Array.prototype.slice.call(document.querySelectorAll("[data-lang-menu]"));
+  var phone = window.matchMedia("(max-width: 767px)");
+
+  /** On phones the sheet and its scrim move to <body>, so no glass ancestor (backdrop-filter) can trap the fixed sheet. */
+  function portal(menu, on) {
+    var parts = [menu.querySelector(".lang-menu__scrim"), menu.querySelector('[role="menu"]')];
+    parts.forEach(function (el) {
+      if (on && phone.matches) {
+        el.__home = el.__home || { parent: el.parentNode, next: el.nextSibling };
+        el.setAttribute("data-portal", "");
+        document.body.appendChild(el);
+      } else if (!on && el.__home) {
+        el.__home.parent.insertBefore(el, el.__home.next);
+        el.removeAttribute("data-portal");
+      }
+    });
+  }
+
+  /** @param {HTMLElement} menu @returns {HTMLElement[]} its option buttons */
+  function items(menu) {
+    var panel = menu.__panel || menu.querySelector('[role="menu"]');
+    menu.__panel = panel;
+    return Array.prototype.slice.call(panel.querySelectorAll('[role="menuitemradio"]'));
+  }
+
+  /** Closes a menu; returns focus to its button unless told not to. @param {HTMLElement} menu @param {boolean} [keepFocus] */
+  function close(menu, keepFocus) {
+    var btn = menu.querySelector(".lang-menu__btn");
+    var panel = menu.__panel || menu.querySelector('[role="menu"]');
+    if (panel.hidden) return;
+    panel.hidden = true;
+    menu.removeAttribute("data-open");
+    portal(menu, false);
+    btn.setAttribute("aria-expanded", "false");
+    if (!keepFocus) btn.focus();
+  }
+
+  /** Opens a menu and focuses the checked option. @param {HTMLElement} menu */
+  function open(menu) {
+    menus.forEach(function (m) { if (m !== menu) close(m, true); });
+    items(menu);
+    var panel = menu.__panel;
+    panel.hidden = false;
+    menu.setAttribute("data-open", "");
+    portal(menu, true);
+    menu.querySelector(".lang-menu__btn").setAttribute("aria-expanded", "true");
+    var current = panel.querySelector('[aria-checked="true"]') || items(menu)[0];
+    current.focus();
+  }
+
+  /**
+   * Switches the UI language in place: syncs every menu, swaps translated regions, announces the change.
+   * @param {string} lang uz-Latn | uz-Cyrl | ru | en
+   * @param {{instant?: boolean}} [opts]
+   */
+  function setLang(lang, opts) {
+    var instant = (opts && opts.instant) || reduced;
+    var regions = Array.prototype.slice.call(document.querySelectorAll("[data-lang-region]"));
+    var apply = function () {
+      menus.forEach(function (menu) {
+        items(menu).forEach(function (item) {
+          var on = item.getAttribute("data-lang") === lang;
+          item.setAttribute("aria-checked", String(on));
+          if (on) {
+            var code = menu.querySelector(".lang-menu__code");
+            if (code) code.textContent = item.getAttribute("data-code");
+            var label = menu.querySelector(".lang-menu__label");
+            if (label) label.textContent = item.getAttribute("data-name");
+          }
+        });
+      });
+      var variants = document.querySelectorAll("[data-lang-variant]");
+      var hasVariant = document.querySelector('[data-lang-variant="' + lang + '"]');
+      if (hasVariant) {
+        Array.prototype.forEach.call(variants, function (v) { v.hidden = v.getAttribute("data-lang-variant") !== lang; });
+        document.documentElement.lang = lang;
+      }
+      var chosen = document.querySelector('[role="menuitemradio"][data-lang="' + lang + '"]');
+      Array.prototype.forEach.call(document.querySelectorAll("[data-lang-status]"), function (s) {
+        s.textContent = chosen && !(opts && opts.instant) ? chosen.getAttribute("data-switched") : "";
+      });
+      regions.forEach(function (r) { r.classList.remove("is-switching"); });
+    };
+    if (instant || !regions.length) { apply(); return; }
+    regions.forEach(function (r) { r.classList.add("is-switching"); });
+    setTimeout(apply, SWITCH_MS);
+  }
+
+  menus.forEach(function (menu) {
+    var btn = menu.querySelector(".lang-menu__btn");
+    btn.addEventListener("click", function () {
+      if (menu.hasAttribute("data-open")) close(menu); else open(menu);
+    });
+    btn.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); open(menu); }
+    });
+    items(menu);
+    menu.__panel.addEventListener("keydown", function (e) {
+      var list = items(menu);
+      var i = list.indexOf(document.activeElement);
+      if (i < 0) return;
+      var keys = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: list.length - 1 };
+      if (e.key in keys) { e.preventDefault(); list[(keys[e.key] + list.length) % list.length].focus(); }
+      else if (e.key === "Escape") { e.preventDefault(); close(menu); }
+      else if (e.key === "Tab") close(menu, true);
+    });
+    items(menu).forEach(function (item) {
+      item.addEventListener("click", function () { setLang(item.getAttribute("data-lang")); close(menu); });
+    });
+    var scrim = menu.querySelector(".lang-menu__scrim");
+    if (scrim) { menu.__scrim = scrim; scrim.addEventListener("click", function () { close(menu); }); }
+  });
+  document.addEventListener("click", function (e) {
+    menus.forEach(function (menu) {
+      var inside = menu.contains(e.target) || menu.__panel.contains(e.target) || (menu.__scrim && menu.__scrim.contains(e.target));
+      if (!inside) close(menu, true);
+    });
+  });
+
+  window.GovAssistLang = { set: setLang, open: open };
+})();
+
 (function () {
   "use strict";
 

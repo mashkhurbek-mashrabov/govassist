@@ -1,4 +1,4 @@
-# GovAssist design system v1
+# GovAssist design system v1.2
 
 Foundations for every screen. Values live in [`tokens.css`](tokens.css) (source) and [`tokens.json`](tokens.json) (derived). This page explains them; it never redefines them.
 
@@ -30,6 +30,7 @@ Playwright confirmed `document.fonts.check("16px Inter", …)` is true for both 
 
 | Token | Mobile | ≥ 768 px | Line height | Use |
 |---|---|---|---|---|
+| `--text-display-xl-*` (v1.2) | 40 px | 60 px | 1.1 | Landing headline only, −0.025 em tracking (`--letter-spacing-tighter`) |
 | `--text-display-*` | 28 px | 36 px | 1.25 | Chat greeting |
 | `--text-h1-*` | 24 | 30 | 1.3 | Page titles |
 | `--text-h2-*` | 20 | 22 | 1.35 | Answer title, sections |
@@ -103,7 +104,9 @@ Colour is never the only signal: badges carry text ("Hozir ochiq", "Yopiq"), err
 
 4 px base: `--space-1` (4) · `-2` (8) · `-3` (12) · `-4` (16) · `-5` (20) · `-6` (24) · `-8` (32) · `-10` (40) · `-12` (48) · `-16` (64). `--space-half` (2) is for optical icon nudges only.
 
-Page gutter `--layout-gutter`: 16 px on phones, 24 px from 768 px. Content widths: chat 760 px, settings/about 720 px, auth 440 px, landing 1152 px. Card padding 16 px on phones, 20/24 px from 768 px. Gap between answer cards 16 px; between messages 24 px.
+Page gutter `--layout-gutter`: 16 px on phones, 24 px from 768 px. Content widths: chat 760 px, settings/about 720 px, auth 440 px, landing 1152 px, landing FAQ 720 px (`--layout-prose-narrow`).
+
+Component sizes added in v1.2: `--size-lang-code` (2.5ch, fixed width of the UZ / ЎЗ / RU / EN code so the language button never changes width), `--size-popover` (256 px, language popover), `--size-lang-card` (72 px, minimum height of a language card). `--z-popover` (35) puts the popover and the phone sheet above the sticky header and below dialogs. Card padding 16 px on phones, 20/24 px from 768 px. Gap between answer cards 16 px; between messages 24 px.
 
 ## 5. Radius (3 steps)
 
@@ -135,8 +138,11 @@ Two helper shadows: `--shadow-glass` (the soft drop under glass bars) and `--sha
 | `--motion-ease-standard` | cubic-bezier(0.2, 0, 0, 1) | Entering, state changes |
 | `--motion-ease-exit` | cubic-bezier(0.4, 0, 1, 1) | Leaving |
 | `--motion-press-scale` | 0.98 | Buttons, chips and icon buttons shrink slightly while pressed |
+| `--motion-duration-preview` (v1.2) | 9000 ms | One play of the landing's streaming-answer preview (it plays once and holds) |
 
 **Micro-interactions (v1.1):** press scale on buttons, chips and icon buttons; chips lift 2 px on hover; each new answer block fades and rises 8 px into place (`rise-in`, `--motion-duration-slow`) as it streams in. All of them are removed under reduced motion.
+
+**v1.2:** the language popover scales in from 96 % and the phone sheet slides up (`--motion-duration-base`); switching language fades the content to 35 % and back (200 ms); the landing preview reveals its blocks in order. Under reduced motion all of them are instant and the preview shows the finished card.
 
 **Reduced motion** (`prefers-reduced-motion: reduce`): `tokens.css` sets every duration to 0 ms, and components switch animations off (`animation: none`). The progress line still shows the stage **text**, the dots stay solid, the skeleton is a flat grey bar and the caret stays still. Nothing slides; the drawer and toast simply appear. All screenshots were taken with reduced motion on, so they show the reduced variant.
 
@@ -144,7 +150,7 @@ Two helper shadows: `--shadow-glass` (the soft drop under glass bars) and `--sha
 
 **One package: Lucide, pinned to `lucide-static` 1.61.0** (ISC licence, [lucide.dev](https://lucide.dev)). The frontend uses **`lucide-react` 1.61.0**, the same version, so names and shapes match exactly.
 
-- The exact SVG files are copied unchanged into [`icons/`](icons/) (40 icons + `LICENSE.txt`). The prototype inlines their children verbatim; nothing is redrawn.
+- The exact SVG files are copied unchanged into [`icons/`](icons/) (42 icons + `LICENSE.txt`). The prototype inlines their children verbatim; nothing is redrawn.
 - `node docs/design/tokens.mjs --check` fails if any inline icon in the prototype differs from a file in `icons/`. The Google "G" is the one non-Lucide mark (class `icon--brand`, see components.md → Button).
 - Drawing: 24 px grid, 2 px stroke, round caps and joins, `currentColor`, shown at 20 px (`--size-icon`), 16 px (`--size-icon-sm`) or 24 px (`--size-icon-lg`).
 - Every icon is either next to a visible label (and `aria-hidden="true"`) or inside an icon button with an `aria-label`.
@@ -163,6 +169,7 @@ The author asked for a prettier, more professional look with "a little bit gradi
 | `--gradient-text` | indigo-800 `#2C287F` → violet-700 | Landing and greeting headlines (gradient-clipped text) | 8.65 on the page, 8.2 on the hero |
 | `--gradient-hero` | indigo-50 → violet-50 → white | Landing hero panel, chat greeting panel | body text 15+, muted 6.7 |
 | `--gradient-card` | white → neutral-50 | Content cards (a barely visible lift) | unchanged |
+| `--gradient-mesh` (v1.2) | radial blobs of indigo-200 `#C3C8FA`, violet-100, indigo-100 and amber-50 over indigo-50 → white | Landing hero only | at the darkest point (indigo-200): text 10.79, muted 4.71, headline gradient 7.55 / 5.58 |
 | `--gradient-page` | indigo-100, violet-100, amber-50 radial washes | Fixed page backdrop behind the glass | muted 6.03 at the darkest point |
 
 Gradient headline text falls back to plain `CanvasText` under `forced-colors: active`. Only one element per screen uses gradient text.

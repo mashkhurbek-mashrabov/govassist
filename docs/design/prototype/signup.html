@@ -11,7 +11,7 @@
 <body>
 <nav class="proto-bar" aria-label="Prototype states" data-default="default"><a href="index.html">← Index</a><span>States:</span><button type="button" data-state="default" aria-pressed="false">default</button><button type="button" data-state="errors" aria-pressed="false">field errors</button><button type="button" data-state="submitting" aria-pressed="false">submitting</button><button type="button" data-state="server-error" aria-pressed="false">server error</button></nav>
 <div class="auth">
-  <header class="auth__header"><a class="wordmark" href="login.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" /></svg></span>GovAssist</a><div class="lang-switch"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" /></svg><label class="sr-only" for="lang">Til</label><select class="select" id="lang"><option selected>Oʻzbekcha (lotin)</option><option>Ўзбекча (кирилл)</option><option>Русский</option><option>English</option></select></div></header>
+  <header class="auth__header"><a class="wordmark" href="login.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z" /></svg></span>GovAssist</a><div class="lang-menu" data-lang-menu><button class="lang-menu__btn" type="button" id="lm11-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="lm11-list"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" /></svg><span class="sr-only">Tilni tanlash: </span><span class="lang-menu__code">UZ</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg></button><div class="lang-menu__scrim" aria-hidden="true"></div><div class="lang-menu__panel" id="lm11-list" role="menu" aria-labelledby="lm11-btn" hidden><p class="lang-menu__title" aria-hidden="true">Til</p><button type="button" class="lang-menu__item" role="menuitemradio" tabindex="-1" aria-checked="true" data-lang="uz-Latn" data-code="UZ" data-name="Oʻzbekcha" data-switched="Til oʻzgartirildi"><span class="lang-menu__name"><span lang="uz-Latn">Oʻzbekcha</span><span class="lang-menu__hint">Lotin yozuvi</span></span><span class="lang-tag" aria-hidden="true">UZ</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></button><button type="button" class="lang-menu__item" role="menuitemradio" tabindex="-1" aria-checked="false" data-lang="uz-Cyrl" data-code="ЎЗ" data-name="Ўзбекча" data-switched="Тил ўзгартирилди"><span class="lang-menu__name"><span lang="uz-Cyrl">Ўзбекча</span><span class="lang-menu__hint">Кирилл ёзуви</span></span><span class="lang-tag" aria-hidden="true">ЎЗ</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></button><button type="button" class="lang-menu__item" role="menuitemradio" tabindex="-1" aria-checked="false" data-lang="ru" data-code="RU" data-name="Русский" data-switched="Язык изменён"><span class="lang-menu__name"><span lang="ru">Русский</span></span><span class="lang-tag" aria-hidden="true">RU</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></button><button type="button" class="lang-menu__item" role="menuitemradio" tabindex="-1" aria-checked="false" data-lang="en" data-code="EN" data-name="English" data-switched="Language changed"><span class="lang-menu__name"><span lang="en">English</span></span><span class="lang-tag" aria-hidden="true">EN</span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg></button></div><p class="sr-only" role="status" data-lang-status></p></div></header>
   <main class="auth__main" id="main">
 <div class="auth__intro"><h1>Roʻyxatdan oʻting</h1><p class="t-muted">Savol berish uchun hisob kerak. Bu bir daqiqa oladi.</p></div>
 <div class="alert alert--danger" data-when="errors" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" /></svg><div class="alert__body"><p class="alert__title">Formada xatolar bor. Quyida tuzating.</p></div></div><div class="alert alert--danger" data-when="server-error" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" /></svg><div class="alert__body"><p>Nimadir xato ketdi. Birozdan soʻng qayta urinib koʻring.</p></div></div>
@@ -23,6 +23,7 @@
   </main>
   <footer class="auth__footer"><p class="footer-note">Rasmiy davlat xizmati emas</p><nav class="footer-links" aria-label="Footer"><a href="about.html">Loyiha haqida</a><a href="about.html#privacy">Maxfiylik haqida</a></nav></footer>
 </div>
+<script src="flow.js"></script>
 <script>
   /* Prototype only: show the elements whose data-when lists the current state (#state in the URL). */
   (function () {
@@ -35,8 +36,19 @@
         b.setAttribute("aria-pressed", String(b.getAttribute("data-state") === state));
       });
       document.body.classList.toggle("drawer-open", state.indexOf("drawer") === 0);
+      if (window.GovAssistLang && state === "lang-open") {
+        var m = document.querySelector('[data-when~="lang-open"]:not([hidden]) [data-lang-menu]');
+        if (m) window.GovAssistLang.open(m);
+      }
+      if (window.GovAssistLang && /^(default|uz-Cyrl|ru|en)$/.test(state)) {
+        window.GovAssistLang.set(state === "default" ? "uz-Latn" : state, { instant: true });
+      }
     }
-    function current() { return location.hash.slice(1) || bar.getAttribute("data-default"); }
+    function current() {
+      var h = location.hash.slice(1);
+      var known = Array.prototype.map.call(bar.querySelectorAll("[data-state]"), function (b) { return b.getAttribute("data-state"); });
+      return known.indexOf(h) >= 0 ? h : bar.getAttribute("data-default");
+    }
     document.addEventListener("click", function (e) {
       var t = e.target.closest("[data-state], [data-goto], [data-drawer]");
       if (!t) return;

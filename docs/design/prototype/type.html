@@ -43,6 +43,7 @@
   <p class="footer-note">Расмий давлат хизмати эмас</p>
   <ul class="history"><li class="history__item"><a class="history__link" href="#"><span class="history__title">Паспортни алмаштириш</span><span class="history__preview">Суҳбатлар шу ерда сақланади</span></a><span class="history__date">18.10.2026</span></li></ul>
 </section></main>
+<script src="flow.js"></script>
 <script>
   /* Prototype only: show the elements whose data-when lists the current state (#state in the URL). */
   (function () {
@@ -55,8 +56,19 @@
         b.setAttribute("aria-pressed", String(b.getAttribute("data-state") === state));
       });
       document.body.classList.toggle("drawer-open", state.indexOf("drawer") === 0);
+      if (window.GovAssistLang && state === "lang-open") {
+        var m = document.querySelector('[data-when~="lang-open"]:not([hidden]) [data-lang-menu]');
+        if (m) window.GovAssistLang.open(m);
+      }
+      if (window.GovAssistLang && /^(default|uz-Cyrl|ru|en)$/.test(state)) {
+        window.GovAssistLang.set(state === "default" ? "uz-Latn" : state, { instant: true });
+      }
     }
-    function current() { return location.hash.slice(1) || bar.getAttribute("data-default"); }
+    function current() {
+      var h = location.hash.slice(1);
+      var known = Array.prototype.map.call(bar.querySelectorAll("[data-state]"), function (b) { return b.getAttribute("data-state"); });
+      return known.indexOf(h) >= 0 ? h : bar.getAttribute("data-default");
+    }
     document.addEventListener("click", function (e) {
       var t = e.target.closest("[data-state], [data-goto], [data-drawer]");
       if (!t) return;

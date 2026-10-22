@@ -6,17 +6,17 @@ All 17 screens (0–16) from `01-design-plan.md` §4, then the end-to-end journe
 
 | Layout | Phone (< 768 px, designed at 375) | Tablet (768–1279) | Desktop (≥ 1280) |
 |---|---|---|---|
-| **Auth** (screens 0–6, 16) | Header (wordmark + language select) · one column, 16 px gutter · footer ("Rasmiy davlat xizmati emas", About, Privacy) | Same column, max 440 px, centred, more top space | Same as tablet |
-| **App shell** (screens 7–15) | Sticky top bar 56 px: menu (opens the history drawer) · title · new chat. Full-width content, 16 px gutter. Sticky InputBar on chat screens | Same, 24 px gutter, headings one step larger | Permanent 296 px sidebar (wordmark, New chat, history, Settings, About, "not official") · centred column: chat max 760 px, other pages max 720 px · sticky InputBar aligned to the column |
+| **Auth** (screens 0–6, 16) | Header (wordmark + LanguageMenu) · one column, 16 px gutter · footer ("Rasmiy davlat xizmati emas", About, Privacy) | Same column, max 440 px, centred, more top space | Same as tablet |
+| **App shell** (screens 7–15) | Sticky top bar 56 px: menu (opens the history drawer) · title · new chat. Full-width content, 16 px gutter. Sticky InputBar on chat screens | Same, 24 px gutter, headings one step larger | Permanent 296 px sidebar (wordmark, New chat, history, Settings, About, LanguageMenu (block variant, opens upwards), "not official") · centred column: chat max 760 px, other pages max 720 px · sticky InputBar aligned to the column |
 
 ---
 
 ## 0. Landing `/welcome` · [`welcome.html`](prototype/welcome.html)
 
-- **Purpose:** first visit, before any account. Say in one sentence what GovAssist does, show what an answer looks like, and lead to Sign up.
-- **Layout:** auth header (wordmark · language select · "Kirish" ghost link) · hero: display heading, lead, **Sign up** (primary) + **Log in** (secondary), "Savol berish uchun roʻyxatdan oʻting" note · a sample answer card (NAMUNA, from contract §6: kind label, title, 3 numbered steps with citation badges, office type + "Hozir ochiq" badge + address) · "Qanday ishlaydi": 3 cards (ask → get the steps & documents → go to the right office) · "not an official government service" note · footer (About, Privacy). Phone: one column, buttons full width. ≥ 768 px: buttons side by side, the 3 cards in a row. ≥ 1280 px: hero in two columns (text left, preview right), max 1152 px (`--layout-landing-max`).
-- **States:** `default` · `ru` (same page with the Russian UI, the end of J6).
-- **Copy:** `landing.*`, `app.not_official_long`.
+- **Purpose:** first visit, before any account. Say in one sentence what GovAssist does, show an answer being built, and lead to Sign up.
+- **Layout (v1.2):** sticky glass header (wordmark · LanguageMenu · "Kirish") · **hero** on `--gradient-mesh`: eyebrow chip, gradient display-xl headline, lead, **Sign up** (primary) + **"Qanday ishlashini koʻrish"** (secondary, jumps to How it works), small note · **streaming preview**: the NAMUNA answer from contract §6 plays in (question → progress → summary → 3 steps with citation badges → office card with "Hozir ochiq" and address), static under reduced motion · **features** (4 cards): exact office in your district · official sources with text chips "lex.uz · my.gov.uz" (no logos) · 4 languages · free · **How it works**: 3 numbered steps · **FAQ**: 4 questions in an accordion · **CTA band** on the brand gradient · **footer**: wordmark + tagline + "not an official government service" text, About / Privacy / Sources, LanguageMenu, legal row. Phone: one column, buttons full width, features 1 per row. ≥ 768 px: buttons side by side, features 2 per row, steps in a row. ≥ 1280 px: hero in two columns (text left, preview right), features 4 per row, max 1152 px.
+- **States:** `default` (uz-Latn) · `lang-open` (LanguageMenu open: popover at 1440, bottom sheet at 375) · `uz-Cyrl` · `ru` · `en` (the page after switching in place; all four languages are in the file, so the menu really switches it).
+- **Copy:** `landing.*`, `footer.*`, `lang.*`, `app.not_official`, `app.not_official_long`.
 - **Data:** none. The preview is static sample markup; its badges are not links.
 
 ## 1. Sign up `/signup` · [`signup.html`](prototype/signup.html)
@@ -57,7 +57,7 @@ All 17 screens (0–16) from `01-design-plan.md` §4, then the end-to-end journe
 ## 6. Onboarding `/onboarding` · [`onboarding.html`](prototype/onboarding.html)
 
 - **Purpose:** pick the UI language, then region → district, so the office lookup works.
-- **Layout:** auth layout with a 2-step indicator. Step 1: four RadioCards (language names in their own script) + Next. Step 2: "Why we ask" info alert, Region combobox, District combobox (disabled until a region is chosen), "Saqlash va boshlash", Back.
+- **Layout:** auth layout with a 2-step indicator. Step 1: four LanguageCards (large radio cards: native name in its own script, script hint, code tag, check) + Next. Step 2: "Why we ask" info alert, Region combobox, District combobox (disabled until a region is chosen), "Saqlash va boshlash", Back.
 - **States:** `language` · `place` (region list open, district disabled with reason) · `loading-districts` · `district-open` (filtering "Chil") · `validation` (district missing) · `saving`.
 - **Copy:** `onboarding.*`, `lang.*`, `common.next`, `common.back`, `common.saving`.
 - **Data:** GET `/geo/regions` → `[Region]`; GET `/geo/regions/{id}/districts` → `[District]`; PATCH `/me` `{ui_language, region_id, district_id}`; `profile_incomplete` (403) sends the user here. Lists show contract names plus NAMUNA placeholders.
@@ -111,7 +111,7 @@ All 17 screens (0–16) from `01-design-plan.md` §4, then the end-to-end journe
 
 ## 14. Settings `/settings` · [`settings.html`](prototype/settings.html)
 
-- **Layout:** cards: App language (select; the UI switches at once) · Your area (region + district comboboxes, Save) · Usage (two meters: hour and day) · Account (email, optional name, Change password / Set a password, Log out, divider, Delete account). Change password opens an inline form in the Account card: current password (hidden when `has_password` is false) + new password with strength, Save / Cancel.
+- **Layout:** cards: App language (LanguageCards, 2 × 2 from 768 px; the UI switches at once) · Your area (region + district comboboxes, Save) · Usage (two meters: hour and day) · Account (email, optional name, Change password / Set a password, Log out, divider, Delete account). Change password opens an inline form in the Account card: current password (hidden when `has_password` is false) + new password with strength, Save / Cancel.
 - **States:** `default` · `saving` · `saved` · `password` (form open) · `password-error` ("Joriy parol notoʻgʻri") · `password-saving` · `password-saved` (success alert) · `google` (`has_password: false`: "Parol oʻrnatish" with a short explanation, no current-password field) · `ru` (UI language switched to Russian; region/district names come back localized) · `confirm-delete` (dialog with an "I understand" checkbox that enables the danger button).
 - **Copy:** `settings.*`, `onboarding.region`, `onboarding.district`, `common.save*`.
 - **Data:** GET/PATCH `/me` (`ui_language`, `region`, `district`, `display_name`, `email`, `quota.hour_used/hour_limit/day_used/day_limit`); DELETE `/me` `{confirm: true}`; log out `DELETE auth/session` → `/welcome`. Change / set password: `POST /_allauth/browser/v1/account/password/change` `{current_password, new_password}`, omitting `current_password` when `Me.has_password` is false.
