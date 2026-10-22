@@ -38,14 +38,14 @@ def _compose(c: Context, args: str, *, pty: bool = False) -> None:
 
 
 def _manage(c: Context, args: str, *, pty: bool = False) -> None:
-    """Run ``manage.py`` inside a one-off backend container.
+    """Run ``manage.py`` inside a one-off backend container (entrypoint ``manage`` role).
 
     Args:
         c: Invoke context.
         args: Arguments after ``manage.py``.
         pty: Attach a terminal.
     """
-    _compose(c, f"run --rm backend python manage.py {args}", pty=pty)
+    _compose(c, f"run --rm backend manage {args}", pty=pty)
 
 
 def _backend(c: Context, command: str) -> None:
@@ -109,8 +109,8 @@ def manage(c: Context, cmd: str) -> None:
 
 @task
 def migrate(c: Context) -> None:
-    """Apply migrations."""
-    _manage(c, "migrate --noinput")
+    """Apply migrations (entrypoint ``migrate`` role)."""
+    _compose(c, "run --rm backend migrate")
 
 
 @task
@@ -148,14 +148,14 @@ def seed(c: Context) -> None:
 @task
 def crawl(c: Context, source: str) -> None:
     """Crawl one source now (id or exact name), in the worker image."""
-    _compose(c, f'run --rm worker python manage.py crawl --source "{source}"')
+    _compose(c, f'run --rm worker manage crawl --source "{source}"')
 
 
 @task
 def index(c: Context, document: str = "") -> None:
     """Index one document, or every approved document that has no chunks yet."""
     target = f"--document {document}" if document else "--all-pending"
-    _compose(c, f"run --rm worker python manage.py index {target}")
+    _compose(c, f"run --rm worker manage index {target}")
 
 
 # --- Contract ---------------------------------------------------------------------

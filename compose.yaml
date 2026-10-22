@@ -34,6 +34,7 @@ services:
     <<: *backend-env
     build: {context: ./backend, target: runtime}
     image: govassist-backend:latest
+    command: web
     read_only: true
     tmpfs: [/tmp]
 
@@ -41,6 +42,7 @@ services:
     <<: *backend-env
     build: {context: ./backend, target: crawler}
     image: govassist-worker:latest
+    command: worker
     volumes: [./data:/data]
 
 volumes:
