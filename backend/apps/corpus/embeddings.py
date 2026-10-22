@@ -52,7 +52,11 @@ def format_document(item: DocumentInput) -> str:
 
 
 class GeminiEmbedder:
-    """``gemini-embedding-2``: one request per text (lists are merged into one vector)."""
+    """``gemini-embedding-2``: one request per text (lists are merged into one vector).
+
+    An instance belongs to one event loop (its client and semaphore bind to it): create a
+    new one for each ``async_to_sync`` call or request.
+    """
 
     def __init__(
         self,
