@@ -1,6 +1,6 @@
-# GovAssist design system v1.1
+# GovAssist design system v1.2
 
-**Status: Approved** (v1.1: Lucide icons, glass, gradients, UX polish; approved by the author and merged as PR #5 on 2026-10-22). v1 was approved at gate G2 on 2026-10-22 (PR #1). See `docs/plans/00-main-plan.md` §5. **Lane:** Design, Sevara (Claude). **Plan:** [`01-design-plan.md`](../plans/01-design-plan.md). **Contract:** v1.5.
+**Status: In review** (v1.2: language menu and a new landing, `01-design-plan.md` §3a). v1.1 (Lucide icons, glass, gradients, UX polish) was approved and merged as PR #5 on 2026-10-22. v1 was approved at gate G2 on 2026-10-22 (PR #1). See `docs/plans/00-main-plan.md` §5. **Lane:** Design, Sevara (Claude). **Plan:** [`01-design-plan.md`](../plans/01-design-plan.md). **Contract:** v1.5.
 
 A calm, phone-first, WCAG 2.2 AA design for GovAssist: landing, auth, onboarding, chat with live-streaming answer cards, the office card, history, settings and about, plus **six clickable end-to-end journeys (J1–J6)**. It is deliberately **not** styled like a government site: warm neutral greys with one indigo accent, a plain wordmark, no emblem and no flag colours. "Rasmiy davlat xizmati emas" (*Not an official government service*) and the answer disclaimer are on every relevant screen.
 
@@ -15,16 +15,16 @@ A calm, phone-first, WCAG 2.2 AA design for GovAssist: landing, auth, onboarding
 | [`components.md`](components.md) | Every component: anatomy, variants, states, tokens, a11y; OfficeCard rules; streaming behaviour; journey playback |
 | [`screens.md`](screens.md) | All 17 screens (0–16): purpose, layout per breakpoint, components, states, copy keys, contract fields; then the journeys table |
 | [`copy.md`](copy.md) | UI strings in uz-Latn + en with length budgets, plus the **error code → copy key** map (contract §1, §2, §4) |
-| [`icons/`](icons/) | The 40 Lucide icons used, copied unchanged from `lucide-static` 1.61.0, plus the ISC licence. `tokens.mjs --check` fails if an inline icon differs from these files |
+| [`icons/`](icons/) | The 42 Lucide icons used, copied unchanged from `lucide-static` 1.61.0, plus the ISC licence. `tokens.mjs --check` fails if an inline icon differs from these files |
 | [`fonts/`](fonts/) | Inter 5.3.0, 400 + 600, latin / latin-ext / cyrillic / cyrillic-ext WOFF2, `inter.css`, OFL licence |
 | [`prototype/index.html`](prototype/index.html) | Every screen and state: one file per screen with a state bar, plus `components.html` and `type.html` (glyphs + long-string test) |
 | [`prototype/journeys.html`](prototype/journeys.html) | Start page for **J1–J6**; each journey is one file (`j1.html` … `j6.html`), 91 linked steps in total |
-| [`prototype/flow.js`](prototype/flow.js) | The one shared script: step navigation, form submits, timed streaming playback (Pause; text jumps under reduced motion), `?shot` mode for screenshots |
-| [`screenshots/`](screenshots/) | 164 PNGs (82 states × 375×812 and 1440×900) + `glyph-proof.png` |
+| [`prototype/flow.js`](prototype/flow.js) | The one shared script: the LanguageMenu (popover / bottom sheet, keyboard, in-place switch), step navigation, form submits, timed streaming playback (Pause; text jumps under reduced motion), `?shot` mode for screenshots |
+| [`screenshots/`](screenshots/) | 170 PNGs (85 states × 375×812 and 1440×900) + `glyph-proof.png` |
 | [`screenshots/journeys/`](screenshots/journeys/) | Every journey step in order at 375×812 (`J1-01-landing.png` …), J2 and J6 also at 1440×900: 118 PNGs |
 | [`screenshots/glass/`](screenshots/glass/) | Glass chrome over scrolled content, each next to its two solid fallbacks (`prefers-reduced-transparency` and no `backdrop-filter`): 15 PNGs |
 | [`shoot.cjs`](shoot.cjs) | Playwright script that makes all screenshots and runs the audits below |
-| **Design canvas** | [claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM](https://claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM): 45 artboards, one row per journey (J1, J2, J3, J4, J5, J6, J6 part 2, other screens) with a title note each; phone boards 390 wide, chat/history/settings boards 1440 wide for J2 and J6. Primary buttons are prototype links between artboards; streaming boards play their stages by themselves (Replay). The canvas is private until shared from its Share menu |
+| **Design canvas** | [claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM](https://claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM): 47 artboards, one row per journey (J1, J2, J3, J4, J5, J6, J6 part 2, other screens). v1.2 adds a phone bottom-sheet board and a desktop landing board with a working language popover, and updates the landing, sign up, log in, onboarding language, settings and Russian landing boards; the other boards keep the v1.1 stylesheet, which v1.2 only extends with a title note each; phone boards 390 wide, chat/history/settings boards 1440 wide for J2 and J6. Primary buttons are prototype links between artboards; streaming boards play their stages by themselves (Replay). The canvas is private until shared from its Share menu |
 
 ## How to use it
 
@@ -63,9 +63,22 @@ The author asked for "one icon package, not similar, glass effect, better UI/UX"
 | Depth | Two simple shadows, grey card borders | Three-layer shadows, a softer 7 % card edge, a white → stone-50 card surface, a brand-gradient edge on the office card, a violet glow under primary actions |
 | Screenshots | 25 MB | Palette PNG (256 colours, dithered) via `shoot.cjs`: 18 MB for more shots |
 
+## v1.2: before → after
+
+The author: "the changing language is bad … also make prettier the landing page" (`01-design-plan.md` §3a).
+
+| Area | v1.1 (before) | v1.2 (after) |
+|---|---|---|
+| Language switch | Native `<select>` "Oʻzbekcha (lotin)": system styling, long label, different on every OS | **LanguageMenu**: globe + fixed-width code (UZ / ЎЗ / RU / EN) that never shifts the layout; a styled popover with native names, code tags and a check on the current one; a bottom sheet on phones; menu-button keyboard pattern; switches the page in place with a 200 ms fade (instant under reduced motion) and a live-region announcement |
+| Where | Landing, auth headers, sidebar and settings each had a select | LanguageMenu in the landing header and footer, every auth header and the sidebar (block variant); **LanguageCards** (large radio cards) for onboarding step 1 and Settings → App language |
+| Landing hero | Pale gradient panel, display heading, two buttons | Gradient mesh (CSS only), eyebrow chip, 40/60 px gradient headline, Sign up + "See how it works" |
+| Landing preview | Static sample card | The NAMUNA answer streams in by itself (question → progress → summary → steps → office), static under reduced motion |
+| Landing body | 3 "how it works" cards and a note | 4 feature cards (exact office, sources with text chips "lex.uz · my.gov.uz", 4 languages, free) · 3 numbered steps · FAQ accordion · gradient CTA band · full footer with the "not official" pill |
+| Landing languages | uz-Latn, plus a Russian state | All four (uz-Latn, uz-Cyrl, ru, en) in one file, switched in place by the menu |
+
 ## Review checklist (`01-design-plan.md` §8)
 
-- [x] Every screen and state in §4 is present in `screens.md`, the prototype and the screenshots. *(17 screens incl. the landing, 82 states, 164 state screenshots.)*
+- [x] Every screen and state in §4 is present in `screens.md`, the prototype and the screenshots. *(17 screens incl. the landing, 85 states, 170 state screenshots.)*
 - [x] All answer types (service, legal, not_found, off_topic), every office variant (district, region, none, no office, unknown hours/phone) and the streaming stages (searching → found → office early → summary → steps → documents → fee/time → final, plus stopped) are designed.
 - [x] Data shown matches `docs/contract.md` field by field, and nothing needs data the API doesn't provide. *(Field mapping per screen in `screens.md`; v1.1/v1.2 additions used: `has_password`, resend-verification, `/sources`, `error_code`, `scope`, auth error codes, retry keeps both attempts.)*
 - [x] Contrast table passes AA, targets ≥ 44 px, focus states visible, reduced-motion variant defined. *(`design-system.md` §3 and §7; audits above.)*
@@ -79,9 +92,12 @@ The author asked for "one icon package, not similar, glass effect, better UI/UX"
 - [x] The landing page exists. J1 includes a second turn in the same thread. J2 shows a full legal answer. J3 shows a Russian answer.
 - [x] Streaming plays by itself in the journeys, with a reduced-motion variant. *(`flow.js` timers + Pause; under reduced motion the text appears at once. Canvas streaming boards play on their own.)*
 - [x] `screenshots/journeys/` has every step of every journey. *(91 steps at 375; J2 and J6 also at 1440.)*
-- [x] (v1.1) Every icon is a real Lucide icon from one pinned `lucide-static` version, and the inventory is in `components.md`. *(1.61.0; 40 icons in `icons/`; enforced by `tokens.mjs --check`, which also caught the old hand-drawn menu icon in a negative test.)*
+- [x] (v1.1) Every icon is a real Lucide icon from one pinned `lucide-static` version, and the inventory is in `components.md`. *(1.61.0; 42 icons in `icons/`; enforced by `tokens.mjs --check`, which also caught the old hand-drawn menu icon in a negative test.)*
 - [x] (v1.1) Glass is on the listed chrome only, AA passes on glass, and the solid fallbacks for no-`backdrop-filter` and reduced transparency are designed and screenshotted. *(`design-system.md` §8a worst-case contrast table; `screenshots/glass/`.)*
 - [x] (v1.1) A UX polish pass is done, with a before/after list in the README. *(Above. Includes the "prettier, a little gradient, professional" round: restrained indigo → violet gradient tokens with AA on every stop, `design-system.md` §8b.)*
+
+- [x] (v1.2) Every language `<select>` is replaced by the LanguageMenu (popover; bottom sheet on phones) or LanguageCards, with the menu-button keyboard pattern, 44 px targets and no layout shift; states documented in `components.md`. *(`welcome.html#lang-open`, `components.html`; axe and target audits clean at both sizes.)*
+- [x] (v1.2) The landing has the mesh hero with gradient headline and two CTAs, the auto-playing streaming preview (static under reduced motion), 4 features with text-only source chips (no logos), How it works, FAQ, CTA band and footer with the "not official" note; SVG/CSS only, every value a token. *(`welcome.html`, screenshots at 375 and 1440 in four languages; mesh contrast in `design-system.md` §8b.)*
 
 ## Open questions
 
@@ -104,8 +120,8 @@ No open questions.
 
 - **Tabs** are optional in the plan and no screen needs them, so they are not designed.
 - **Dark theme** tokens exist (`data-theme="dark"`) and pass contrast, but no screen was reviewed in dark mode; treat it as provisional.
-- **ru and uz-Cyrl copy** is out of scope (`copy.md` is uz-Latn + en per plan §6). The Russian UI strings in J6, `welcome.html#ru` and `settings.html#ru`, and the Cyrillic strings in `type.html`, are layout and journey strings, not reviewed translations.
+- **ru and uz-Cyrl copy** is out of scope (`copy.md` is uz-Latn + en per plan §6). The Russian UI strings in J6, `settings.html#ru` and the landing's uz-Cyrl / ru / en versions, and the Cyrillic strings in `type.html`, are layout and journey strings, not reviewed translations.
 - Answer content follows the question's script (`answer.language`) while the UI follows `ui_language`, so J2 (uz-Cyrl) and J3 (ru) mix a Latin UI with Cyrillic content. Only J6 switches the UI language itself.
-- The canvas boards are hand-written mirrors of the prototype: same tokens and stylesheet, simplified markup, fewer icons. The prototype in this folder is the markup reference for React.
+- The canvas boards are hand-written mirrors of the prototype: same tokens and stylesheet, simplified markup, fewer icons. On the canvas the language menu shows its states (popover, sheet) but does not translate the board; `welcome.html` in the prototype does the full in-place switch. The prototype in this folder is the markup reference for React.
 - Desktop screenshots are 1440×900 as requested; the plan's 1280 breakpoint is where the sidebar appears, so 1280–1440 share one layout.
 - The Turnstile widget is a 300×65 SAMPLE placeholder; Cloudflare renders the real one.

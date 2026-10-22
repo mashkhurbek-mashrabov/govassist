@@ -44,6 +44,14 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | key | uz-Latn | en | max |
 |---|---|---|---|
 | `lang.label` | Til | Language | 16 |
+| `lang.menu_label` | Tilni tanlash | Choose language | 24 |
+| `lang.switched` | Til oʻzgartirildi | Language changed | 30 |
+| `lang.hint_latin` | Lotin yozuvi | Latin script | 20 |
+| `lang.hint_cyrillic` | Кирилл ёзуви | Cyrillic script | 20 |
+| `lang.name.uz-Latn` | Oʻzbekcha | Oʻzbekcha | 16 |
+| `lang.name.uz-Cyrl` | Ўзбекча | Ўзбекча | 16 |
+| `lang.name.ru` | Русский | Русский | 16 |
+| `lang.name.en` | English | English | 16 |
 | `lang.uz-Latn` | Oʻzbekcha (lotin) | Oʻzbekcha (lotin) | 24 |
 | `lang.uz-Cyrl` | Ўзбекча (кирилл) | Ўзбекча (кирилл) | 24 |
 | `lang.ru` | Русский | Русский | 16 |
@@ -157,11 +165,33 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 
 | key | uz-Latn | en | max |
 |---|---|---|---|
-| `landing.title` | Davlat xizmatini qanday olishni va qaysi idoraga borishni aniq aytib beramiz. | Find out how to get a public service and exactly which office to visit. | 120 |
-| `landing.lead` | Savolingizni oddiy soʻzlar bilan yozing. Javob koʻrib chiqilgan rasmiy manbalardan tuziladi. | Ask in plain words. Answers come from reviewed official sources. | 120 |
+| `landing.eyebrow` | Bepul · 4 tilda · Manbalari bilan | Free · 4 languages · With sources | 50 |
+| `landing.title` | Qaysi hujjat, qaysi idora — aniq javob. | Which documents, which office: a clear answer. | 60 |
+| `landing.lead` | Savolingizni oddiy soʻzlar bilan yozing. GovAssist qadamlar, kerakli hujjatlar va tumaningizdagi idorani rasmiy manbalar asosida koʻrsatadi. | Ask in plain words. GovAssist shows the steps, the documents to bring and the office in your district, based on official sources. | 160 |
+| `landing.see_how` | Qanday ishlashini koʻrish | See how it works | 30 |
 | `landing.signup` | Roʻyxatdan oʻtish | Sign up | 24 |
 | `landing.login` | Kirish | Log in | 16 |
-| `landing.cta_note` | Savol berish uchun roʻyxatdan oʻting. Bu bir daqiqa oladi. | Sign up to ask questions. It takes a minute. | 80 |
+| `landing.cta_note` | Bepul. Roʻyxatdan oʻtish bir daqiqa oladi. | Free. Signing up takes a minute. | 60 |
+| `landing.features_title` | Nega GovAssist | Why GovAssist | 30 |
+| `landing.f1_title` | Aynan sizning tumaningizdagi idora | The exact office in your district | 50 |
+| `landing.f1` | Manzil, ish vaqti, telefon va xaritadagi joyi — har bir javobda. | Address, hours, phone and map location in every answer. | 90 |
+| `landing.f2_title` | Rasmiy hujjatlar asosida | Based on official documents | 40 |
+| `landing.f2` | Har bir qadam yonida manba raqami. Bosib, asl sahifani oching. | Every step shows a source number. Tap it to open the original page. | 90 |
+| `landing.f3_title` | 4 tilda | 4 languages | 20 |
+| `landing.f3` | Oʻzbekcha (lotin va kirill), ruscha yoki inglizcha soʻrang. | Ask in Uzbek (Latin or Cyrillic), Russian or English. | 80 |
+| `landing.f4_title` | Bepul | Free | 20 |
+| `landing.f4` | Roʻyxatdan oʻting va savol bering — toʻlov yoʻq. | Sign up and ask. There is nothing to pay. | 70 |
+| `landing.faq_title` | Koʻp soʻraladigan savollar | Frequently asked questions | 40 |
+| `landing.q1` | Bu rasmiy davlat xizmatimi? | Is this an official government service? | 60 |
+| `landing.a1` | Yoʻq. GovAssist — mustaqil talaba loyihasi. U ariza qabul qilmaydi va hech narsani sizning nomingizdan yubormaydi. | No. GovAssist is an independent student project. It doesn't accept applications or submit anything on your behalf. | 160 |
+| `landing.q2` | Javoblar qayerdan olinadi? | Where do the answers come from? | 50 |
+| `landing.a2` | Faqat koʻrib chiqilgan rasmiy manbalardan (lex.uz, my.gov.uz). Har bir javobda manbalar roʻyxati bor. | Only from reviewed official sources (lex.uz, my.gov.uz). Every answer lists its sources. | 140 |
+| `landing.q3` | Shaxsiy maʼlumotlarim saqlanadimi? | Is my personal data stored? | 50 |
+| `landing.a3` | Pasport raqami, JShShIR, telefon va email saqlashdan oldin olib tashlanadi. Hisobingizni istalgan vaqt oʻchirishingiz mumkin. | Passport numbers, PINFL, phone numbers and emails are removed before anything is stored. You can delete your account at any time. | 160 |
+| `landing.q4` | Bu yuridik maslahatmi? | Is this legal advice? | 40 |
+| `landing.a4` | Yoʻq. Bu umumiy maʼlumot. Muhim qaror oldidan rasmiy manbani tekshiring. | No. It is general information. Check the official source before an important decision. | 120 |
+| `landing.band_title` | Birinchi safardayoq toʻgʻri idoraga boring. | Go to the right office the first time. | 60 |
+| `landing.band_text` | Savolingizni bering va qadamlarni oling. | Ask your question and get the steps. | 60 |
 | `landing.how_title` | Qanday ishlaydi | How it works | 30 |
 | `landing.step_1_title` | Soʻrang | Ask | 24 |
 | `landing.step_1` | Masalan: “Pasportimni qanday yangilayman?” | For example: “How do I renew my passport?” | 70 |
@@ -170,6 +200,14 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `landing.step_3_title` | Toʻgʻri idoraga boring | Go to the right office | 30 |
 | `landing.step_3` | Tumaningizdagi idora manzili, ish vaqti va xaritadagi joyi. | The office in your district: address, hours and map. | 90 |
 | `landing.preview_label` | Javob namunasi | Sample answer | 30 |
+
+## footer
+
+| key | uz-Latn | en | max |
+|---|---|---|---|
+| `footer.tagline` | Davlat xizmatlari boʻyicha mustaqil yordamchi. | An independent assistant for public services. | 60 |
+| `footer.thesis` | ITPU magistratura dissertatsiyasi loyihasi · 2026 | MSc thesis project at ITPU · 2026 | 60 |
+| `footer.sources` | Manbalar | Sources | 20 |
 
 ## password_change
 

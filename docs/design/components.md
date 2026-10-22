@@ -54,11 +54,24 @@ Used on Sign up and Log in (screens 1 and 2, journeys J1, J2, J6). It posts the 
 - **Strength hint** (signup, reset): 3-segment meter `.strength[data-level=1|2|3]` (danger / warning / success) + text "Parol kuchi: kuchsiz / oʻrtacha / kuchli" in a polite live region. The meter is `aria-hidden`; the text carries the meaning. Rule shown in the hint: at least 10 characters.
 
 ### Select / Combobox `.combobox`
-- **Native `<select>`** for short fixed lists (UI language).
+- The UI language uses LanguageMenu (below), not a native `<select>` (v1.2).
 - **Searchable combobox** for region and district: leading search icon · input (`role="combobox"`, `aria-expanded`, `aria-controls`, `aria-autocomplete="list"`) · chevron · popup `.listbox` (`role="listbox"`, options `role="option"`, `aria-selected`, active option highlighted, check mark on the selected one).
 - **States:** closed, open, filtering, loading (spinner + "Tumanlar yuklanmoqda…" + skeleton rows), empty ("Hech narsa topilmadi"), disabled with a reason ("Avval viloyatni tanlang"), error.
 - **Keyboard:** ↓/↑ move, Enter selects, Esc closes, typing filters (match both scripts: the frontend's transliteration lets "Чилонзор" find "Chilonzor").
 - **Dependent:** changing the region clears the district and reloads `/geo/regions/{id}/districts`.
+
+### LanguageMenu `.lang-menu` (v1.2)
+Replaces every native language `<select>`: landing header and footer, auth header, app sidebar. A menu button that opens a short list.
+
+- **Anatomy.** Button `.lang-menu__btn`: `globe` icon · short code `.lang-menu__code` (UZ / ЎЗ / RU / EN, fixed `--size-lang-code` width so switching never shifts the layout) · `chevron-down`. Block variant `.lang-menu--block` (sidebar) adds the native name before the code and fills the width. Panel `.lang-menu__panel`: 4 items, each the native name (Oʻzbekcha, Ўзбекча, Русский, English; Uzbek items show "Lotin yozuvi" / "Кирилл ёзуви" under the name), a `.lang-tag` code chip and a `check` on the current one.
+- **States.** *Closed:* ghost button, 44 px tall. *Hover:* `--color-surface-hover` fill. *Focus:* the standard focus ring. *Open:* `aria-expanded="true"`, chevron turns 180°, panel opens below the button (`--size-popover` wide, solid raised surface + `--shadow-2`; solid, not glass, because the header is already glass and a nested blur shows text through). `.lang-menu--up` opens above (footer, sidebar). *Selected item:* `aria-checked="true"`, primary-subtle fill, primary text, check visible. *Item hover/focus:* surface-hover fill + focus ring.
+- **Phone (< 768 px): bottom sheet.** The panel becomes a sheet fixed to the bottom, with a grabber, the title "Til" and items `--size-control` (48 px) tall, over a scrim. The script moves the sheet and scrim to `<body>` while open (a parent with `backdrop-filter` would otherwise trap the fixed sheet) and puts them back on close. Tapping the scrim closes it.
+- **Keyboard and ARIA.** Button: `aria-haspopup="menu"`, `aria-expanded`, `aria-controls`; a visually hidden "Tilni tanlash:" before the code (`lang.menu_label`). Panel: `role="menu"`, items `role="menuitemradio"` + `aria-checked`, roving `tabindex`. Enter / Space / ↓ on the button opens and focuses the current item; ↑ / ↓ / Home / End move; Enter / Space choose; Esc or Tab closes; focus goes back to the button. Outside click closes.
+- **Switching.** Choosing a language changes the UI in place: the content region (`[data-lang-region]`) fades to 35 % for 200 ms, the text swaps, `<html lang>` updates, and a polite live region announces `lang.switched` in the new language ("Язык изменён"). No reload, no scroll jump. Reduced motion: instant swap, no fade. Signed in, the choice is also saved with `PATCH /me {ui_language}`; signed out, it changes only the page, and onboarding step 1 starts on that language.
+- **Code.** `flow.js` (first IIFE) has the whole behaviour; `window.GovAssistLang.set(lang)` and `.open(menu)` are used by the gallery state buttons.
+
+### LanguageCards `.lang-cards` (v1.2)
+Large radio cards for choosing a language where it is the main task: onboarding step 1 and Settings → App language. A `fieldset` (hidden legend "Til") with 4 `label.lang-card`s, 2 × 2 from 768 px. Each card: native name (in its own `lang`), script hint for Uzbek, code tag, a check circle on the right. The native radio input is visually hidden but keeps focus and arrow-key behaviour. *Checked:* 2 px primary border, `--gradient-subtle` fill, check circle filled with `--gradient-brand`. *Focus:* focus ring around the card. Card height ≥ `--size-lang-card` (72 px).
 
 ### Checkbox `.check`, RadioCard `.radio-card`
 - Native inputs with `accent-color: var(--color-primary)`, 24 px box, whole row clickable at ≥ 44 px. RadioCard (onboarding language) shows a 2 px primary border and subtle fill when checked (`:has(input:checked)`).
@@ -95,10 +108,15 @@ Used on Sign up and Log in (screens 1 and 2, journeys J1, J2, J6). It posts the 
 ### Tabs
 Optional in the plan and not needed by any screen, so not designed.
 
-### Landing parts (screen 0)
-- **Hero** `.landing__hero`: display heading, lead, actions (Sign up primary, Log in secondary; full width on phones, side by side from 768 px), small note. Two columns from 1280 px.
-- **Sample answer preview** `.landing__preview`: a `figure` with caption "Javob namunasi · NAMUNA" and a raised card that reuses AnswerHeader, StepsList and the OfficeCard badge row. Citation badges are plain `span`s (`aria-hidden`), not links, because there are no sources on the page.
-- **HowStep** `.how-step`: icon tile (40 px, primary-subtle) · h3 · muted text; three in a row from 768 px.
+### Landing parts (screen 0, v1.2)
+- **Header** `.lp__header`: sticky glass bar · wordmark · LanguageMenu · "Kirish" ghost button.
+- **Hero** `.lp-hero`: `--gradient-mesh` background (soft indigo/violet/amber radial blobs, no image). Eyebrow chip `.lp-eyebrow` ("Bepul · 4 tilda · Manbalari bilan") · headline `.lp-title` in `--text-display-xl` with `--gradient-text` clipped to the text (both stops pass 4.5:1 on every part of the mesh; under `forced-colors` it falls back to plain `CanvasText`) · lead `.lp-lead` · actions: **Sign up** (primary) + **"Qanday ishlashini koʻrish"** (secondary, jumps to the How section) · note `.lp-note` (`landing.cta_note`). Phone: one column, buttons full width. ≥ 1280 px: two columns, text left, preview right.
+- **Streaming preview** `.lp-preview`: a `figure` with a visually hidden caption ("Javob namunasi · NAMUNA") and a NAMUNA tag. It plays the answer the way the chat streams it: question → progress line → summary → steps 1–3 with citation badges → office card, staggered over `--motion-duration-preview` (9 s), then it holds. Pure CSS keyframes, no JS. **Reduced motion:** no animation, the finished card is shown and the progress line is hidden. Content is contract §6 data only; badges are `span`s, not links.
+- **Features** `.lp-features`: 4 cards (1 column → 2 at 768 px → 4 at 1280 px), each a gradient icon tile + h3 + text: *exact office in your district* (`map-pin`) · *official sources* (`book-open`) with text chips "lex.uz" "my.gov.uz" (`.lp-tags`; text only, never the publishers' logos) · *4 languages* (`languages`) with chips in each language's own script · *free* (`gift`).
+- **How it works** `.lp-steps`: an ordered list of 3 cards; the number is drawn by a CSS counter in a gradient circle.
+- **FAQ** `.lp-faq`: native `details`/`summary` accordion (keyboard and screen reader support for free), chevron turns 180° when open. 4 questions (`landing.q1–q4`): is it official, where answers come from, is personal data stored, is it legal advice.
+- **CTA band** `.lp-band`: `--gradient-brand` panel, white heading + text (AA on every stop), `.btn--on-brand` (white button, primary text).
+- **Footer** `.lp-footer`: wordmark + tagline + "GovAssist — mustaqil talaba loyihasi…" · nav (About, Privacy, Sources) · LanguageMenu (opens upwards) · legal row with the "Rasmiy davlat xizmati emas" pill `.lp-notofficial` and the thesis line.
 
 ### ChangePasswordForm (Settings → Account)
 Inline form card inside the Account card: title "Parolni oʻzgartirish", or "Parol oʻrnatish" + one-line explanation when `Me.has_password` is false · current password (PasswordField, only when `has_password`) · new password (PasswordField + strength + hint) · Save (primary, busy while saving) + Cancel (ghost). Errors: wrong current password on the field. Success replaces the form with a success Alert "Parol oʻzgartirildi.".
@@ -240,9 +258,11 @@ Every icon is a real Lucide icon from **`lucide-static` 1.61.0**, copied unchang
 | `log-out` | `LogOut` | Settings: log out |
 | `message-square` | `MessageSquare` | Wordmark mark; landing step 1; empty history |
 | `refresh-cw` | `RefreshCw` | Retry; resend link; reload |
-| `globe` | `Globe` | Language select |
+| `globe` | `Globe` | LanguageMenu button |
 | `list-checks` | `ListChecks` | Steps card; chat help list; landing step 2 |
 | `book-open` | `BookOpen` | Sources card; About source list |
 | `compass` | `Compass` | Service kind label; off_topic card; 404 |
 | `lock` | `Lock` | Privacy note; change password |
 | `house` | `House` | 404 "Bosh sahifaga qaytish" |
+| `languages` | `Languages` | Landing feature "4 languages" |
+| `gift` | `Gift` | Landing feature "free" |

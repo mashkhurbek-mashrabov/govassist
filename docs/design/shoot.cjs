@@ -241,7 +241,7 @@ async function main() {
         await page.evaluate(() => document.fonts.ready);
         await page.addStyleTag({ content: SHOT_CSS });
         const overlay = await page.evaluate(() =>
-          [...document.querySelectorAll(".scrim, .toast")].some((e) => e.getClientRects().length > 0) ||
+          [...document.querySelectorAll(".scrim, .toast, .lang-menu__scrim[data-portal]")].some((e) => e.getClientRects().length > 0 && getComputedStyle(e).display !== "none") ||
           document.body.classList.contains("drawer-open"));
         await page.screenshot({ path: path.join(OUT, name), fullPage: !overlay });
         const audit = await page.evaluate(auditInPage, { viewportWidth: viewport.width, minTarget: MIN_TARGET });
