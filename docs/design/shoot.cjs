@@ -10,6 +10,12 @@
  *   - writes screenshots/journeys/<J>-<nn>-<step>.png, with the same audits;
  *   - checks every in-journey link target exists and every step but the last has a way forward;
  *   - plays J1's streaming steps in real time (normal and reduced motion) and checks it reaches the final answer.
+ * Glass (v1.1): scrolled viewport shots with content under the glass chrome, each in three variants:
+ *   glass, solid via prefers-reduced-transparency (real media emulation), solid via no backdrop-filter
+ *   (simulated: the @supports-not block's token values are applied and backdrop-filter is removed).
+ *   Written to screenshots/glass/.
+ * If `sharp` is installed next to playwright, every PNG is then re-saved as a 256-colour palette PNG
+ * (about 70 % smaller; `node shoot.cjs compress` does only this step).
  *
  * Needs `playwright` and `axe-core`, which no package in the repo installs. Run from a scratch folder:
  *   npm i playwright axe-core && npx playwright install chromium
@@ -36,6 +42,16 @@ const DESKTOP_JOURNEYS = ["j2.html", "j6.html"];
 const PLAYBACK = { file: "j1.html", from: "a-searching", to: "a-final", timeoutMs: 20000 };
 const VIEWPORTS = [{ width: 375, height: 812 }, { width: 1440, height: 900 }];
 const MIN_TARGET = 43.5; // 44 px, allowing sub-pixel rounding
+const GLASS_OUT = path.join(OUT, "glass");
+const GLASS_SHOTS = [
+  { file: "answer-service.html", hash: "complete", scroll: 700, viewport: VIEWPORTS[0] },
+  { file: "chat-streaming.html", hash: "office", scroll: 260, viewport: VIEWPORTS[0] },
+  { file: "chat-empty.html", hash: "drawer", scroll: 0, viewport: VIEWPORTS[0] },
+  { file: "history.html", hash: "confirm", scroll: 0, viewport: VIEWPORTS[0] },
+  { file: "answer-service.html", hash: "complete", scroll: 600, viewport: VIEWPORTS[1] },
+];
+/** Same values as the @supports-not block in tokens.css, plus no backdrop-filter. */
+const NO_BACKDROP_CSS = ":root{--color-glass:var(--palette-white)!important;--color-glass-strong:var(--palette-white)!important;--glass-blur:0px!important;--glass-saturate:1!important}*{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}";
 /** Unsticks the composer and sidebar so a full-page shot shows them once, in place; hides the prototype bar. */
 const SHOT_CSS = ".proto-bar{display:none!important} .composer,body:not(.drawer-open) .sidebar{position:static!important} body:not(.drawer-open) .sidebar{height:auto!important}";
 
@@ -165,9 +181,53 @@ async function shootJourneys(browser, axeSource, problems) {
   }
 }
 
+/**
+ * Screenshots the glass chrome over scrolled content, plus its two solid fallbacks.
+ * @param {import("playwright").Browser} browser
+ */
+async function shootGlass(browser) {
+  fs.mkdirSync(GLASS_OUT, { recursive: true });
+  const variants = [
+    { name: "glass", css: "" , transparency: "no-preference" },
+    { name: "solid-reduced-transparency", css: "", transparency: "reduce" },
+    { name: "solid-no-backdrop", css: NO_BACKDROP_CSS, transparency: "no-preference" },
+  ];
+  for (const shot of GLASS_SHOTS) {
+    for (const v of variants) {
+      const context = await browser.newContext({ viewport: shot.viewport, reducedMotion: "reduce" });
+      const page = await context.newPage();
+      const cdp = await context.newCDPSession(page);
+      await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-transparency", value: v.transparency }] });
+      await page.goto(`file://${path.join(PROTO, shot.file)}#${shot.hash}`);
+      await page.evaluate(() => document.fonts.ready);
+      await page.addStyleTag({ content: ".proto-bar{display:none!important}" + v.css });
+      await page.evaluate((y) => window.scrollTo(0, y), shot.scroll);
+      const name = `${shot.file.replace(".html", "")}--${shot.hash}--${shot.viewport.width}--${v.name}.png`;
+      await page.screenshot({ path: path.join(GLASS_OUT, name) });
+      await context.close();
+    }
+  }
+}
+
+/**
+ * Re-saves every screenshot as a palette PNG when sharp is available; skips silently otherwise.
+ * @returns {Promise<number>} Files compressed.
+ */
+async function compressScreenshots() {
+  let sharp;
+  try { sharp = requireFromCwd("sharp"); } catch { return 0; }
+  const files = fs.readdirSync(OUT, { recursive: true }).filter((f) => f.endsWith(".png")).map((f) => path.join(OUT, f));
+  for (const file of files) {
+    const buffer = await sharp(file).png({ palette: true, quality: 90, effort: 10, dither: 1 }).toBuffer();
+    fs.writeFileSync(file, buffer);
+  }
+  return files.length;
+}
+
 /** Entry point. */
 async function main() {
   const only = process.argv[2] ?? "";
+  if (only === "compress") { console.log(`compressed ${await compressScreenshots()} screenshots`); return; }
   const axeSource = fs.readFileSync(requireFromCwd.resolve("axe-core/axe.min.js"), "utf8");
   const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
   const problems = [];
@@ -201,7 +261,10 @@ async function main() {
     await context.close();
   }
   if (!only || only === "j") await shootJourneys(browser, axeSource, problems);
+  if (!only || only === "glass") await shootGlass(browser);
   await browser.close();
+  const compressed = await compressScreenshots();
+  if (compressed) console.log(`compressed ${compressed} screenshots (palette PNG)`);
   for (const p of problems) console.error(p);
   console.log(problems.length ? `${problems.length} problem(s)` : "screenshots written, audits clean");
   process.exit(problems.length ? 1 : 0);

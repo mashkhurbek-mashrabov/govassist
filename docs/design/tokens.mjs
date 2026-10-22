@@ -4,7 +4,8 @@
  *
  *   node docs/design/tokens.mjs           rewrite tokens.json from tokens.css
  *   node docs/design/tokens.mjs --check   exit 1 if tokens.json is stale, or if the prototype
- *                                         uses a raw hex color or an undefined --variable
+ *                                         uses a raw hex color, a raw length, an undefined --variable,
+ *                                         or an inline icon that is not an exact Lucide icon from ./icons
  *
  * tokens.css is the source; tokens.json is derived (W3C Design Tokens format). No dependencies.
  */
@@ -22,6 +23,7 @@ const BLOCKS = [
   { name: "base", match: (sel, media) => sel === ":root" && media === null },
   { name: "md", match: (sel, media) => sel === ":root" && media?.includes("min-width: 768px") },
   { name: "reducedMotion", match: (sel, media) => sel === ":root" && media?.includes("prefers-reduced-motion") },
+  { name: "solidGlass", match: (sel, media) => sel === ":root" && (media?.includes("prefers-reduced-transparency") || media?.startsWith("@supports not")) },
   { name: "dark", match: (sel, media) => sel === ':root[data-theme="dark"]' && media === null },
 ];
 
@@ -33,7 +35,7 @@ const BLOCKS = [
 function parseTokens(css) {
   const clean = css.replace(/\/\*[\s\S]*?\*\//g, "");
   const out = Object.fromEntries(BLOCKS.map((b) => [b.name, []]));
-  const ruleRe = /(@media[^{]+)\{\s*(:root[^{]*)\{([^}]*)\}\s*\}|(:root[^{]*)\{([^}]*)\}/g;
+  const ruleRe = /(@(?:media|supports)[^{]+)\{\s*(:root[^{]*)\{([^}]*)\}\s*\}|(:root[^{]*)\{([^}]*)\}/g;
   for (const m of clean.matchAll(ruleRe)) {
     const media = m[1] ? m[1].trim() : null;
     const selector = (m[2] ?? m[4]).trim();
@@ -67,7 +69,9 @@ function pathOf(name, block = "base") {
  */
 function typeOf(name, value) {
   if (name.startsWith("--palette-") || name.startsWith("--color-")) return "color";
+  if (name.startsWith("--gradient-")) return "gradient";
   if (name.startsWith("--shadow-")) return "shadow";
+  if (value.includes("gradient(")) return "gradient";
   if (name.startsWith("--font-sans")) return "fontFamily";
   if (name.startsWith("--font-weight")) return "fontWeight";
   if (/^cubic-bezier/.test(value)) return "cubicBezier";
@@ -128,8 +132,11 @@ function buildJson(parsed) {
   for (const [name, value] of parsed.dark) {
     set(pathOf(name, "dark"), { $type: "color", $value: valueOf("color", value) });
   }
-  for (const [ctx, ext] of [["md", "govassist.md"], ["reducedMotion", "govassist.reducedMotion"]]) {
+  const seen = new Set();
+  for (const [ctx, ext] of [["md", "govassist.md"], ["reducedMotion", "govassist.reducedMotion"], ["solidGlass", "govassist.solidGlass"]]) {
     for (const [name, value] of parsed[ctx]) {
+      if (seen.has(`${ctx}${name}`)) continue; // the two solid-glass blocks repeat the same values
+      seen.add(`${ctx}${name}`);
       const path = pathOf(name);
       let node = tree;
       for (const seg of path) node = node[seg];
@@ -176,6 +183,26 @@ function lintPrototype(defined) {
   return problems;
 }
 
+/**
+ * Checks that every inline icon in the prototype is an unmodified Lucide icon from ./icons.
+ * The Google mark (class "icon--brand") is the one allowed non-Lucide brand mark.
+ * @returns {string[]} Human-readable problems.
+ */
+function lintIcons() {
+  const iconDir = join(HERE, "icons");
+  const inner = (svg) => svg.slice(svg.indexOf(">", svg.indexOf("<svg")) + 1, svg.lastIndexOf("</svg>"))
+    .split("\n").map((l) => l.trim()).join("");
+  const lucide = new Set(readdirSync(iconDir).filter((f) => f.endsWith(".svg")).map((f) => inner(readFileSync(join(iconDir, f), "utf8"))));
+  const problems = [];
+  for (const file of prototypeFiles().filter((f) => f.endsWith(".html"))) {
+    for (const m of readFileSync(file, "utf8").matchAll(/<svg class="icon[^"]*"[^>]*>([\s\S]*?)<\/svg>/g)) {
+      if (m[0].includes("icon--brand")) continue;
+      if (!lucide.has(m[1])) problems.push(`${file}: icon is not an unmodified Lucide icon: ${m[1].slice(0, 60)}…`);
+    }
+  }
+  return problems;
+}
+
 /** Entry point: write tokens.json, or check it and the prototype. */
 function main() {
   const parsed = parseTokens(readFileSync(CSS_PATH, "utf8"));
@@ -188,6 +215,7 @@ function main() {
   const problems = [];
   if (readFileSync(JSON_PATH, "utf8") !== json) problems.push("tokens.json is out of date: run node docs/design/tokens.mjs");
   problems.push(...lintPrototype(new Set(parsed.base.map(([n]) => n))));
+  problems.push(...lintIcons());
   for (const p of problems) console.error(p);
   console.log(problems.length ? `${problems.length} problem(s)` : "tokens OK, prototype OK");
   process.exit(problems.length ? 1 : 0);

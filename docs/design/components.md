@@ -20,6 +20,9 @@ Every motion uses `--motion-*` tokens and stops under `prefers-reduced-motion`.
 
 ## Basics
 
+### App chrome on glass (v1.1)
+Top bar, InputBar (composer), desktop sidebar, mobile drawer, Dialog and Toast use the **glass** treatment (`design-system.md` §8a): `--color-glass` (dialogs/toasts: `--color-glass-strong`), `backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate))`, a `--color-glass-border` hairline on the edge that meets content, and a 1 px `--color-glass-highlight` inner line. Nothing inside these surfaces changes: same text colours, same targets. With no `backdrop-filter` support or with `prefers-reduced-transparency: reduce`, the tokens switch to solid white and the blur to 0. Content cards are never glass.
+
 ### Button `.btn`
 - **Anatomy:** optional leading icon (20 px) · label · optional trailing icon (external link).
 - **Variants:** `--primary` (one per screen), `--secondary` (surface + strong border), `--ghost` (link-coloured, no border), `--danger`, `--danger-ghost` (destructive entry point, e.g. "Hisobni oʻchirish"), `--google` (surface + Google "G" mark).
@@ -34,7 +37,7 @@ Used on Sign up and Log in (screens 1 and 2, journeys J1, J2, J6). It posts the 
 - **Size and spacing:** the same as every button: 48 px high (`--size-control`), full width in auth forms (`--block`), `--space-5` side padding, `--radius-md`. The mark is 20 × 20 px (`--size-icon`) with `--space-2` (8 px) between mark and label. The mark is never scaled below 20 px or above 24 px.
 - **Colours:** surface background (`--color-surface`), `--size-border` border in `--color-border-strong`, label in `--color-text`; hover `--color-surface-sunken`. The mark keeps **Google's four brand colours, unaltered** (Google sign-in branding rules): `--color-google-blue`, `-green`, `-yellow`, `-red`. It is never tinted, outlined, put on a coloured fill or recoloured for the dark theme.
 - **Brand-colour exception:** these four are the only tokens that are not part of the GovAssist palette. Their hex values live once in `tokens.css` (`--palette-google-*`) and the prototype uses them only through the `.g-blue` / `.g-green` / `.g-yellow` / `.g-red` classes on the SVG paths, so `tokens.mjs --check` passes with no whitelist. No other component may use them.
-- **Markup:** inline SVG (24 px viewBox, `stroke: none`, four `<path>`s), `aria-hidden="true"`; the visible label is the accessible name. See `prototype/signup.html`.
+- **Markup:** inline SVG (24 px viewBox, `stroke: none`, four `<path>`s, class `icon icon--brand`), `aria-hidden="true"`; the visible label is the accessible name. See `prototype/signup.html`. It is the only non-Lucide mark; `tokens.mjs --check` skips `icon--brand` and checks every other icon against `icons/`.
 - **States:** default, hover, focus (standard ring), loading (spinner replaces the mark, label kept), disabled (shared disabled style; the mark stays in colour).
 
 ### IconButton `.icon-btn`
@@ -130,9 +133,11 @@ A full-width column, 16 px gap, visually hidden "GovAssist javobi:" prefix. `ari
 
 ## Answer cards
 
+v1.1 card rhythm: 20 px padding on phones, 24 px from 768 px, 16 px inside, 20 px between cards, `--shadow-1` on every card. Card headings carry their icon in a 36 px primary-subtle tile (`.card__head .icon`). Step numbers are filled primary circles (white on `#4642C8`, 7.31:1).
+
 | Component | Class | Content (contract field) | Notes |
 |---|---|---|---|
-| AnswerHeader | `.answer-head` | kind label (`answer_type`), `title` (h2), `summary` (body-lg) | Kind label with compass (service) or scale (legal) icon |
+| AnswerHeader | `.answer-head` | kind label (`answer_type`), `title` (h2), `summary` (body-lg) | v1.1: the kind label is a primary-subtle pill with the compass (service) or scale (legal) icon; the title uses the h1 size and the summary full-strength text, so title + summary are read first |
 | StepsList | `.card` + `.steps` | `steps[].text` + badges from `source_ids` | Numbered circles 32 px; heading "Nima qilish kerak" (service) or "Nima qilishingiz mumkin" (legal) |
 | DocumentsChecklist | `.doc-list` + `.check` | `documents[]` | Tick-able, visual only; hint "Belgilar saqlanmaydi" |
 | FactsRow | `.facts` + `.fact` | `fee`, `processing_time` | Two tiles side by side when ≥ 240 px each, else stacked. `null` → "Manbalarda koʻrsatilmagan" |
@@ -192,3 +197,52 @@ A full-width column, 16 px gap, visually hidden "GovAssist javobi:" prefix. `ari
 - **While text arrives:** the growing text is shown with a block caret (`.typing`, still under reduced motion). Citation badges appear when their `source_ids` are parsed.
 - **No jump on `final`:** cards keep their positions. `final` replaces the text with the validated version (usually identical) and adds the sources card, disclaimer, feedback and follow-ups *below* the content, so nothing above moves. Badges whose IDs `final` removed disappear in place.
 - **Stop:** the stream is aborted. The partial cards stay visible and the ProgressLine shows the stopped message (see the README open questions about how a stopped message is stored).
+
+---
+
+## Icon inventory
+
+Every icon is a real Lucide icon from **`lucide-static` 1.61.0**, copied unchanged into [`icons/`](icons/). In React, use **`lucide-react` 1.61.0** with the component name below. Don't add icons from any other set; the Google "G" (Button → "Continue with Google") is the only brand mark.
+
+| Lucide name | `lucide-react` | Where it is used |
+|---|---|---|
+| `menu` | `Menu` | Top bar: open the history drawer |
+| `square-pen` | `SquarePen` | Top bar: new chat |
+| `plus` | `Plus` | Sidebar and History: "Yangi suhbat" button |
+| `arrow-up` | `ArrowUp` | InputBar: Send |
+| `square` | `Square` | InputBar: Stop; ProgressLine stopped; "Javob toʻxtatildi" alert |
+| `map-pin` | `MapPin` | OfficeCard heading, address row and map button; chat help list; landing step 3 |
+| `phone` | `Phone` | OfficeCard call button and "phone unknown" row |
+| `clock` | `Clock` | OfficeCard hours toggle and "hours unknown"; rate-limit and quota alerts; check-email rate limit |
+| `external-link` | `ExternalLink` | Every external link: sources, map button, office "Manba" |
+| `thumbs-up` | `ThumbsUp` | FeedbackBar 👍 |
+| `thumbs-down` | `ThumbsDown` | FeedbackBar 👎 |
+| `check` | `Check` | ProgressLine "sources found"; saved states; toasts; selected combobox option |
+| `circle-check` | `CircleCheck` | Success alerts; verify and reset success; Turnstile placeholder |
+| `x` | `X` | Drawer close |
+| `triangle-alert` | `TriangleAlert` | Warning alerts (region fallback); invalid link; error page |
+| `circle-alert` | `CircleAlert` | Field errors; danger alerts; chat error alerts |
+| `info` | `Info` | Disclaimer; info alerts; About nav link |
+| `chevron-down` | `ChevronDown` | Hours toggle; combobox |
+| `chevron-left` | `ChevronLeft` | Onboarding "Orqaga" |
+| `search` | `Search` | Combobox lead icon; not_found card |
+| `trash-2` | `Trash2` | History delete; delete account; danger buttons |
+| `settings-2` | `Settings2` | Settings nav link |
+| `wifi-off` | `WifiOff` | Offline banner |
+| `file-text` | `FileText` | Documents card; chat help list |
+| `scale` | `Scale` | Legal kind label; "Qonunda nima deyilgan" card; chat help list |
+| `building-2` | `Building2` | OfficeCard type label |
+| `banknote` | `Banknote` | Fee tile |
+| `hourglass` | `Hourglass` | Processing-time tile |
+| `eye` | `Eye` | PasswordField "show" |
+| `eye-off` | `EyeOff` | PasswordField "hide" (while the password is visible) |
+| `mail` | `Mail` | Check email; reset link sent; prototype email notes |
+| `log-out` | `LogOut` | Settings: log out |
+| `message-square` | `MessageSquare` | Wordmark mark; landing step 1; empty history |
+| `refresh-cw` | `RefreshCw` | Retry; resend link; reload |
+| `globe` | `Globe` | Language select |
+| `list-checks` | `ListChecks` | Steps card; chat help list; landing step 2 |
+| `book-open` | `BookOpen` | Sources card; About source list |
+| `compass` | `Compass` | Service kind label; off_topic card; 404 |
+| `lock` | `Lock` | Privacy note; change password |
+| `house` | `House` | 404 "Bosh sahifaga qaytish" |
