@@ -187,4 +187,8 @@ DISTRICT_LABEL = "tumani"
 CITY_LABEL = "shahri"
 # Two listings of the same type and district this close (metres) are the same office.
 OFFICE_DUPLICATE_METRES = 150
+# ...or names this similar once parentheses and punctuation are gone (difflib ratio):
+# "YASHNOBOD TUMAN DAVLAT XIZMATLAR MARKAZI" vs "... TUMANI ... XIZMATLARI MARKAZI (YAGONA DARCHA)".
+OFFICE_NAME_SIMILARITY = 0.9
+NAME_PARENTHESES = re.compile(r"\([^)]*\)")
 EARTH_RADIUS_M = 6_371_000

@@ -13,7 +13,7 @@ from apps.collector.extraction import FakeOfficeExtractor, ListedOffice
 from apps.collector.fetchers import HostRateLimiter
 from apps.collector.models import CrawlJob, CrawlSource
 from apps.collector.parsers import ParsedPage
-from apps.collector.pipelines import OfficePipeline, distance_m, find_regions
+from apps.collector.pipelines import OfficePipeline, distance_m, find_regions, same_name
 from apps.collector.tests.test_crawler import FakeFetcher, FakeRobots
 from apps.geo.models import District, Region
 from apps.offices.models import Office, OfficeType
@@ -151,6 +151,12 @@ def test_duplicates_by_address_name_or_location_are_skipped(
             name="NAMUNA IKKINCHI NOM", address="Namuna tumani, boshqa yozuv", latitude=41.3005
         ),
         _office(address="boshqa manzil", latitude=None, longitude=None),
+        _office(
+            name="NAMUNA TUMAN SOLIQ INSPEKSIYASI (YAGONA DARCHA)",
+            address="uchinchi yozuv",
+            latitude=None,
+            longitude=None,
+        ),
         _office(name="NAMUNA YANGI", address="NAMUNA 9", latitude=41.31, longitude=69.21),
     )
     assert sorted(Office.objects.values_list("name", flat=True)) == [
@@ -220,3 +226,27 @@ def test_crawl_of_a_rubric_stores_its_companies_pending(
         "https://www.goldenpages.uz/uz/company/?Id=1",
     )
     assert extractor.texts == []
+
+
+@pytest.mark.parametrize(
+    ("a", "b", "same"),
+    [
+        (
+            "YASHNOBOD TUMAN DAVLAT XIZMATLAR MARKAZI",
+            "YASHNOBOD TUMANI DAVLAT XIZMATLARI MARKAZI (YAGONA DARCHA)",
+            True,
+        ),
+        (
+            "BEKTEMIR TUMANI DAVLAT XIZMATLARI MARKAZI",
+            "BEKTEMIR TUMANI DAVLAT XIZMATLARI MARKAZI.",
+            True,
+        ),
+        ("SHAYXONTOHUR TUMANI SOLIQ INSPEKSIYASI", "TOSHKENT DAVLAT SOLIQ INSPEKTSIYASI", False),
+        ("CHILONZOR TUMANI HOKIMIYATI", "TOSHKENT SHAHRI HOKIMIYATI", False),
+    ],
+)
+def test_same_name_ignores_parentheses_punctuation_and_suffix_letters(
+    a: str, b: str, same: bool
+) -> None:
+    """Two directories spell one office slightly differently; different offices stay apart."""
+    assert same_name(a, b) is same

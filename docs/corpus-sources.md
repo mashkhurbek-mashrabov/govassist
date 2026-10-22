@@ -44,7 +44,7 @@ Rubrics crawled (scope: Tashkent city + Samarqand viloyati):
 | tax | 108884 (Toshkent), 108891 (Samarqand) | per rubric | `SOLIQ` | `soliq-inspeksiyasi/toshkent` |
 | civil_registry | 3689 (Toshkent), 3691 (Samarqand): FHDYo offices, not wedding venues | per rubric | `F[HX]DYO\|ZAGS` | — |
 | khokimiyat | 3654 (Toshkent), 108844 (Samarqand viloyati) | per rubric | `HOKIMIYAT` | `hokimiyatlar/toshkent` |
-| migration | 1063 (OVIR / migratsiya, nationwide) | Toshkent shahri, Samarqand viloyati | `MIGRATSIYA\|PASPORT` | `pasport-bolimlari/toshkent` |
+| migration | 1063 (OVIR / migratsiya, nationwide) | Toshkent shahri, Samarqand viloyati | `MIGRATSIYA\|PASPORT\|CHET ELGA CHIQISH\|KIRIB CHIQ` (old OVIR names too) | `pasport-bolimlari/toshkent` |
 | cadastre | 1893 (nationwide; also lists private firms) | Toshkent shahri, Samarqand viloyati | `KADASTR` | `kadastr/toshkent` |
 | notary | not found on robots-allowed rubric pages (`/search/` is disallowed) | — | — | — |
 

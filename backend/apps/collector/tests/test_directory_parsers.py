@@ -85,7 +85,7 @@ def test_yellowpages_company_page_reads_graph_geo_with_commas() -> None:
     (office,) = page.offices
     assert office.name == "NAMUNA TUMANI DAVLAT XIZMATLARI MARKAZI"
     assert (office.region_name, office.district_name) == ("Toshkent", "Namuna tumani")
-    assert office.address == "Toshkent viloyati, Toshkent, Namuna tumani, ko'chasi NAMUNA, 4 A"
+    assert office.address == "Toshkent, Namuna tumani, ko'chasi NAMUNA, 4 A"  # label dropped
     assert (office.latitude, office.longitude) == (41.3271, 69.2849)
     assert (office.phone, office.working_hours, office.data_as_of) == (None, [], None)
 
@@ -123,6 +123,10 @@ def test_yellowpages_rubric_page_links() -> None:
             ("Samarqand viloyati", "", "Samarqand viloyati, Samarqand, Amir Temur ko'chasi, 152"),
         ),
         ("O'zbekiston, Namuna shahri, NAMUNA", ("", "Namuna shahri", "Namuna shahri, NAMUNA")),
+        (
+            "O'zbekiston, Toshkent viloyati, Toshkent, Yunusobod tumani, OSIYO, 4 A",
+            ("Toshkent", "Yunusobod tumani", "Toshkent, Yunusobod tumani, OSIYO, 4 A"),
+        ),
         ("", ("", "", "")),
     ],
 )

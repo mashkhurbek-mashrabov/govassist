@@ -80,7 +80,8 @@ def split_address(address: str) -> Place:
 
     ``"100043, Toshkent, Chilonzor tumani, Bunyodkor ko'chasi, 7G"`` → region ``Toshkent``,
     district ``Chilonzor tumani``. The region is the part just before the district part, or
-    the first part when no part names a district.
+    the first part when no part names a district. The street starts at the region part, so a
+    wrong leading label (yellowpages' "Toshkent viloyati" before "Toshkent") is dropped.
 
     Args:
         address: The ``streetAddress`` as published.
@@ -90,8 +91,9 @@ def split_address(address: str) -> Place:
     district_at = next((i for i, part in enumerate(parts) if DISTRICT_PART.search(part)), None)
     if district_at is None:
         return Place(parts[0] if parts else "", "", ", ".join(parts))
-    region = parts[district_at - 1] if district_at > 0 else ""
-    return Place(region, parts[district_at], ", ".join(parts))
+    start = max(district_at - 1, 0)
+    region = parts[start] if district_at > 0 else ""
+    return Place(region, parts[district_at], ", ".join(parts[start:]))
 
 
 def district_from_name(name: str) -> str:
