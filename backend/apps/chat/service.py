@@ -375,6 +375,8 @@ class AnswerService:
             "retrieval_ms": run.retrieval_ms,
         }
         citations = resolve_citations(parsed, context.sources)
+        if parsed.refused:
+            office = None  # contract v1.7: the early office event was provisional
         saved = await sync_to_async(save_answer)(assistant, citations, context, office, details)
         await self._quota.aadd_tokens(usage.total)
         return saved

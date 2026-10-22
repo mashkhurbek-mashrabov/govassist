@@ -147,3 +147,33 @@ def test_gemini_schema_drops_only_additional_properties() -> None:
     strict = Answer.model_json_schema()
     assert strict["additionalProperties"] is False
     assert sent["required"] == strict["required"]
+
+
+def test_v1_prompt_is_frozen() -> None:
+    """v1 stays byte-for-byte (evaluation runs reference its hash)."""
+    assert load_template("v1").sha256.startswith("6ab5edfac386")
+
+
+def test_v2_names_the_office_only_by_label() -> None:
+    """v2 has no English office scaffolding; the label is quoted and (none) is explicit."""
+    with_office = render_prompt(
+        version="v2",
+        language=Lang.UZ_CYRL,
+        question="?",
+        context=[],
+        history=[],
+        office_type_label="Migratsiya boʻlimi",
+    )
+    assert "«Migratsiya boʻlimi»" in with_office.system
+    assert "shown below" not in with_office.system
+    assert "Uzbek (Cyrillic script)" in with_office.system
+    without = render_prompt(
+        version="v2",
+        language=Lang.RU,
+        question="?",
+        context=[],
+        history=[],
+        office_type_label=None,
+    )
+    assert "«(none)»" in without.system
+    assert without.sha256 != load_template("v1").sha256

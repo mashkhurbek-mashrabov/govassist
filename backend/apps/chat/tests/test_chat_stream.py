@@ -415,3 +415,16 @@ async def test_title_is_scrubbed(client: AsyncClient, recorder: _Recorder) -> No
     events = await _ask(client, text="AA1234567 pasportim yoʻqoldi")
     conversation = await Conversation.objects.aget(id=events[0][1]["conversation_id"])
     assert conversation.title.startswith("[PASSPORT]")
+
+
+async def test_off_topic_drops_the_provisional_office(
+    client: AsyncClient, recorder: _Recorder, passport_doc: Document
+) -> None:
+    """The weather question gets the early office event, but final and storage drop it."""
+    recorder.factory = lambda: FakeAnswerGenerator(answer_json(answer_type="off_topic"))
+    events = await _ask(client, text="Ertaga Toshkentda ob-havo qanday boʻladi?")
+    assert "office" in [name for name, _ in events]
+    message = events[-2][1]["message"]
+    assert (message["refused"], message["office"]) == (True, None)
+    stored = await Message.objects.aget(id=message["id"])
+    assert stored.office_match is None

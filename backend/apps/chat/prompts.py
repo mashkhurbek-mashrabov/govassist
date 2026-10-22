@@ -119,6 +119,8 @@ def render_prompt(
         The rendered prompt.
     """
     template = load_template(version)
+    # v1 uses office_reference (English scaffolding, kept for reproducibility); v2 uses only
+    # the label so nothing English can leak into the answer.
     office_reference = (
         f'"the {office_type_label} shown below"'
         if office_type_label
@@ -128,6 +130,7 @@ def render_prompt(
         language=LANGUAGE_NAMES[language],
         language_code=language.value,
         office_reference=office_reference,
+        office_label=office_type_label or NONE,
     )
     user = template.user.format(
         context=_context(context),
