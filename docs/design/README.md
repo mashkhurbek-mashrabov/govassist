@@ -1,6 +1,6 @@
-# GovAssist design system v1
+# GovAssist design system v1.1
 
-**Status: Approved** (gate G2 passed 2026-10-22 by the main session; PR #1 merged). See `docs/plans/00-main-plan.md` §5. **Lane:** Design, Sevara (Claude). **Plan:** [`01-design-plan.md`](../plans/01-design-plan.md). **Contract:** v1.2.
+**Status: Approved** (v1.1: Lucide icons, glass, gradients, UX polish; approved by the author and merged as PR #5 on 2026-10-22). v1 was approved at gate G2 on 2026-10-22 (PR #1). See `docs/plans/00-main-plan.md` §5. **Lane:** Design, Sevara (Claude). **Plan:** [`01-design-plan.md`](../plans/01-design-plan.md). **Contract:** v1.5.
 
 A calm, phone-first, WCAG 2.2 AA design for GovAssist: landing, auth, onboarding, chat with live-streaming answer cards, the office card, history, settings and about, plus **six clickable end-to-end journeys (J1–J6)**. It is deliberately **not** styled like a government site: warm neutral greys with one indigo accent, a plain wordmark, no emblem and no flag colours. "Rasmiy davlat xizmati emas" (*Not an official government service*) and the answer disclaimer are on every relevant screen.
 
@@ -15,12 +15,14 @@ A calm, phone-first, WCAG 2.2 AA design for GovAssist: landing, auth, onboarding
 | [`components.md`](components.md) | Every component: anatomy, variants, states, tokens, a11y; OfficeCard rules; streaming behaviour; journey playback |
 | [`screens.md`](screens.md) | All 17 screens (0–16): purpose, layout per breakpoint, components, states, copy keys, contract fields; then the journeys table |
 | [`copy.md`](copy.md) | UI strings in uz-Latn + en with length budgets, plus the **error code → copy key** map (contract §1, §2, §4) |
+| [`icons/`](icons/) | The 40 Lucide icons used, copied unchanged from `lucide-static` 1.61.0, plus the ISC licence. `tokens.mjs --check` fails if an inline icon differs from these files |
 | [`fonts/`](fonts/) | Inter 5.3.0, 400 + 600, latin / latin-ext / cyrillic / cyrillic-ext WOFF2, `inter.css`, OFL licence |
 | [`prototype/index.html`](prototype/index.html) | Every screen and state: one file per screen with a state bar, plus `components.html` and `type.html` (glyphs + long-string test) |
 | [`prototype/journeys.html`](prototype/journeys.html) | Start page for **J1–J6**; each journey is one file (`j1.html` … `j6.html`), 91 linked steps in total |
 | [`prototype/flow.js`](prototype/flow.js) | The one shared script: step navigation, form submits, timed streaming playback (Pause; text jumps under reduced motion), `?shot` mode for screenshots |
 | [`screenshots/`](screenshots/) | 164 PNGs (82 states × 375×812 and 1440×900) + `glyph-proof.png` |
 | [`screenshots/journeys/`](screenshots/journeys/) | Every journey step in order at 375×812 (`J1-01-landing.png` …), J2 and J6 also at 1440×900: 118 PNGs |
+| [`screenshots/glass/`](screenshots/glass/) | Glass chrome over scrolled content, each next to its two solid fallbacks (`prefers-reduced-transparency` and no `backdrop-filter`): 15 PNGs |
 | [`shoot.cjs`](shoot.cjs) | Playwright script that makes all screenshots and runs the audits below |
 | **Design canvas** | [claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM](https://claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM): 45 artboards, one row per journey (J1, J2, J3, J4, J5, J6, J6 part 2, other screens) with a title note each; phone boards 390 wide, chat/history/settings boards 1440 wide for J2 and J6. Primary buttons are prototype links between artboards; streaming boards play their stages by themselves (Replay). The canvas is private until shared from its Share menu |
 
@@ -40,6 +42,27 @@ Notes for reviewers:
 - Content is the illustrative data from `docs/contract.md` §6. Everything the journeys add (the legal, Russian, off-topic, not-found, birth-certificate and driving-licence answers, extra offices and sources) is marked `NAMUNA` / `SAMPLE`. No fees, addresses, phone numbers or law articles were invented.
 - Journey steps the app can't show by itself (an email arriving, a page reload, moving to the next limit state) carry a dashed **Prototype** note with a link.
 
+## v1.1: before → after
+
+The author asked for "one icon package, not similar, glass effect, better UI/UX" and then "make prettier, use a little bit gradient, make as professional" (`01-design-plan.md` §3, v1.1).
+
+| Area | v1 (before) | v1.1 (after) |
+|---|---|---|
+| Icons | Lucide-style paths drawn by hand from memory (close, not exact) | Exact `lucide-static` 1.61.0 SVGs copied into `icons/`; `tokens.mjs --check` rejects any other icon; inventory with `lucide-react` names in `components.md` |
+| Chrome | Solid white top bar, sidebar and drawer; composer on the page colour | Frosted glass on the top bar, composer, sidebar, drawer, dialogs and toasts (tokens: alpha, blur 14 px, saturate, border, highlight, shadow); solid fallbacks for no `backdrop-filter` and `prefers-reduced-transparency` |
+| Page backdrop | Flat `#FAFAF9` | Soft indigo/amber radial washes on a fixed layer, so the glass reads; text still ≥ 6:1 on the darkest point |
+| Answer hierarchy | Small grey kind label; h2 title the same size as section titles | Kind shown as a primary pill; title at h1 size; summary in full-strength body-lg, so title + summary are read first |
+| Section headers | Small inline icon + h3 | Icon in a 36 px primary-subtle tile + h3, 12 px gap: easier to scan |
+| Steps | Pale numbered circles | Filled primary circles with white numbers (7.31:1) |
+| Cards and spacing | 16 px padding, 16 px between cards, flat | 20/24 px padding, 20 px between cards, 32 px between messages, `--shadow-1` lift; desktop pages get 40 px top space |
+| Radius | 6 / 10 / 16 px | 8 / 12 / 20 px: softer, friendlier |
+| Primary actions | Flat indigo buttons | Indigo glow (`--shadow-primary`) on primary buttons and Send; the main action stands out on every screen |
+| Micro-interactions | Colour change on hover only | Press scale (0.98) on buttons, chips and icon buttons; chips lift 2 px on hover; answer blocks fade and rise in as they stream; all off under reduced motion |
+| Empty, loading, error | Plain icon circle; flat chips | Empty/success/error icons sit in a ringed circle; chips and the InputBar have a soft lift; loading keeps the skeletons; error alerts unchanged in copy and roles |
+| Overall look | Plain, flat, one solid indigo | A premium SaaS feel with restrained gradients (indigo → violet, low contrast): brand gradient on primary buttons, Send, logo mark and step numbers; gradient hero panels and gradient headline text on the landing and chat greeting; soft gradient for active/selected states and the user bubble; violet-tinted wash behind the glass |
+| Depth | Two simple shadows, grey card borders | Three-layer shadows, a softer 7 % card edge, a white → stone-50 card surface, a brand-gradient edge on the office card, a violet glow under primary actions |
+| Screenshots | 25 MB | Palette PNG (256 colours, dithered) via `shoot.cjs`: 18 MB for more shots |
+
 ## Review checklist (`01-design-plan.md` §8)
 
 - [x] Every screen and state in §4 is present in `screens.md`, the prototype and the screenshots. *(17 screens incl. the landing, 82 states, 164 state screenshots.)*
@@ -56,6 +79,9 @@ Notes for reviewers:
 - [x] The landing page exists. J1 includes a second turn in the same thread. J2 shows a full legal answer. J3 shows a Russian answer.
 - [x] Streaming plays by itself in the journeys, with a reduced-motion variant. *(`flow.js` timers + Pause; under reduced motion the text appears at once. Canvas streaming boards play on their own.)*
 - [x] `screenshots/journeys/` has every step of every journey. *(91 steps at 375; J2 and J6 also at 1440.)*
+- [x] (v1.1) Every icon is a real Lucide icon from one pinned `lucide-static` version, and the inventory is in `components.md`. *(1.61.0; 40 icons in `icons/`; enforced by `tokens.mjs --check`, which also caught the old hand-drawn menu icon in a negative test.)*
+- [x] (v1.1) Glass is on the listed chrome only, AA passes on glass, and the solid fallbacks for no-`backdrop-filter` and reduced transparency are designed and screenshotted. *(`design-system.md` §8a worst-case contrast table; `screenshots/glass/`.)*
+- [x] (v1.1) A UX polish pass is done, with a before/after list in the README. *(Above. Includes the "prettier, a little gradient, professional" round: restrained indigo → violet gradient tokens with AA on every stop, `design-system.md` §8b.)*
 
 ## Open questions
 
@@ -70,9 +96,9 @@ Contract v1.1 and v1.2 answered all six questions from the first review:
 | 5 | Two kinds of `quota_exceeded` | `scope: user` vs `scope: global`, with separate copy |
 | 6 | Region fallback wording | "another office in your region" (`hududingizdagi boshqa idora`) |
 
-Still open (small):
+Contract v1.5 answered the last one: `office_type.label` and the district and region names follow `ui_language`; office `name` and `address` are shown as stored. The design already does this (the Russian UI in J6 shows localized region/district names).
 
-1. **Office names in other UI languages.** Geo names follow `?lang=`, but the contract doesn't say whether `office.name`, `address` and `office_type.label` are localized too. The design shows them as stored (uz-Latn), even in the Russian UI (J6).
+No open questions.
 
 ## Deviations and limits
 

@@ -109,18 +109,20 @@ Page gutter `--layout-gutter`: 16 px on phones, 24 px from 768 px. Content width
 
 | Token | Value | Use |
 |---|---|---|
-| `--radius-sm` | 6 px | Badges, citation badges, list options, skeleton bars |
-| `--radius-md` | 10 px | Buttons, inputs, alerts |
-| `--radius-lg` | 16 px | Cards, message bubbles, dialogs, chips, InputBar |
+| `--radius-sm` | 8 px | Badges, citation badges, list options, skeleton bars |
+| `--radius-md` | 12 px | Buttons, inputs, alerts, card-header icon tiles |
+| `--radius-lg` | 20 px | Cards, message bubbles, dialogs, chips, InputBar, kind pill |
+
+(v1.1 raised all three steps by 2–4 px for a softer, friendlier look.)
 
 ## 6. Elevation (2 levels)
 
 | Token | Use |
 |---|---|
-| `--shadow-1` | Office card (the one card that must stand out), raised cards |
+| `--shadow-1` | Content cards, chips, InputBar (v1.1: every card lifts slightly off the page wash) |
 | `--shadow-2` | Dialogs, drawer, open combobox list, toast |
 
-Everything else is flat with a 1 px `--color-border`.
+Two helper shadows: `--shadow-glass` (the soft drop under glass bars) and `--shadow-primary` (an indigo glow that makes primary buttons and Send the obvious action). Dividers and card edges stay a 1 px `--color-border`.
 
 ## 7. Motion
 
@@ -132,14 +134,72 @@ Everything else is flat with a 1 px `--color-border`.
 | `--motion-duration-pulse` | 1200 ms | Progress dots, skeleton shimmer, spinner, typing caret |
 | `--motion-ease-standard` | cubic-bezier(0.2, 0, 0, 1) | Entering, state changes |
 | `--motion-ease-exit` | cubic-bezier(0.4, 0, 1, 1) | Leaving |
+| `--motion-press-scale` | 0.98 | Buttons, chips and icon buttons shrink slightly while pressed |
+
+**Micro-interactions (v1.1):** press scale on buttons, chips and icon buttons; chips lift 2 px on hover; each new answer block fades and rises 8 px into place (`rise-in`, `--motion-duration-slow`) as it streams in. All of them are removed under reduced motion.
 
 **Reduced motion** (`prefers-reduced-motion: reduce`): `tokens.css` sets every duration to 0 ms, and components switch animations off (`animation: none`). The progress line still shows the stage **text**, the dots stay solid, the skeleton is a flat grey bar and the caret stays still. Nothing slides; the drawer and toast simply appear. All screenshots were taken with reduced motion on, so they show the reduced variant.
 
 ## 8. Icons
 
-[Lucide](https://lucide.dev) outline set (ISC licence; the frontend uses `lucide-react`): 24 px grid, 2 px stroke, round caps, drawn at 20 px (`--size-icon`) or 24 px. The prototype inlines the SVG paths. Every icon is either next to a visible label (and `aria-hidden="true"`) or inside an icon button with an `aria-label`.
+**One package: Lucide, pinned to `lucide-static` 1.61.0** (ISC licence, [lucide.dev](https://lucide.dev)). The frontend uses **`lucide-react` 1.61.0**, the same version, so names and shapes match exactly.
 
-Used: menu, square-pen (new chat), plus, arrow-up (send), square (stop), map-pin, phone, clock, external-link, thumbs-up/down, check, circle-check, x, triangle-alert, circle-alert, info, chevron-down/left, search, trash-2, settings-2, wifi-off, file-text, scale, building-2, banknote, hourglass, eye, mail, log-out, message-square, refresh-cw, globe, list-checks, book-open, compass, lock, house.
+- The exact SVG files are copied unchanged into [`icons/`](icons/) (40 icons + `LICENSE.txt`). The prototype inlines their children verbatim; nothing is redrawn.
+- `node docs/design/tokens.mjs --check` fails if any inline icon in the prototype differs from a file in `icons/`. The Google "G" is the one non-Lucide mark (class `icon--brand`, see components.md → Button).
+- Drawing: 24 px grid, 2 px stroke, round caps and joins, `currentColor`, shown at 20 px (`--size-icon`), 16 px (`--size-icon-sm`) or 24 px (`--size-icon-lg`).
+- Every icon is either next to a visible label (and `aria-hidden="true"`) or inside an icon button with an `aria-label`.
+- The full name → where-used inventory, with the `lucide-react` component names, is in [`components.md`](components.md#icon-inventory).
+- To add an icon: copy it from the same `lucide-static` version into `icons/`, add it to the inventory, and use the same name in React.
+
+## 8b. Gradients and depth (v1.1)
+
+The author asked for a prettier, more professional look with "a little bit gradient". All gradients use **two close hues (indigo → violet)** at low contrast, are tokens, and keep text AA at both ends.
+
+| Token | Stops | Where | Text on it (worst end) |
+|---|---|---|---|
+| `--gradient-brand` | indigo-600 `#4642C8` → violet-600 `#5B3FD1` | Primary buttons, Send, logo mark, step numbers, office-card edge | white 6.83 |
+| `--gradient-brand-hover` | indigo-700 → violet-700 `#4A2FB0` | Hover/pressed primary | white 9.03 |
+| `--gradient-subtle` | indigo-50 → violet-50 `#F3EFFF` | Active nav item, current chat, checked radio card, kind pill, user bubble, chip hover | indigo-700 8.40 |
+| `--gradient-text` | indigo-800 `#2C287F` → violet-700 | Landing and greeting headlines (gradient-clipped text) | 8.65 on the page, 8.2 on the hero |
+| `--gradient-hero` | indigo-50 → violet-50 → white | Landing hero panel, chat greeting panel | body text 15+, muted 6.7 |
+| `--gradient-card` | white → neutral-50 | Content cards (a barely visible lift) | unchanged |
+| `--gradient-page` | indigo-100, violet-100, amber-50 radial washes | Fixed page backdrop behind the glass | muted 6.03 at the darkest point |
+
+Gradient headline text falls back to plain `CanvasText` under `forced-colors: active`. Only one element per screen uses gradient text.
+
+**Depth:** `--shadow-1` and `--shadow-2` are now three-layer shadows (a crisp 1–2 px contact shadow, a soft mid shadow and a wide ambient shadow), and `--shadow-primary` adds a violet-tinted glow under primary actions. Card edges use the softer `--color-border-subtle` (stone at 7 %); the office card alone gets a 1 px brand-gradient edge (gradient border-box under a solid padding-box), so the place to go stands out.
+
+## 8a. Glass surfaces (v1.1)
+
+Frosted glass (translucent fill + `backdrop-filter: blur() saturate()` + hairline border + 1 px top highlight) on the **floating chrome only**: top bar, sticky composer, desktop sidebar, mobile drawer, dialogs and toasts. Content cards (answers, office card, forms) stay **solid white** for reading. The office-card header (optional in the plan) stays solid, so the card that matters most has no transparency.
+
+| Token | Light | Dark (provisional) | Use |
+|---|---|---|---|
+| `--color-glass` | white, α 0.82 | stone-900, α 0.88 | Bars, composer, sidebar, drawer |
+| `--color-glass-strong` | white, α 0.90 | stone-900, α 0.92 | Dialogs and toasts (they sit on the scrim) |
+| `--color-glass-border` | stone-950, α 0.08 | white, α 0.08 | Hairline edge |
+| `--color-glass-highlight` | white, α 0.70 | white, α 0.06 | 1 px inner top highlight |
+| `--glass-blur` | 14 px | 14 px | Modest, so low-end Android stays smooth |
+| `--glass-saturate` | 1.4 | 1.4 | Keeps colours behind the glass lively |
+| `--shadow-glass` | soft 4/16 px drop | — | Under the composer |
+| `--gradient-page` | three soft radial washes (indigo-100, amber-50, indigo-50) | — | Fixed page backdrop, so the glass has colour to frost |
+
+The page wash is painted on a fixed `body::before` layer. It stays behind the glass while content scrolls and is composited once, which is cheaper than `background-attachment: fixed`. Only six surfaces are glass, and never two stacked except the dialog over the scrim, so blur stays affordable.
+
+**Contrast on glass (worst case).** The glass alphas were chosen so text passes AA even if **solid** dark content (`#1C1917` text, worst case) sits right behind the bar; blur only makes the real backdrop lighter. Computed by alpha-compositing the glass over each worst-case colour:
+
+| Text on glass | Worst-case backdrop | Composite | Ratio | Need |
+|---|---|---|---|---|
+| Text `#1C1917` on `--color-glass` | solid `#1C1917` | `#D6D6D5` | 12.02 | 4.5 |
+| Muted `#57534E` on `--color-glass` | solid `#1C1917` | `#D6D6D5` | 5.25 | 4.5 |
+| Link `#4642C8` on `--color-glass` | solid `#1C1917` | `#D6D6D5` | 5.02 | 4.5 |
+| Muted on `--color-glass` | primary button `#4642C8` | `#DEDDF5` | 5.73 | 4.5 |
+| Muted on `--color-glass-strong` | scrim over dark text | `#E8E7E7` | 6.18 | 4.5 |
+| Dark theme: muted `#A8A29E` on `--color-glass` | solid white content | — | 4.84 | 4.5 |
+| Muted on the page wash (darkest point, indigo-100) | — | `#E0E3FF` | 6.03 | 4.5 |
+| Input border `#78716C` on the page wash | — | `#E0E3FF` | 3.79 | 3 |
+
+**Solid fallbacks.** Two blocks in `tokens.css` swap the glass tokens to opaque white and the blur to 0: `@supports not (backdrop-filter: blur(1px))` and `@media (prefers-reduced-transparency: reduce)`. Both use the same values. Screenshots of each, next to the glass version, are in [`screenshots/glass/`](screenshots/glass/). The reduced-transparency shots use real media emulation; the no-`backdrop-filter` shots apply the same token values with `backdrop-filter` removed.
 
 ## 9. Accessibility rules
 
