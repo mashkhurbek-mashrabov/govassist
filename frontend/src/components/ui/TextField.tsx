@@ -1,48 +1,47 @@
-import { useId, type InputHTMLAttributes, type ReactNode, type Ref } from "react";
+import { useId, type InputHTMLAttributes, type Ref } from "react";
+import { fieldA11y } from "./fieldA11y";
+import { FieldError } from "./FieldError";
 
 /** Props of {@link TextField}. */
 export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
+  /** Visually hidden label (still announced). */
+  labelHidden?: boolean;
+  /** Already-translated helper text. */
+  hint?: string | undefined;
   /** Already-translated error text. */
   error?: string | undefined;
-  /** Already-translated helper text. */
-  hint?: string;
   ref?: Ref<HTMLInputElement>;
-  /** Rendered after the input (e.g. a show-password toggle). */
-  children?: ReactNode;
 }
 
 /**
- * Labelled text input with an accessible error and hint.
+ * Labelled input with hint and error (components.md → TextField).
  *
- * @param props Label, error, hint and native input props.
+ * @param props Label, hint, error and native input props.
  * @returns The field.
  */
-export function TextField({ label, error, hint, children, ref, ...input }: TextFieldProps) {
+export function TextField({ label, labelHidden, hint, error, ref, className, ...input }: TextFieldProps) {
   const id = useId();
-  const hintId = `${id}-hint`;
-  const errorId = `${id}-error`;
-  const describedBy = [hint && hintId, error && errorId].filter(Boolean).join(" ") || undefined;
+  const a11y = fieldA11y(id, Boolean(hint), error);
   return (
-    <div className="flex flex-col gap-1">
-      <label htmlFor={id}>{label}</label>
-      <div className="flex gap-2">
-        <input
-          id={id}
-          ref={ref}
-          className="min-h-11 grow border px-2"
-          aria-invalid={error ? true : undefined}
-          aria-describedby={describedBy}
-          {...input}
-        />
-        {children}
-      </div>
-      {hint && <p id={hintId}>{hint}</p>}
-      {error && (
-        <p id={errorId} role="alert">
-          {error}
+    <div className="field">
+      <label className={labelHidden ? "sr-only" : "field__label"} htmlFor={id}>
+        {label}
+      </label>
+      <input
+        id={id}
+        ref={ref}
+        className={["input", className].filter(Boolean).join(" ")}
+        aria-invalid={a11y.invalid}
+        aria-describedby={a11y.describedBy}
+        {...input}
+      />
+      {hint && (
+        <p className="field__hint" id={a11y.hintId}>
+          {hint}
         </p>
       )}
+      {error && <FieldError id={a11y.errorId}>{error}</FieldError>}
     </div>
   );
 }

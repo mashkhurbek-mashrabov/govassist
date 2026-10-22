@@ -1,17 +1,24 @@
+import { SquarePen } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { LinkButton } from "../../components/ui/LinkButton";
 import { HistoryList } from "./HistoryList";
 
 /**
- * History as its own page (phones; wide screens show it in the sidebar too).
+ * History as its own page (screen 13; on desktop the sidebar shows the same rows).
  *
  * @returns The page.
  */
 export function HistoryPage() {
   const { t } = useTranslation();
   return (
-    <>
-      <h1 className="sr-only">{t("history.title")}</h1>
-      <HistoryList />
-    </>
+    <main className="page" id="main">
+      <div className="section">
+        <h1>{t("history.title")}</h1>
+        <LinkButton to="/" icon={<SquarePen className="icon" aria-hidden="true" />}>
+          {t("chat.new")}
+        </LinkButton>
+      </div>
+      <HistoryList variant="page" />
+    </main>
   );
 }

@@ -10,18 +10,13 @@ import { http, HttpResponse, type HttpResponseResolver } from "msw";
 import { AUTH_BASE } from "../api/auth";
 import { API_BASE } from "../api/endpoints";
 import { CSRF_HEADER } from "../api/http";
-import type { AssistantMessage, Conversation, Feedback, Me, MeUpdate, Message } from "../api/types";
+import type { AssistantMessage, Conversation, Feedback, Lang, Me, MeUpdate, Message } from "../api/types";
 import { LANGUAGES } from "../i18n";
 import { currentUser, db, newUser, sampleAssistantMessage, saveDb, WRONG_PASSWORD } from "./db";
-import {
-  SAMPLE_DISTRICTS,
-  SAMPLE_SOURCE_SUMMARIES,
-  SAMPLE_OFF_TOPIC_ANSWER,
-  SAMPLE_OFFICE,
-  SAMPLE_REGIONS,
-  SAMPLE_SUGGESTIONS,
-} from "./fixtures";
-import { errorFrames, sseResponse, successFrames } from "./sse";
+import { SAMPLE_DISTRICTS, SAMPLE_SOURCE_SUMMARIES, SAMPLE_REGIONS, SAMPLE_SUGGESTIONS } from "./fixtures";
+import { localizeMe, localizeOffice, localizePlace } from "./localize";
+import { scenarioFor } from "./scenarios";
+import { errorFrames, raceFrame, sseResponse, successFrames } from "./sse";
 
 /** CSRF token the mock "Django" sets and expects back. */
 export const MOCK_CSRF_TOKEN = "mock-csrf-token";
@@ -230,6 +225,18 @@ function preview(messages: Message[]): string {
   return question?.role === "user" ? question.text.slice(0, PREVIEW_LENGTH) : "";
 }
 
+/**
+ * Language of localized names: `?lang=`, else the user's `ui_language`, else uz-Latn (contract §1).
+ *
+ * @param request Incoming request.
+ * @returns The language.
+ */
+function requestLang(request: Request): Lang {
+  const param = new URL(request.url).searchParams.get("lang");
+  if (param && (LANGUAGES as readonly string[]).includes(param)) return param as Lang;
+  return currentUser()?.ui_language ?? "uz-Latn";
+}
+
 // ── allauth ─────────────────────────────────────────────────────────────────────────────────────
 
 const authHandlers = [
@@ -397,6 +404,8 @@ async function chat(request: Request, me: Me) {
   if (text.includes("#quota")) return problem(429, "quota_exceeded", { scope: "user" });
   if (text.includes("#globalquota")) return problem(429, "quota_exceeded", { scope: "global" });
   if (text.includes("#busy")) return problem(409, "stream_in_progress");
+  // Contract v1.6: another stream won the lock race; `error` is the only event and nothing is stored.
+  if (text.includes("#race")) return sseResponse([raceFrame()]);
 
   const now = new Date().toISOString();
   let conversation = body.conversation_id ? ownConversation(me, body.conversation_id) : undefined;
@@ -418,11 +427,14 @@ async function chat(request: Request, me: Me) {
     user_message_id: crypto.randomUUID(),
     assistant_message_id: crypto.randomUUID(),
   };
-  const offTopic = text.includes("#offtopic");
+  const scenario = scenarioFor(text);
+  const office = scenario.office && localizeOffice(scenario.office, me.ui_language);
   const final: AssistantMessage = {
     ...sampleAssistantMessage(meta.assistant_message_id),
     created_at: now,
-    ...(offTopic ? { answer: SAMPLE_OFF_TOPIC_ANSWER, sources: [], office: null } : {}),
+    answer: scenario.answer,
+    sources: scenario.sources,
+    office,
   };
   const stored: AssistantMessage = {
     ...final,
@@ -437,7 +449,7 @@ async function chat(request: Request, me: Me) {
   saveDb();
 
   if (text.includes("#error")) return sseResponse(errorFrames(meta));
-  return sseResponse(successFrames(meta, final, offTopic ? null : SAMPLE_OFFICE), {
+  return sseResponse(successFrames(meta, final, office), {
     onComplete: () => {
       Object.assign(stored, final);
       // Contract v1.4: the first successful answer's title replaces the question-based title.
@@ -492,7 +504,7 @@ const apiHandlers = [
   ),
   http.get(
     `${API_BASE}/me`,
-    withUser((_info, me) => HttpResponse.json(me)),
+    withUser((_info, me) => HttpResponse.json(localizeMe(me))),
   ),
   http.patch(
     `${API_BASE}/me`,
@@ -502,6 +514,7 @@ const apiHandlers = [
         const errors = validateMeUpdate(me, body);
         if (Object.keys(errors).length > 0) return problem(400, "validation_error", { errors });
         if (body.ui_language) me.ui_language = body.ui_language;
+        if (body.display_name !== undefined) me.display_name = body.display_name || null;
         if (body.region_id !== undefined)
           me.region = SAMPLE_REGIONS.find((region) => region.id === body.region_id) ?? null;
         if (body.district_id !== undefined && me.region) {
@@ -510,7 +523,7 @@ const apiHandlers = [
         }
         refreshProfileFlag(me);
         saveDb();
-        return HttpResponse.json(me);
+        return HttpResponse.json(localizeMe(me));
       }),
     ),
   ),
@@ -531,10 +544,16 @@ const apiHandlers = [
       }),
     ),
   ),
-  http.get(`${API_BASE}/geo/regions`, () => HttpResponse.json(SAMPLE_REGIONS)),
-  http.get(`${API_BASE}/geo/regions/:regionId/districts`, ({ params }) => {
+  http.get(`${API_BASE}/geo/regions`, ({ request }) => {
+    const lang = requestLang(request);
+    return HttpResponse.json(SAMPLE_REGIONS.map((region) => localizePlace(region, lang)));
+  }),
+  http.get(`${API_BASE}/geo/regions/:regionId/districts`, ({ request, params }) => {
     const districts = SAMPLE_DISTRICTS[Number(params.regionId)];
-    return districts ? HttpResponse.json(districts) : problem(404, "not_found");
+    const lang = requestLang(request);
+    return districts
+      ? HttpResponse.json(districts.map((district) => localizePlace(district, lang)))
+      : problem(404, "not_found");
   }),
   http.get(
     `${API_BASE}/suggestions`,

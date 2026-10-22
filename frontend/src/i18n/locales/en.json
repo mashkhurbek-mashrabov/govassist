@@ -1,256 +1,319 @@
 {
   "app": {
-    "name": "GovAssist"
-  },
-  "nav": {
-    "main": "Main",
-    "newChat": "New chat",
-    "history": "History",
-    "settings": "Settings",
-    "about": "About",
-    "skipToContent": "Skip to content"
+    "name": "GovAssist",
+    "not_official": "Not an official government service",
+    "not_official_long": "GovAssist is an independent student project, not an official government service.",
+    "disclaimer": "This is general information, not legal advice. Check the official source.",
+    "may_be_wrong": "Answers can contain mistakes.",
+    "skip_to_main": "Skip to main content",
+    "about": "About"
   },
   "common": {
-    "save": "Save",
-    "saved": "Saved.",
+    "continue": "Continue",
+    "back": "Back",
+    "next": "Next",
     "cancel": "Cancel",
-    "delete": "Delete",
-    "retry": "Retry",
-    "error": "Something went wrong. Please try again."
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "retry": "Try again",
+    "close": "Close",
+    "loading": "Loading…",
+    "opens_new_tab": "(opens in a new tab)",
+    "or": "or",
+    "today": "Today",
+    "yesterday": "Yesterday"
   },
-  "offline": {
-    "banner": "You are offline. Answers will load when the connection is back."
-  },
-  "profile": {
-    "language": "Language",
-    "region": "Region",
-    "district": "District",
-    "chooseRegion": "Choose a region",
-    "chooseDistrict": "Choose a district",
-    "required": "Please choose one."
+  "lang": {
+    "label": "Language",
+    "uz-Latn": "Oʻzbekcha (lotin)",
+    "uz-Cyrl": "Ўзбекча (кирилл)",
+    "ru": "Русский",
+    "en": "English"
   },
   "auth": {
+    "email": "Email",
+    "email_placeholder": "you@example.com",
+    "password": "Password",
+    "password_hint": "At least 10 characters. Mix letters, numbers and symbols.",
+    "password_show": "Show password",
+    "password_hide": "Hide password",
+    "strength_label": "Password strength:",
+    "strength_weak": "weak",
+    "strength_fair": "fair",
+    "strength_strong": "strong",
     "google": "Continue with Google",
-    "backToLogin": "Back to log in",
-    "fields": {
-      "email": "Email",
-      "password": "Password",
-      "passwordHint": "At least {{count}} characters.",
-      "newPassword": "New password",
-      "confirmPassword": "Repeat the new password",
-      "currentPassword": "Current password",
-      "showPassword": "Show",
-      "hidePassword": "Hide"
-    },
-    "signup": {
-      "title": "Create an account",
-      "submit": "Sign up",
-      "haveAccount": "Already have an account?",
-      "loginLink": "Log in"
-    },
-    "login": {
-      "title": "Log in",
-      "submit": "Log in",
-      "forgot": "Forgot your password?",
-      "noAccount": "No account yet?",
-      "signupLink": "Sign up"
-    },
-    "checkEmail": {
-      "title": "Check your email",
-      "body": "We sent you a link. Open it to confirm your email address, then come back here.",
-      "resend": "Send the link again",
-      "resent": "If this email is waiting for confirmation, a new link is on its way.",
-      "resendWait": "Please wait {{minutes}} min before asking for another link.",
-      "otherEmail": "Use another email"
-    },
-    "verify": {
-      "title": "Confirm your email",
-      "body": "Press the button to confirm your email address.",
-      "submit": "Confirm email",
-      "success": "Your email is confirmed. Please log in.",
-      "loginLink": "Log in"
-    },
-    "forgot": {
-      "title": "Reset your password",
-      "body": "Enter your email and we will send you a reset link.",
-      "submit": "Send link",
-      "sent": "If an account exists for this email, a reset link is on its way."
-    },
-    "reset": {
-      "title": "Choose a new password",
-      "submit": "Save password",
-      "success": "Your password was changed. Please log in."
-    },
-    "errors": {
-      "required": "This field is required.",
-      "invalidEmail": "Enter a valid email address.",
-      "passwordTooShort": "Use at least {{count}} characters.",
-      "passwordsDiffer": "The passwords do not match.",
-      "invalidCredentials": "The email or password is wrong.",
-      "tooManyAttempts": "Too many attempts. Please wait and try again.",
-      "weakPassword": "This password is too weak. Choose a longer, less common one.",
-      "incorrectPassword": "The current password is wrong.",
-      "invalidKey": "This link is invalid or has expired.",
-      "turnstile": "The security check failed. Please try again.",
-      "social": "Google sign-in failed. Please try again.",
-      "generic": "Something went wrong. Please try again."
-    }
+    "turnstile_note": "We check that you are not a robot (Cloudflare Turnstile).",
+    "privacy_note": "Personal data in your questions (passport number, PINFL, phone, email) is removed before anything is stored.",
+    "privacy_link": "About privacy"
+  },
+  "signup": {
+    "title": "Create your account",
+    "lead": "You need an account to ask questions. It takes a minute.",
+    "submit": "Create account",
+    "submitting": "Creating account…",
+    "have_account": "Already have an account?",
+    "login_link": "Log in"
+  },
+  "login": {
+    "title": "Log in to your account",
+    "lead": "Welcome back.",
+    "submit": "Log in",
+    "submitting": "Logging in…",
+    "forgot": "Forgot password?",
+    "no_account": "No account yet?",
+    "signup_link": "Sign up"
+  },
+  "error": {
+    "form_summary": "There are problems in the form. Fix them below.",
+    "required": "Fill in this field.",
+    "email_invalid": "Enter a valid email, for example you@example.com.",
+    "email_taken": "An account with this email already exists. Log in or reset your password.",
+    "password_short": "Password must be at least 10 characters.",
+    "password_common": "This password is too common. Choose another one.",
+    "turnstile": "The check did not pass. Please try again.",
+    "password_numeric": "Your password can’t be only numbers.",
+    "password_similar": "Your password is too similar to your email. Choose another one.",
+    "too_many_logins": "Too many attempts. Please try logging in again later.",
+    "server": "Something went wrong. Please try again in a moment.",
+    "login_failed": "The email or password is incorrect.",
+    "social": "We could not log you in with Google. Try again or use your email.",
+    "current_password_wrong": "The current password is incorrect."
+  },
+  "check_email": {
+    "title": "Check your email",
+    "lead": "We sent a link to {email}. Open it to confirm your account.",
+    "spam": "No email? Check your spam folder.",
+    "resend": "Send the link again",
+    "resent": "We sent the link again.",
+    "rate_limited": "Too many attempts. Try again in {minutes} min.",
+    "change": "Use a different email",
+    "lead_no_email": "We sent a confirmation link to your email. Open it to confirm your account."
+  },
+  "verify": {
+    "verifying": "Confirming your email…",
+    "success_title": "Email confirmed",
+    "success_lead": "Next, choose where you live so we can show the right office.",
+    "invalid_title": "This link is invalid or has expired",
+    "invalid_lead": "Enter your email and we will send you a new link.",
+    "request_new": "Send a new link"
+  },
+  "forgot": {
+    "title": "Reset your password",
+    "lead": "Enter your email and we will send you a reset link.",
+    "submit": "Send reset link",
+    "sent": "If an account exists for this email, we sent a link. Check your inbox.",
+    "back_to_login": "Back to log in"
+  },
+  "reset": {
+    "title": "Set a new password",
+    "new_password": "New password",
+    "submit": "Save password",
+    "invalid": "This link is invalid or has expired. Request a new one.",
+    "success": "Your password is updated. Log in with your new password."
+  },
+  "landing": {
+    "title": "Find out how to get a public service and exactly which office to visit.",
+    "lead": "Ask in plain words. Answers come from reviewed official sources.",
+    "signup": "Sign up",
+    "login": "Log in",
+    "cta_note": "Sign up to ask questions. It takes a minute.",
+    "how_title": "How it works",
+    "step_1_title": "Ask",
+    "step_1": "For example: “How do I renew my passport?”",
+    "step_2_title": "Get the steps",
+    "step_2": "Steps, documents to bring, fee and time, with sources.",
+    "step_3_title": "Go to the right office",
+    "step_3": "The office in your district: address, hours and map.",
+    "preview_label": "Sample answer"
+  },
+  "password_change": {
+    "set_title": "Set a password",
+    "set_lead": "You log in with Google now. Set a password to also log in with your email.",
+    "current": "Current password",
+    "saved": "Your password is changed."
   },
   "onboarding": {
-    "title": "Where do you live?",
-    "body": "We use your district to show the exact office you need. You can change it later in Settings.",
-    "submit": "Continue"
+    "step": "Step {n} of {total}",
+    "lang_title": "Which language do you prefer?",
+    "lang_lead": "You can change it later in Settings. You can ask in any language.",
+    "place_title": "Where do you live?",
+    "region": "Region",
+    "district": "District or city",
+    "search": "Search…",
+    "choose_region_first": "Choose a region first",
+    "loading_districts": "Loading districts…",
+    "no_results": "Nothing found",
+    "why_title": "Why we ask",
+    "why": "Knowing your district lets us show the office you need. You can change it any time in Settings.",
+    "error_region": "Choose your region.",
+    "error_district": "Choose your district or city.",
+    "submit": "Save and start"
   },
   "chat": {
+    "new": "New chat",
+    "menu": "Menu",
+    "greeting": "Hi! Which public service do you need help with?",
+    "greeting_lead": "Ask in plain words. I answer from reviewed official sources and tell you which office to visit.",
+    "can_help": "What I can help with",
+    "help_1": "How to get or replace a document, step by step",
+    "help_2": "Documents to bring, fee and processing time",
+    "help_3": "The office in your district: address, hours, phone",
+    "help_4": "What the law says, with the source",
+    "suggestions": "Try asking:",
+    "input_label": "Your question",
+    "input_placeholder": "Type your question…",
+    "send": "Send",
+    "stop": "Stop",
+    "counter": "{n} / 1000",
+    "too_long": "Your question is too long. Keep it under 1000 characters.",
     "you": "You",
-    "suggestions": "Try asking",
-    "empty": {
-      "title": "Ask about a public service or a law",
-      "body": "Answers come only from official sources such as lex.uz and my.gov.uz."
-    },
-    "input": {
-      "label": "Your question",
-      "placeholder": "For example: How do I renew my passport?",
-      "send": "Send",
-      "stop": "Stop"
-    },
-    "stage": {
-      "searching": "Searching official sources…",
-      "found": "Sources found: {{count}}",
-      "writing": "Writing the answer…"
-    },
-    "errors": {
-      "stopped": "You stopped this answer.",
-      "network": "The connection was lost before the answer finished.",
-      "generic": "The answer could not be prepared. Please try again.",
-      "llm_unavailable": "The assistant is unavailable right now. Please try again shortly.",
-      "llm_unavailable_retry": "The assistant is unavailable right now. Try again in {{minutes}} min.",
-      "llm_timeout": "The answer took too long. Please try again.",
-      "invalid_answer": "The answer could not be checked, so it is not shown. Please try again.",
-      "internal_error": "Something went wrong on our side. Please try again.",
-      "rate_limited": "You have asked many questions in a short time. Please wait a little.",
-      "rate_limited_retry": "You have asked many questions in a short time. Try again in {{minutes}} min.",
-      "quota_exceeded": "The daily question limit is reached. Please come back tomorrow.",
-      "quota_exceeded_retry": "The daily question limit is reached. Try again in {{minutes}} min.",
-      "stream_in_progress": "Another answer is still being written. Please wait for it to finish.",
-      "stream_in_progress_retry": "Another answer is still being written. Try again in {{minutes}} min.",
-      "quota_exceeded_global": "The service has reached its daily limit. Please try again tomorrow."
-    },
-    "failedMessage": "This answer could not be completed.",
-    "streamingElsewhere": "This answer is still being written. Refresh in a moment.",
-    "loadError": "This conversation could not be loaded.",
-    "notFound": "This conversation does not exist or was deleted.",
-    "answerStopped": "Answer stopped."
+    "assistant": "GovAssist answer"
+  },
+  "progress": {
+    "searching": "Searching documents…",
+    "found": "Found {count} sources",
+    "writing": "Writing the answer…",
+    "stopped": "Answer stopped.",
+    "stopped_hint": "You can send the question again."
   },
   "answer": {
-    "steps": "Steps",
-    "whatToDo": "What you can do",
-    "documents": "Documents you need",
+    "kind_service": "Public service",
+    "kind_legal": "Legal question",
+    "steps": "What to do",
+    "documents": "Documents to bring",
+    "documents_hint": "Tick what you have ready. Ticks are not saved.",
     "fee": "Fee",
-    "processingTime": "Processing time",
-    "lawPoints": "What the law says",
+    "processing_time": "Processing time",
+    "not_stated": "Not stated in the sources",
+    "where_to_go": "Where to go",
+    "law_says": "What the law says",
+    "quote_label": "From the law",
+    "explanation_label": "In plain words",
+    "what_you_can_do": "What you can do",
     "sources": "Sources",
-    "followUps": "You may also ask",
-    "citation": "Source {{n}}",
-    "published": "published {{date}}",
-    "disclaimer": "This is general information from official sources, not legal advice. Check the linked sources before you act."
-  },
-  "office": {
-    "title": "Office",
-    "matchRegion": "No office found in your district. This one of the same type is elsewhere in {{region}}.",
-    "matchNone": "We do not have the address of the {{type}} for your district yet.",
-    "phone": "Phone",
-    "map": "Open in Google Maps",
-    "dataAsOf": "Data as of {{date}}.",
-    "source": "Source",
-    "break": "break {{start}}–{{end}}",
-    "status": {
-      "open": "Open now · closes at {{time}}",
-      "openUntilBreak": "Open now · lunch break at {{time}}",
-      "break": "Lunch break · reopens at {{time}}",
-      "opensToday": "Closed · opens today at {{time}}",
-      "opensOn": "Closed · opens {{day}} at {{time}}",
-      "closed": "Closed",
-      "unknown": "Working hours unknown"
-    }
-  },
-  "days": {
-    "mon": "Mon",
-    "tue": "Tue",
-    "wed": "Wed",
-    "thu": "Thu",
-    "fri": "Fri",
-    "sat": "Sat",
-    "sun": "Sun"
+    "source_n": "Source {n}",
+    "source_fetched": "Retrieved {date}",
+    "source_published": "Published {date}",
+    "source_kind_law": "Law",
+    "source_kind_service_page": "Service page",
+    "source_kind_other": "Other source",
+    "source_kind_office": "Office list",
+    "followups": "You can also ask",
+    "not_found_help": "Try different words, or pick one of these topics.",
+    "off_topic_help": "I answer questions about public services and the laws of Uzbekistan."
   },
   "feedback": {
-    "question": "Was this answer helpful?",
-    "helpful": "Helpful",
-    "notHelpful": "Not helpful",
-    "comment": "Comment (optional)",
-    "submit": "Send comment",
-    "saved": "Thank you, your feedback is saved.",
-    "error": "Feedback could not be saved. Please try again."
+    "question": "Was this helpful?",
+    "up": "Yes, helpful",
+    "down": "No, not helpful",
+    "comment_label": "What was missing? (optional)",
+    "send": "Send",
+    "saved": "Thank you! Your feedback is saved."
+  },
+  "office": {
+    "open_now": "Open now",
+    "closes_at": "until {time}",
+    "closed": "Closed",
+    "opens_at": "Opens at {time}",
+    "opens_on": "Opens {day} at {time}",
+    "break": "Lunch break",
+    "hours": "Working hours",
+    "hours_unknown": "Hours not known",
+    "day_off": "Closed",
+    "call": "Call",
+    "phone_unknown": "Phone number not known",
+    "map": "Open in Google Maps",
+    "data_as_of": "Data as of {date}",
+    "source": "Source",
+    "match_region": "No such office in your district, so we show one elsewhere in your region.",
+    "match_none": "We do not have this office’s address yet.",
+    "match_none_type": "The office you need: {office_type}."
+  },
+  "day": {
+    "mon": "Monday",
+    "tue": "Tuesday",
+    "wed": "Wednesday",
+    "thu": "Thursday",
+    "fri": "Friday",
+    "sat": "Saturday",
+    "sun": "Sunday"
+  },
+  "chat_error": {
+    "title": "We could not get an answer",
+    "llm_unavailable": "The answer service is temporarily unavailable. Try again in a moment.",
+    "llm_timeout": "The answer took too long. Please try again.",
+    "invalid_answer": "We could not put the answer together. Please try again.",
+    "rate_limited": "You can ask up to {limit} questions an hour. Ask again in {minutes} min.",
+    "quota_user": "You have reached today’s question limit. Ask again tomorrow.",
+    "quota_global": "The service has reached today’s overall limit. Please try again tomorrow.",
+    "stopped_title": "Answer stopped",
+    "stopped": "You stopped this answer. Tap “Try again” to ask again.",
+    "stream_in_progress": "The previous answer is still being written. Wait for it to finish.",
+    "offline": "You are offline. Try again when you are connected.",
+    "back_online": "You are back online.",
+    "session_ended": "Your session has ended. Please log in again."
   },
   "history": {
-    "title": "History",
-    "empty": "No conversations yet.",
-    "loadMore": "Load more",
-    "delete": "Delete “{{title}}”",
-    "deleteConfirmTitle": "Delete this conversation?",
-    "deleteConfirmBody": "“{{title}}” will be deleted for good.",
-    "error": "History could not be loaded."
+    "title": "Chats",
+    "empty_title": "No chats yet",
+    "empty_lead": "Ask your first question. Your chats are kept here.",
+    "delete": "Delete",
+    "delete_named": "Delete chat “{title}”",
+    "confirm_title": "Delete this chat?",
+    "confirm_body": "“{title}” and all its messages will be deleted. This cannot be undone.",
+    "deleting": "Deleting…",
+    "deleted": "Chat deleted",
+    "load_more": "Show more",
+    "pii_note": "Personal data is replaced with markers like [PASSPORT]."
   },
   "settings": {
     "title": "Settings",
-    "profile": "Language and location",
-    "quota": {
-      "title": "Question limits",
-      "hour": "This hour: {{used}} of {{limit}}",
-      "day": "Today: {{used}} of {{limit}}"
-    },
-    "password": {
-      "title": "Change password",
-      "submit": "Change password",
-      "saved": "Your password was changed.",
-      "set": "Set password",
-      "setTitle": "Set a password"
-    },
+    "language": "App language",
+    "place": "Your area",
+    "place_hint": "We show offices in this area.",
+    "account": "Account",
+    "display_name": "Name (optional)",
+    "change_password": "Change password",
     "logout": "Log out",
-    "deleteAccount": {
-      "title": "Delete account",
-      "body": "Your account and all your conversations will be deleted for good.",
-      "confirm": "Delete your account and all conversations? This cannot be undone.",
-      "button": "Delete account"
-    }
+    "delete_account": "Delete account",
+    "delete_title": "Delete your account?",
+    "delete_body": "Your account and all your chats will be deleted for good. This cannot be undone.",
+    "delete_confirm_check": "I understand, delete my account",
+    "delete_submit": "Yes, delete",
+    "usage": "Usage",
+    "usage_hour": "This hour: {used} of {limit} questions",
+    "usage_day": "Today: {used} of {limit} questions",
+    "usage_hint": "Limits keep the service running smoothly."
   },
   "about": {
     "title": "About GovAssist",
-    "body": "GovAssist explains how to get a public service in Uzbekistan, step by step, and shows the office in your district.",
-    "sources": "Answers are built only from a reviewed collection of official pages, such as lex.uz and my.gov.uz, with links to every source.",
-    "sourcesTitle": "Sources",
-    "sourceMeta": "documents: {{count}} · updated {{date}}",
-    "sourceCount": "documents: {{count}}"
+    "what_title": "What is this?",
+    "what": "GovAssist is an assistant that answers questions about public services and laws. It is built as part of an MSc thesis at ITPU.",
+    "how_title": "How answers are made",
+    "how_1": "Answers come only from reviewed sources (lex.uz, my.gov.uz and others). There is no live web search.",
+    "how_2": "Each fact shows a source number. Tap it to open the original page.",
+    "how_3": "Office addresses and hours come from our database; the AI never writes them. Every card shows the date of the data.",
+    "how_4": "This is not legal advice. Before an important decision, check the official source or ask a professional.",
+    "privacy_title": "Privacy",
+    "privacy_1": "We store your email, your chosen area and your chats.",
+    "privacy_2": "Passport numbers, PINFL, phone numbers and emails are removed before anything is stored, processed or logged.",
+    "privacy_3": "To write the answer, your question is sent to Google Gemini without personal data.",
+    "privacy_4": "You can delete your account at any time in Settings.",
+    "sources_title": "Source list",
+    "sources_lead": "Sources in the knowledge base:",
+    "source_docs": "{n} documents",
+    "source_updated": "Updated {date}",
+    "not_official_title": "Not an official service"
   },
-  "notFound": {
+  "notfound": {
     "title": "Page not found",
-    "body": "This page does not exist.",
+    "lead": "The link is wrong or the page was removed.",
     "home": "Go to the home page"
   },
-  "errorPage": {
-    "title": "Something went wrong",
-    "body": "Please reload the page.",
-    "reload": "Reload"
-  },
-  "welcome": {
-    "title": "Public services and laws, step by step",
-    "body": "Ask in Uzbek, Russian or English. GovAssist answers from official sources and shows the office in your district.",
-    "points": {
-      "steps": "Clear steps, documents, fee and processing time.",
-      "office": "The office to go to in your district, with hours and a map.",
-      "sources": "Links to lex.uz and my.gov.uz for every answer."
-    },
-    "signup": "Create an account",
-    "login": "Log in"
+  "error_page": {
+    "title": "Something broke",
+    "lead": "Reload the page. If it keeps happening, come back a little later.",
+    "reload": "Reload page"
   }
 }

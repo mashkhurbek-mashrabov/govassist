@@ -1,16 +1,18 @@
 import type { ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 import type { OfficeMatch, Source } from "../../api/types";
 import { citationIndex } from "../../lib/citations";
+import { AnswerHeader } from "./AnswerHeader";
 import type { PartialAnswer } from "./answerTypes";
-import { CitedList } from "./CitedList";
 import { Disclaimer } from "./Disclaimer";
+import { DocumentsCard } from "./DocumentsCard";
 import { FactsRow } from "./FactsRow";
-import { FollowUpChips } from "./FollowUpChips";
-import { LawPoints } from "./LawPoints";
+import { FollowUps } from "./FollowUps";
+import { LawPointsCard } from "./LawPointsCard";
+import { NotFoundCard } from "./NotFoundCard";
 import { OfficeCard } from "./OfficeCard";
-import { SourcesList } from "./SourcesList";
-import { Summary } from "./Summary";
+import { SourcesCard } from "./SourcesCard";
+import { nextSkeleton } from "./skeleton";
+import { StepsCard } from "./StepsCard";
 
 /** Props of {@link AnswerView}. */
 interface AnswerViewProps {
@@ -19,18 +21,21 @@ interface AnswerViewProps {
   sources: Source[];
   office: OfficeMatch | null;
   messageId: string;
+  /** Text still arriving: skeletons and the caret. */
   streaming: boolean;
-  /** Feedback bar, placed after the disclaimer. */
+  /** `final` arrived: sources, disclaimer, feedback and follow-ups are shown. A stopped answer is neither. */
+  complete: boolean;
+  /** Feedback bar, placed after the disclaimer once the answer is final. */
   feedback?: ReactNode;
   onAsk?: ((question: string) => void) | undefined;
-  askDisabled?: boolean;
 }
 
 /**
- * Render an answer (partial or final) in schema order for its type (plan §5). Text is always plain text.
+ * An answer (partial or final) in schema order for its type (screens 8–11). Text is always plain text.
+ * Sources, disclaimer, feedback and follow-ups are added below the content on `final`, so nothing moves.
  *
  * @param props Answer, sources, office, message id, streaming flag, feedback slot, ask callback.
- * @returns The answer card.
+ * @returns The answer blocks.
  */
 export function AnswerView({
   answer,
@@ -38,61 +43,77 @@ export function AnswerView({
   office,
   messageId,
   streaming,
+  complete,
   feedback,
   onAsk,
-  askDisabled = false,
 }: AnswerViewProps) {
-  const { t } = useTranslation();
   const index = citationIndex(sources);
   const type = answer.answer_type;
-  const steps = (
-    <CitedList
-      heading={t(type === "legal" ? "answer.whatToDo" : "answer.steps")}
-      items={answer.steps}
-      ordered
-      index={index}
-      messageId={messageId}
-    />
-  );
-  const lawPoints = <LawPoints points={answer.law_points} index={index} messageId={messageId} />;
-  const followUps = (
-    <FollowUpChips questions={answer.follow_up_questions} onAsk={onAsk} disabled={askDisabled} />
-  );
-  const isAnswer = type === "service" || type === "legal";
+  const growing = streaming ? Object.keys(answer).at(-1) : undefined;
+  const skeleton = nextSkeleton(answer, streaming);
+  // Chips and feedback only once the stream has closed, so a click is never swallowed by the running stream.
+  const done = complete && !streaming;
+  const shared = { index, messageId };
+
+  if (type === "not_found" || type === "off_topic") {
+    return (
+      <>
+        <NotFoundCard answer={answer} onAsk={done ? onAsk : undefined} />
+        <Disclaimer />
+        {done && feedback}
+      </>
+    );
+  }
+
+  if (type === "legal") {
+    return (
+      <>
+        <AnswerHeader answer={answer} streaming={streaming} typing={growing === "summary"} />
+        <LawPointsCard points={answer.law_points} {...shared} />
+        <StepsCard
+          headingKey="answer.what_you_can_do"
+          items={answer.steps}
+          typing={growing === "steps"}
+          {...shared}
+        />
+        {done && <SourcesCard sources={sources} messageId={messageId} />}
+        {done && <Disclaimer />}
+        {done && feedback}
+        {done && <FollowUps questions={answer.follow_up_questions} onAsk={onAsk} />}
+      </>
+    );
+  }
 
   return (
-    <article className="flex flex-col gap-4">
-      <Summary title={answer.title} summary={answer.summary} streaming={streaming} />
-      {type === "service" && (
-        <>
-          {steps}
-          <CitedList
-            heading={t("answer.documents")}
-            items={answer.documents}
-            ordered={false}
-            index={index}
-            messageId={messageId}
-          />
-          <FactsRow
-            fee={answer.fee}
-            processingTime={answer.processing_time}
-            index={index}
-            messageId={messageId}
-          />
-        </>
+    <>
+      <AnswerHeader answer={answer} streaming={streaming} typing={growing === "summary"} />
+      <StepsCard
+        headingKey="answer.steps"
+        items={answer.steps}
+        placeholder={skeleton === "steps"}
+        typing={growing === "steps"}
+        {...shared}
+      />
+      <DocumentsCard
+        items={answer.documents}
+        placeholder={skeleton === "documents"}
+        typing={growing === "documents"}
+        {...shared}
+      />
+      {(skeleton === "facts" || answer.fee !== undefined || answer.processing_time !== undefined) && (
+        <FactsRow
+          fee={answer.fee}
+          processingTime={answer.processing_time}
+          placeholder={skeleton === "facts"}
+          {...shared}
+        />
       )}
-      {type !== "legal" && office && <OfficeCard match={office} />}
-      {type === "service" && lawPoints}
-      {type === "legal" && (
-        <>
-          {lawPoints}
-          {steps}
-        </>
-      )}
-      {isAnswer && <SourcesList sources={sources} messageId={messageId} />}
-      {isAnswer && <Disclaimer />}
-      {feedback}
-      {type !== "legal" && followUps}
-    </article>
+      {office && <OfficeCard match={office} />}
+      <LawPointsCard points={answer.law_points} {...shared} />
+      {done && <SourcesCard sources={sources} messageId={messageId} />}
+      {done && <Disclaimer />}
+      {done && feedback}
+      {done && <FollowUps questions={answer.follow_up_questions} onAsk={onAsk} />}
+    </>
   );
 }

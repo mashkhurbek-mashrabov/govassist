@@ -4,8 +4,20 @@ import { createBrowserRouter, type RouteObject } from "react-router";
 import { guard } from "./guards";
 import { AppShell } from "./layout/AppShell";
 import { AuthLayout } from "./layout/AuthLayout";
+import { PublicPageLayout } from "./layout/PublicPageLayout";
 import { RootLayout } from "./layout/RootLayout";
 import { RouteError } from "./layout/RouteError";
+import type { RouteHandle } from "./layout/useTopbarTitle";
+
+/**
+ * Route `handle` with the top-bar title key.
+ *
+ * @param titleKey i18n key.
+ * @returns The handle.
+ */
+function titled(titleKey: string): RouteHandle {
+  return { titleKey };
+}
 
 /**
  * Build the app routes.
@@ -73,12 +85,18 @@ export function appRoutes(client: QueryClient): RouteObject[] {
               }),
             },
             {
-              path: "/about",
-              lazy: async () => ({ Component: (await import("../features/about/AboutPage")).AboutPage }),
-            },
-            {
               path: "*",
               lazy: async () => ({ Component: (await import("./layout/NotFoundPage")).NotFoundPage }),
+            },
+          ],
+        },
+        {
+          element: <PublicPageLayout />,
+          children: [
+            {
+              path: "/about",
+              handle: titled("app.about"),
+              lazy: async () => ({ Component: (await import("../features/about/AboutPage")).AboutPage }),
             },
           ],
         },
@@ -102,6 +120,7 @@ export function appRoutes(client: QueryClient): RouteObject[] {
             },
             {
               path: "/history",
+              handle: titled("history.title"),
               loader: guard(client, "profile"),
               lazy: async () => ({
                 Component: (await import("../features/history/HistoryPage")).HistoryPage,
@@ -109,6 +128,7 @@ export function appRoutes(client: QueryClient): RouteObject[] {
             },
             {
               path: "/settings",
+              handle: titled("settings.title"),
               lazy: async () => ({
                 Component: (await import("../features/settings/SettingsPage")).SettingsPage,
               }),

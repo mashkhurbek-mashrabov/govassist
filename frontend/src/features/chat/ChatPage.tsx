@@ -1,19 +1,19 @@
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router";
 import { ApiError } from "../../api/http";
 import { useConversation } from "../../api/queries";
 import { Alert } from "../../components/ui/Alert";
-import { AssistantMessageView } from "./AssistantMessageView";
 import { useChatContext } from "./chatContext";
+import { AssistantMessage } from "./AssistantMessage";
+import { Composer } from "./Composer";
 import { EmptyChat } from "./EmptyChat";
-import { InputBar } from "./InputBar";
-import { LiveAnnouncer } from "./LiveAnnouncer";
-import { LiveTurnView } from "./LiveTurnView";
-import { UserBubble } from "./UserBubble";
+import { useInputBlocked } from "./useInputBlocked";
+import { UserMessage } from "./UserMessage";
 import { retryableQuestion, visibleMessages } from "./visibleMessages";
 
 /**
- * New chat (`/`) or an existing conversation (`/c/:id`): stored messages, the live turn, the input bar.
+ * New chat (`/`) or a conversation (`/c/:id`): the thread (stored messages + the live turn) and the composer.
  *
  * @returns The page.
  */
@@ -22,33 +22,37 @@ export function ChatPage() {
   const { conversationId = null } = useParams();
   const { turn, send, resend, stop, retry } = useChatContext();
   const conversation = useConversation(conversationId);
+  const blocked = useInputBlocked(turn);
   const { messages, showTurn } = visibleMessages(conversation.data?.messages ?? [], turn);
   const streaming = turn?.isStreaming ?? false;
   const lastAssistantId = messages.findLast((message) => message.role === "assistant")?.id;
   const retryText = showTurn || streaming ? null : retryableQuestion(messages);
   const notFound = conversation.error instanceof ApiError && conversation.error.status === 404;
+  const isNew = conversationId === null && !turn;
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   /**
    * Ask a question in this conversation.
    *
    * @param text Question text.
    */
-  const ask = (text: string) => send(text, conversationId);
+  const ask = (text: string) => {
+    send(text, conversationId);
+    // Focus stays in the question box after sending, also from a chip (components.md → InputBar).
+    inputRef.current?.focus();
+  };
 
-  return (
-    <div className="mx-auto flex w-full max-w-3xl grow flex-col gap-4">
-      <h1 className="sr-only">{conversation.data?.title ?? t("nav.newChat")}</h1>
-      <LiveAnnouncer turn={turn} />
-      {conversationId === null && !turn && <EmptyChat onAsk={ask} />}
-      {conversation.isError && <Alert tone="error">{t(notFound ? "chat.notFound" : "chat.loadError")}</Alert>}
-      {conversationId &&
-        messages.map((message) =>
+  // One flat list keyed by message id: when the live turn's stored copy arrives it takes the same key and
+  // React keeps the DOM (no lost focus or clicks right after `final`).
+  const threadItems = [
+    ...(conversationId
+      ? messages.map((message) =>
           message.role === "user" ? (
-            <UserBubble key={message.id} text={message.text} />
+            <UserMessage key={message.id} text={message.text} />
           ) : (
-            <AssistantMessageView
+            <AssistantMessage
               key={message.id}
-              message={message}
+              source={{ kind: "stored", message }}
               conversationId={conversationId}
               onAsk={!showTurn && !streaming && message.id === lastAssistantId ? ask : undefined}
               onRetry={
@@ -58,9 +62,38 @@ export function ChatPage() {
               }
             />
           ),
+        )
+      : []),
+    ...(showTurn && turn
+      ? [
+          <UserMessage key={turn.userMessageId ?? "live-user"} text={turn.text} />,
+          <AssistantMessage
+            key={turn.assistantMessageId ?? "live-assistant"}
+            source={{ kind: "live", turn }}
+            conversationId={turn.conversationId}
+            onAsk={ask}
+            onRetry={retry}
+          />,
+        ]
+      : []),
+  ];
+
+  return (
+    <>
+      <main className="page page--chat" id="main">
+        {isNew ? (
+          <EmptyChat onAsk={ask} />
+        ) : (
+          <>
+            <h1 className="sr-only">{conversation.data?.title || t("chat.new")}</h1>
+            {conversation.isError && (
+              <Alert tone="danger">{t(notFound ? "notfound.title" : "error.server")}</Alert>
+            )}
+            <ol className="thread">{threadItems}</ol>
+          </>
         )}
-      {showTurn && turn && <LiveTurnView turn={turn} onRetry={retry} onAsk={ask} />}
-      <InputBar streaming={streaming} onSend={ask} onStop={stop} />
-    </div>
+      </main>
+      <Composer streaming={streaming} blocked={blocked} onSend={ask} onStop={stop} inputRef={inputRef} />
+    </>
   );
 }

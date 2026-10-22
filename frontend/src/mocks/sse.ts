@@ -79,6 +79,18 @@ export function errorFrames(meta: MetaEventData): SseFrame[] {
 }
 
 /**
+ * The lone frame of a lost lock race (contract v1.6): `error` `stream_in_progress`, no `meta`.
+ *
+ * @returns The frame.
+ */
+export function raceFrame(): SseFrame {
+  return {
+    event: "error",
+    data: { code: "stream_in_progress", message: "SAMPLE: another answer is streaming" },
+  };
+}
+
+/**
  * Wait between frames.
  *
  * @param ms Milliseconds.

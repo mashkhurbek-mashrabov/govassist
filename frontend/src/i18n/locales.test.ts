@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { transliterateTree, type LocaleTree } from "../../scripts/translit-uz";
+import { transliterateTree, type LocaleTree } from "../lib/translit";
 import en from "./locales/en.json";
 import ru from "./locales/ru.json";
 import uzCyrl from "./locales/uz-Cyrl.json";

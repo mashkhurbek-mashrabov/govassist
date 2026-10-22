@@ -78,8 +78,54 @@ export function sampleAssistantMessage(id: string): AssistantMessage {
   };
 }
 
+/** Seeded history rows (J6): title, last question, how many days ago (or a fixed date). */
+const HISTORY: { title: string; question: string; updatedAt: () => string }[] = [
+  {
+    title: "Pasportni almashtirish",
+    question: "Pasportimni qanday yangilayman?",
+    updatedAt: () => new Date().toISOString(),
+  },
+  {
+    title: "NAMUNA suhbat 2",
+    question: "NAMUNA: [PASSPORT] raqamli pasport boʻyicha savol",
+    updatedAt: () => new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    title: "NAMUNA suhbat 3",
+    question: "NAMUNA: oxirgi xabar matni",
+    updatedAt: () => "2026-10-18T09:00:00Z",
+  },
+];
+
 /**
- * Initial state: a verified, onboarded user with one past conversation, plus a Google-only account.
+ * The seeded user's three conversations, each a question + the contract §6 answer.
+ *
+ * @returns Stored conversations.
+ */
+function seedConversations(): (Conversation & { owner: string })[] {
+  return HISTORY.map(({ title, question, updatedAt }, position) => {
+    const n = position + 1;
+    return {
+      id: `c0000000-0000-4000-8000-00000000000${n}`,
+      owner: SEED_EMAIL,
+      title,
+      created_at: SEED_TIME,
+      updated_at: updatedAt(),
+      messages: [
+        {
+          id: `u0000000-0000-4000-8000-00000000000${n}`,
+          role: "user",
+          text: question,
+          created_at: SEED_TIME,
+        },
+        sampleAssistantMessage(`a0000000-0000-4000-8000-00000000000${n}`),
+      ],
+    };
+  });
+}
+
+/**
+ * Initial state: a verified, onboarded user with three past conversations, plus a Google-only account.
  *
  * @returns The seed state.
  */
@@ -87,7 +133,6 @@ function seed(): MockState {
   const region = SAMPLE_REGIONS[0] ?? null;
   const district = SAMPLE_DISTRICTS[1726]?.[0] ?? null;
   const user: Me = { ...newUser(SEED_EMAIL, true), region, district, profile_complete: true };
-  const conversationId = "c0000000-0000-4000-8000-000000000001";
   return {
     users: {
       [SEED_EMAIL]: user,
@@ -104,24 +149,9 @@ function seed(): MockState {
     verificationKeys: {},
     resetKeys: {},
     lastResendAt: null,
-    conversations: {
-      [conversationId]: {
-        id: conversationId,
-        owner: SEED_EMAIL,
-        title: "Pasportni almashtirish",
-        created_at: SEED_TIME,
-        updated_at: SEED_TIME,
-        messages: [
-          {
-            id: "u0000000-0000-4000-8000-000000000001",
-            role: "user",
-            text: "Pasportimni qanday yangilayman?",
-            created_at: SEED_TIME,
-          },
-          sampleAssistantMessage("a0000000-0000-4000-8000-000000000001"),
-        ],
-      },
-    },
+    conversations: Object.fromEntries(
+      seedConversations().map((conversation) => [conversation.id, conversation]),
+    ),
   };
 }
 

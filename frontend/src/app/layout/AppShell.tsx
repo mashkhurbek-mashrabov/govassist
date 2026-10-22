@@ -1,11 +1,15 @@
-import { useEffect } from "react";
+import { Menu, SquarePen } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, Navigate, NavLink, Outlet, useMatch } from "react-router";
-import { useMaybeMe } from "../../api/queries";
+import { Link, Navigate, Outlet, useLocation } from "react-router";
+import { useViewer } from "../../api/queries";
 import type { Me } from "../../api/types";
-import { LOGIN_PATH } from "../guards";
+import { IconButton } from "../../components/ui/IconButton";
+import { signedOutPath } from "../guards";
 import { MeContext } from "./meContext";
-import { HistoryList } from "../../features/history/HistoryList";
+import { OfflineBanner } from "./OfflineBanner";
+import { Sidebar, SIDEBAR_ID } from "./Sidebar";
+import { useTopbarTitle } from "./useTopbarTitle";
 
 /**
  * Apply the profile's UI language whenever it changes.
@@ -20,13 +24,15 @@ function useProfileLanguage(lang: string): void {
 }
 
 /**
- * Signed-in layout. Leaves for the login page as soon as the session ends, so no child renders without `Me`.
+ * Signed-in layout (screens 7–15). Leaves as soon as the session ends, so no page renders without `Me`:
+ * to the landing after logout, to login with a notice after a 401.
  *
  * @returns The layout, or a redirect.
  */
 export function AppShell() {
-  const me = useMaybeMe();
-  return me ? <Shell me={me} /> : <Navigate to={LOGIN_PATH} replace />;
+  const { data: viewer } = useViewer();
+  if (viewer?.state !== "authenticated") return <Navigate to={signedOutPath(viewer)} replace />;
+  return <Shell me={viewer.me} />;
 }
 
 /** Props of {@link Shell}. */
@@ -35,7 +41,7 @@ interface ShellProps {
 }
 
 /**
- * Top bar, history sidebar on wide screens (a page on phones), main content.
+ * Sidebar/drawer, sticky top bar, offline banner and the page.
  *
  * @param props The signed-in user.
  * @returns The layout.
@@ -43,37 +49,61 @@ interface ShellProps {
 function Shell({ me }: ShellProps) {
   const { t } = useTranslation();
   useProfileLanguage(me.ui_language);
-  const onHistoryPage = useMatch("/history") !== null;
+  const title = useTopbarTitle();
+  const location = useLocation();
+  // The drawer remembers the page it was opened on, so navigating anywhere closes it.
+  const [drawerPath, setDrawerPath] = useState<string | null>(null);
+  const drawerOpen = drawerPath === location.pathname;
+  const menuRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  /** Close the drawer and give focus back to the menu button. */
+  const closeDrawer = useCallback(() => {
+    setDrawerPath(null);
+    menuRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    if (!drawerOpen) return;
+    closeRef.current?.focus();
+    /**
+     * Esc closes the drawer.
+     *
+     * @param event Key event.
+     */
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeDrawer();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [drawerOpen, closeDrawer]);
+
   return (
     <MeContext value={me}>
-      <div className="flex min-h-dvh flex-col">
-        <a href="#main" className="sr-only focus:not-sr-only">
-          {t("nav.skipToContent")}
-        </a>
-        <header className="flex flex-wrap items-center gap-4 border-b p-3">
-          <Link to="/" className="font-bold">
-            {t("app.name")}
-          </Link>
-          <nav aria-label={t("nav.main")} className="flex flex-wrap gap-4">
-            <NavLink to="/" end>
-              {t("nav.newChat")}
-            </NavLink>
-            <NavLink to="/history" className="lg:hidden">
-              {t("nav.history")}
-            </NavLink>
-            <NavLink to="/settings">{t("nav.settings")}</NavLink>
-            <NavLink to="/about">{t("nav.about")}</NavLink>
-          </nav>
-        </header>
-        <div className="flex grow">
-          {me.profile_complete && !onHistoryPage && (
-            <aside aria-label={t("nav.history")} className="hidden w-72 shrink-0 border-r p-3 lg:block">
-              <HistoryList />
-            </aside>
-          )}
-          <main id="main" className="flex min-w-0 grow flex-col p-3">
-            <Outlet />
-          </main>
+      <a className="skip-link" href="#main">
+        {t("app.skip_to_main")}
+      </a>
+      <div className={drawerOpen ? "shell drawer-open" : "shell"}>
+        <Sidebar showHistory={me.profile_complete} onClose={closeDrawer} closeRef={closeRef} />
+        <div className="scrim scrim--drawer" aria-hidden="true" onClick={closeDrawer} />
+        <div className="main-col">
+          <header className="topbar">
+            <IconButton
+              ref={menuRef}
+              className="topbar__drawer"
+              label={t("chat.menu")}
+              aria-controls={SIDEBAR_ID}
+              aria-expanded={drawerOpen}
+              icon={<Menu className="icon" aria-hidden="true" />}
+              onClick={() => setDrawerPath(location.pathname)}
+            />
+            <p className="topbar__title">{title}</p>
+            <Link className="icon-btn topbar__new" to="/" aria-label={t("chat.new")}>
+              <SquarePen className="icon" aria-hidden="true" />
+            </Link>
+          </header>
+          <OfflineBanner />
+          <Outlet />
         </div>
       </div>
     </MeContext>

@@ -1,30 +1,41 @@
-/** Map allauth error codes to i18n keys. */
+/** allauth error codes → copy keys and the field they belong to (copy.md → Error codes; contract §2). */
 import { AuthError } from "../../api/auth";
 
-/**
- * allauth error codes → message keys (contract v1.3 §2 "Auth errors", plus allauth's key and
- * current-password codes). Unknown codes fall back to a generic message; allauth's raw `message` is never shown.
- */
-const AUTH_ERROR_KEYS: Record<string, string> = {
-  email_password_mismatch: "auth.errors.invalidCredentials",
-  too_many_login_attempts: "auth.errors.tooManyAttempts",
-  password_too_short: "auth.errors.weakPassword",
-  password_too_common: "auth.errors.weakPassword",
-  password_entirely_numeric: "auth.errors.weakPassword",
-  incorrect_password: "auth.errors.incorrectPassword",
-  invalid: "auth.errors.invalidKey",
-  invalid_or_expired_key: "auth.errors.invalidKey",
-  turnstile_failed: "auth.errors.turnstile",
+/** A translated auth error and where to show it. */
+export interface AuthErrorInfo {
+  /** copy.md key. */
+  key: string;
+  /** Form field (allauth `param`), or `null` for a form-level alert. */
+  field: "email" | "password" | "turnstile_token" | "current_password" | null;
+  /** Whether the alert is a warning (rate limits) rather than an error. */
+  warning: boolean;
+}
+
+/** Known codes. Unknown codes fall back to `error.server`; allauth's raw `message` is never shown. */
+const CODES: Record<string, Omit<AuthErrorInfo, "field"> & { field?: AuthErrorInfo["field"] }> = {
+  turnstile_failed: { key: "error.turnstile", field: "turnstile_token", warning: false },
+  email_password_mismatch: { key: "error.login_failed", warning: false },
+  too_many_login_attempts: { key: "error.too_many_logins", warning: true },
+  password_too_short: { key: "error.password_short", field: "password", warning: false },
+  password_too_common: { key: "error.password_common", field: "password", warning: false },
+  password_entirely_numeric: { key: "error.password_numeric", field: "password", warning: false },
+  incorrect_password: { key: "error.current_password_wrong", field: "current_password", warning: false },
 };
 
+/** Fallback for unknown codes and non-allauth failures. */
+const SERVER_ERROR: AuthErrorInfo = { key: "error.server", field: null, warning: false };
+
 /**
- * The i18n key to show for a failed auth call.
+ * Describe the first known error of a failed auth call.
  *
  * @param error Whatever the call threw.
- * @returns A message key (generic when the code is unknown or the error is not an `AuthError`).
+ * @returns Copy key, target field and tone.
  */
-export function authErrorKey(error: unknown): string {
-  if (!(error instanceof AuthError)) return "auth.errors.generic";
-  const known = error.codes.map((code) => AUTH_ERROR_KEYS[code]).find(Boolean);
-  return known ?? "auth.errors.generic";
+export function authErrorInfo(error: unknown): AuthErrorInfo {
+  if (!(error instanceof AuthError)) return SERVER_ERROR;
+  for (const item of error.errors) {
+    const known = CODES[item.code];
+    if (known) return { key: known.key, warning: known.warning, field: known.field ?? null };
+  }
+  return SERVER_ERROR;
 }

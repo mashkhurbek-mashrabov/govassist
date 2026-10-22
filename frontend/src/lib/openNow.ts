@@ -18,7 +18,7 @@ export interface NextOpening {
 /** Whether an office is open at a given moment. */
 export type OpenStatus =
   | { state: "unknown" }
-  | { state: "open"; closesAt: string; forBreak: boolean }
+  | { state: "open"; closesAt: string }
   | { state: "break"; reopensAt: string }
   | { state: "closed"; opensAt: NextOpening | null };
 
@@ -89,7 +89,7 @@ function nextOpening(hours: WorkingHours[], day: Weekday, minutes: number): Next
 }
 
 /**
- * Open/closed/lunch-break status of an office at `now`.
+ * Open/closed/lunch-break status of an office at `now` (components.md → OfficeCard badge table).
  *
  * @param hours The office's working hours (empty means unknown).
  * @param now The moment to check.
@@ -100,11 +100,41 @@ export function openStatus(hours: WorkingHours[], now: Date): OpenStatus {
   const { day, minutes } = tashkentClock(now);
   for (const rule of rulesFor(hours, day)) {
     if (minutes < toMinutes(rule.open) || minutes >= toMinutes(rule.close)) continue;
-    if (!rule.break) return { state: "open", closesAt: rule.close, forBreak: false };
-    const breakStart = toMinutes(rule.break.start);
-    if (minutes < breakStart) return { state: "open", closesAt: rule.break.start, forBreak: true };
-    if (minutes < toMinutes(rule.break.end)) return { state: "break", reopensAt: rule.break.end };
-    return { state: "open", closesAt: rule.close, forBreak: false };
+    const inBreak =
+      rule.break !== null && minutes >= toMinutes(rule.break.start) && minutes < toMinutes(rule.break.end);
+    if (inBreak && rule.break) return { state: "break", reopensAt: rule.break.end };
+    return { state: "open", closesAt: rule.close };
   }
   return { state: "closed", opensAt: nextOpening(hours, day, minutes) };
+}
+
+/** One row of the hours table: a run of days with the same rule, or days off (`rule: null`). */
+export interface HoursRow {
+  from: Weekday;
+  to: Weekday;
+  rule: WorkingHours | null;
+  isToday: boolean;
+}
+
+/**
+ * Group the week into table rows: consecutive days sharing one rule, missing days as days off.
+ *
+ * @param hours Working hours (non-empty).
+ * @param now The current moment (marks today's row).
+ * @returns Rows in week order, Monday first.
+ */
+export function hoursTable(hours: WorkingHours[], now: Date): HoursRow[] {
+  const today = tashkentClock(now).day;
+  const rows: HoursRow[] = [];
+  for (const day of WEEK) {
+    const rule = hours.find((candidate) => candidate.days.includes(day)) ?? null;
+    const last = rows.at(-1);
+    if (last && last.rule === rule) {
+      last.to = day;
+      last.isToday ||= day === today;
+    } else {
+      rows.push({ from: day, to: day, rule, isToday: day === today });
+    }
+  }
+  return rows;
 }

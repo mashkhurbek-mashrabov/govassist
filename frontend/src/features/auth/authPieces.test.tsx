@@ -5,40 +5,56 @@ import { describe, expect, it, vi } from "vitest";
 import { AuthError } from "../../api/auth";
 import { server } from "../../mocks/server";
 import { testQueryClient } from "../../test/render";
-import { authErrorKey } from "./authErrors";
+import { authErrorInfo } from "./authErrors";
 import { GoogleLoginButton } from "./GoogleLoginButton";
 import { TurnstileWidget } from "./TurnstileWidget";
 
-/** allauth codes → i18n keys. */
-describe("authErrorKey", () => {
+/**
+ * An allauth 400 with one error.
+ *
+ * @param code Error code.
+ * @param param Field.
+ * @returns The error.
+ */
+function authError(code: string, param?: string): AuthError {
+  return new AuthError(400, [{ code, message: "Raw allauth text", ...(param && { param }) }]);
+}
+
+/** allauth codes → copy keys and target fields (contract v1.3 §2). */
+describe("authErrorInfo", () => {
   it.each([
     [
-      new AuthError(400, [{ code: "turnstile_failed", param: "turnstile_token", message: "" }]),
-      "auth.errors.turnstile",
+      authError("turnstile_failed", "turnstile_token"),
+      { key: "error.turnstile", field: "turnstile_token", warning: false },
+    ],
+    [authError("email_password_mismatch"), { key: "error.login_failed", field: null, warning: false }],
+    [authError("too_many_login_attempts"), { key: "error.too_many_logins", field: null, warning: true }],
+    [
+      authError("password_too_short", "password"),
+      { key: "error.password_short", field: "password", warning: false },
     ],
     [
-      new AuthError(400, [{ code: "email_password_mismatch", message: "" }]),
-      "auth.errors.invalidCredentials",
+      authError("password_too_common", "password"),
+      { key: "error.password_common", field: "password", warning: false },
     ],
-    [new AuthError(400, [{ code: "too_many_login_attempts", message: "" }]), "auth.errors.tooManyAttempts"],
-    [new AuthError(400, [{ code: "password_entirely_numeric", message: "" }]), "auth.errors.weakPassword"],
     [
-      new AuthError(400, [
-        { code: "unknown", message: "" },
-        { code: "password_too_common", message: "" },
-      ]),
-      "auth.errors.weakPassword",
+      authError("password_entirely_numeric", "password"),
+      { key: "error.password_numeric", field: "password", warning: false },
     ],
-    [new AuthError(400, [{ code: "something_new", message: "Raw allauth text" }]), "auth.errors.generic"],
-    [new Error("network"), "auth.errors.generic"],
-  ])("%o → %s", (error, key) => {
-    expect(authErrorKey(error)).toBe(key);
+    [
+      authError("incorrect_password"),
+      { key: "error.current_password_wrong", field: "current_password", warning: false },
+    ],
+    [authError("something_new"), { key: "error.server", field: null, warning: false }],
+    [new Error("network"), { key: "error.server", field: null, warning: false }],
+  ])("%o", (error, expected) => {
+    expect(authErrorInfo(error)).toEqual(expected);
   });
 });
 
 /** Google login is a native form POST, shown only when the backend enables it. */
 describe("GoogleLoginButton", () => {
-  it("renders the provider-redirect form with CSRF when Google is enabled", async () => {
+  it("renders the provider-redirect form with CSRF and the 'or' divider", async () => {
     server.use(
       http.get("/_allauth/browser/v1/config", () =>
         HttpResponse.json({
@@ -53,9 +69,9 @@ describe("GoogleLoginButton", () => {
       </QueryClientProvider>,
     );
     await screen.findByRole("button", { name: "Google orqali davom etish" });
+    expect(screen.getByText("yoki")).toBeInTheDocument();
     const form = container.querySelector("form");
     expect(form).toHaveAttribute("action", "/_allauth/browser/v1/auth/provider/redirect");
-    expect(form).toHaveAttribute("method", "post");
     expect(form).toHaveFormValues({
       provider: "google",
       process: "login",

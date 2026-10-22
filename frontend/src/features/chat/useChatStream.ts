@@ -40,6 +40,8 @@ export interface LiveTurn {
   partialAnswer: PartialAnswer | null;
   finalMessage: AssistantMessage | null;
   failure: TurnFailure | null;
+  /** Epoch ms of the failure, for limits that block the input until `retry_after` passes. */
+  failedAt: number | null;
   isStreaming: boolean;
 }
 
@@ -51,7 +53,7 @@ type Action =
   | { type: "office"; office: OfficeMatch }
   | { type: "partial"; answer: PartialAnswer }
   | { type: "final"; message: AssistantMessage }
-  | { type: "fail"; failure: TurnFailure }
+  | { type: "fail"; failure: TurnFailure; at: number }
   | { type: "end" }
   | { type: "reset" };
 
@@ -75,6 +77,7 @@ export function turnReducer(turn: LiveTurn | null, action: Action): LiveTurn | n
       partialAnswer: null,
       finalMessage: null,
       failure: null,
+      failedAt: null,
       isStreaming: true,
     };
   }
@@ -96,7 +99,7 @@ export function turnReducer(turn: LiveTurn | null, action: Action): LiveTurn | n
     case "final":
       return { ...turn, finalMessage: action.message, office: action.message.office ?? turn.office };
     case "fail":
-      return { ...turn, failure: action.failure, isStreaming: false };
+      return { ...turn, failure: action.failure, failedAt: action.at, isStreaming: false };
     case "end":
       return {
         ...turn,
@@ -161,9 +164,22 @@ function abortableDelay(ms: number, signal: AbortSignal): Promise<void> {
   });
 }
 
+/** Thrown inside {@link streamWithBusyRetry} when the first SSE event says the lock race was lost. */
+class LostLockRace extends Error {}
+
 /**
- * Open the chat stream. With `busyWaitMs`, a `409 stream_in_progress` (the previous stream's lock is
- * still being released, e.g. right after Stop) is retried once after that wait.
+ * Whether a failure means "another answer is still streaming" and a Retry may wait and try again.
+ *
+ * @param error What the stream threw.
+ * @returns `true` for the pre-stream 409 or a lost lock race.
+ */
+function isBusy(error: unknown): boolean {
+  return error instanceof LostLockRace || (error instanceof ApiError && error.code === "stream_in_progress");
+}
+
+/**
+ * Open the chat stream. With `busyWaitMs`, "another answer is streaming" (pre-stream 409, or an SSE
+ * `error` `stream_in_progress` as the first event, contract v1.6) is retried once after that wait.
  *
  * @param body Chat request.
  * @param signal Abort signal.
@@ -175,11 +191,17 @@ export async function* streamWithBusyRetry(
   signal: AbortSignal,
   busyWaitMs: number | null,
 ): AsyncGenerator<ChatEvent> {
+  const canRetry = busyWaitMs !== null;
   try {
-    yield* streamChat(body, signal);
+    let first = true;
+    for await (const event of streamChat(body, signal)) {
+      const lostRace = first && event.event === "error" && event.data.code === "stream_in_progress";
+      first = false;
+      if (lostRace && canRetry) throw new LostLockRace();
+      yield event;
+    }
   } catch (error) {
-    const busy = error instanceof ApiError && error.code === "stream_in_progress";
-    if (!busy || busyWaitMs === null) throw error;
+    if (!canRetry || !isBusy(error)) throw error;
     await abortableDelay(busyWaitMs, signal);
     yield* streamChat(body, signal);
   }
@@ -264,6 +286,7 @@ export function useChatStream(options: ChatStreamOptions = {}): ChatStream {
           dispatch({
             type: "fail",
             failure: { kind: "stream", code: event.data.code, scope: event.data.scope ?? null },
+            at: Date.now(),
           });
           return;
         case "done":
@@ -298,7 +321,9 @@ export function useChatStream(options: ChatStreamOptions = {}): ChatStream {
           if (isActive()) dispatch({ type: "end" });
         } catch (error) {
           cancelFrame();
-          if (isActive()) dispatch({ type: "fail", failure: toFailure(error, controller.signal.aborted) });
+          if (isActive()) {
+            dispatch({ type: "fail", failure: toFailure(error, controller.signal.aborted), at: Date.now() });
+          }
         } finally {
           if (isActive()) controllerRef.current = null;
         }

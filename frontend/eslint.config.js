@@ -33,6 +33,11 @@ export default tseslint.config(
       "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
       "@typescript-eslint/no-confusing-void-expression": ["error", { ignoreArrowShorthand: true }],
       "@typescript-eslint/no-unused-vars": ["error", { ignoreRestSiblings: true }],
+      // ARIA 1.2 combobox: a <ul role="listbox"> of <li role="option"> (jsx-a11y's recommended allowance).
+      "jsx-a11y/no-noninteractive-element-to-interactive-role": [
+        "error",
+        { ul: ["listbox"], li: ["option"] },
+      ],
       "no-console": ["error", { allow: ["info", "warn", "error"] }],
       "no-restricted-syntax": [
         "error",

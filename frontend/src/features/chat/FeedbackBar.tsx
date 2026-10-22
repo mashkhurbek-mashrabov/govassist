@@ -1,8 +1,11 @@
+import { Check, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSendFeedback } from "../../api/queries";
 import type { AssistantMessage, Feedback } from "../../api/types";
 import { Alert } from "../../components/ui/Alert";
+import { Button } from "../../components/ui/Button";
+import { IconButton } from "../../components/ui/IconButton";
 
 /** Contract limit for feedback comments. */
 const MAX_COMMENT_LENGTH = 1000;
@@ -14,78 +17,86 @@ interface FeedbackBarProps {
 }
 
 /**
- * 👍/👎 with an optional comment, upserted per message. Shows the saved state.
+ * "Was this helpful?" (components.md → FeedbackBar): 👍 saves at once; 👎 opens an optional comment that is
+ * saved with Send. The saved rating stays pressed; changing it updates the same feedback (upsert).
  *
  * @param props Conversation id and the assistant message.
- * @returns The feedback bar.
+ * @returns The bar.
  */
 export function FeedbackBar({ conversationId, message }: FeedbackBarProps) {
   const { t } = useTranslation();
+  const questionId = useId();
   const commentId = useId();
   const mutation = useSendFeedback();
   const [saved, setSaved] = useState<Feedback | null>(message.feedback);
   const [rating, setRating] = useState<Feedback["rating"] | null>(message.feedback?.rating ?? null);
   const [comment, setComment] = useState(message.feedback?.comment ?? "");
+  const commentOpen = rating === -1 && saved?.rating !== -1;
 
   /**
-   * Save a rating (and the current comment).
+   * Upsert the feedback.
    *
-   * @param value 1 or -1.
+   * @param feedback Rating and comment.
    */
-  const save = (value: Feedback["rating"]) => {
-    setRating(value);
-    mutation.mutate(
-      { conversationId, messageId: message.id, feedback: { rating: value, comment } },
-      { onSuccess: setSaved },
-    );
-  };
+  const save = (feedback: Feedback) =>
+    mutation.mutate({ conversationId, messageId: message.id, feedback }, { onSuccess: setSaved });
 
   return (
-    <section aria-label={t("feedback.question")} className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <span>{t("feedback.question")}</span>
-        <button
-          type="button"
-          className="min-h-11 min-w-11 border"
-          aria-pressed={rating === 1}
-          aria-label={t("feedback.helpful")}
-          onClick={() => save(1)}
-        >
-          <span aria-hidden="true">👍</span>
-        </button>
-        <button
-          type="button"
-          className="min-h-11 min-w-11 border"
-          aria-pressed={rating === -1}
-          aria-label={t("feedback.notHelpful")}
-          onClick={() => save(-1)}
-        >
-          <span aria-hidden="true">👎</span>
-        </button>
+    <section className="feedback" aria-labelledby={questionId}>
+      <div className="feedback__row">
+        <p className="feedback__q" id={questionId}>
+          {t("feedback.question")}
+        </p>
+        <IconButton
+          label={t("feedback.up")}
+          pressed={rating === 1}
+          icon={<ThumbsUp className="icon" aria-hidden="true" />}
+          onClick={() => {
+            setRating(1);
+            save({ rating: 1, comment });
+          }}
+        />
+        <IconButton
+          label={t("feedback.down")}
+          pressed={rating === -1}
+          icon={<ThumbsDown className="icon" aria-hidden="true" />}
+          onClick={() => setRating(-1)}
+        />
       </div>
-      {rating !== null && (
+      {commentOpen && (
         <form
-          className="flex flex-col gap-2"
+          className="form"
           onSubmit={(event) => {
             event.preventDefault();
-            save(rating);
+            save({ rating: -1, comment });
           }}
         >
-          <label htmlFor={commentId}>{t("feedback.comment")}</label>
-          <textarea
-            id={commentId}
-            className="border p-2"
-            maxLength={MAX_COMMENT_LENGTH}
-            value={comment}
-            onChange={(event) => setComment(event.target.value)}
-          />
-          <button type="submit" className="min-h-11 border" disabled={mutation.isPending}>
-            {t("feedback.submit")}
-          </button>
+          <div className="field">
+            <label className="field__label" htmlFor={commentId}>
+              {t("feedback.comment_label")}
+            </label>
+            <textarea
+              id={commentId}
+              className="textarea"
+              maxLength={MAX_COMMENT_LENGTH}
+              value={comment}
+              onChange={(event) => setComment(event.target.value)}
+            />
+          </div>
+          <div className="row-actions">
+            <Button type="submit" busy={mutation.isPending}>
+              {t("feedback.send")}
+            </Button>
+          </div>
         </form>
       )}
-      {saved && !mutation.isPending && !mutation.isError && <Alert>{t("feedback.saved")}</Alert>}
-      {mutation.isError && <Alert tone="error">{t("feedback.error")}</Alert>}
+      {saved && !mutation.isPending && (
+        <p className="feedback__saved" role="status">
+          <Check className="icon" aria-hidden="true" />
+          {t("feedback.saved")}
+        </p>
+      )}
+      {mutation.isError && <Alert tone="danger">{t("error.server")}</Alert>}
     </section>
   );
 }

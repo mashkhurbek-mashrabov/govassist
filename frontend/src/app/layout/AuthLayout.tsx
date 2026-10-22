@@ -1,27 +1,46 @@
-import { Link, Outlet } from "react-router";
 import { useTranslation } from "react-i18next";
-import { LanguageSwitcher } from "./LanguageSwitcher";
+import { Link, Outlet, useMatch } from "react-router";
+import type { Lang } from "../../api/types";
+import { LanguageSelect } from "../../components/ui/LanguageSelect";
+import { LinkButton } from "../../components/ui/LinkButton";
+import { Wordmark } from "../../components/ui/Wordmark";
+import { OfflineBanner } from "./OfflineBanner";
 
 /**
- * Layout for signed-out pages: brand, language switcher, one centred column.
+ * Layout for signed-out pages (screens 0–6, 16): wordmark + language switch, one column, footer with the
+ * "not official" note. The landing page gets a wider column and a "Log in" link in the header.
  *
  * @returns The layout.
  */
 export function AuthLayout() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isLanding = useMatch("/welcome") !== null;
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 p-4">
-      <header className="flex items-center justify-between gap-2">
-        <Link to="/" className="font-bold">
-          {t("app.name")}
-        </Link>
-        <LanguageSwitcher />
+    <div className={isLanding ? "auth landing" : "auth"}>
+      <a className="skip-link" href="#main">
+        {t("app.skip_to_main")}
+      </a>
+      <header className="auth__header">
+        <Wordmark to="/" />
+        <div className="row-actions">
+          <LanguageSelect value={i18n.language as Lang} onChange={(lang) => void i18n.changeLanguage(lang)} />
+          {isLanding && (
+            <LinkButton variant="ghost" small to="/login">
+              {t("landing.login")}
+            </LinkButton>
+          )}
+        </div>
       </header>
-      <main className="flex flex-col gap-4">
+      <OfflineBanner />
+      <main className={isLanding ? "landing__main" : "auth__main"} id="main">
         <Outlet />
       </main>
-      <footer>
-        <Link to="/about">{t("nav.about")}</Link>
+      <footer className="auth__footer">
+        <p className="footer-note">{t("app.not_official")}</p>
+        <nav className="footer-links" aria-label={t("app.about")}>
+          <Link to="/about">{t("app.about")}</Link>
+          <Link to="/about#privacy">{t("auth.privacy_link")}</Link>
+        </nav>
       </footer>
     </div>
   );

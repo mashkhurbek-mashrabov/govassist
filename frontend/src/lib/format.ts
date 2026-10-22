@@ -1,51 +1,49 @@
-/** Locale-aware formatting helpers. */
-import type { Lang, Weekday } from "../api/types";
+/** Formatting helpers. Dates are `DD.MM.YYYY` in Asia/Tashkent for every UI language (copy.md). */
+import type { Weekday } from "../api/types";
 import { WEEK } from "./openNow";
 
 /** Seconds in a minute. */
 const SECONDS_PER_MINUTE = 60;
-
 /** Office and app time zone. */
 const TIME_ZONE = "Asia/Tashkent";
+/** `DD.MM.YYYY` formatter (the `ru` locale always ships this numeric form). */
+const NUMERIC_DATE = new Intl.DateTimeFormat("ru", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  timeZone: TIME_ZONE,
+});
 
 /**
- * A `dd.mm.yyyy` formatter in Tashkent time.
- *
- * @returns The formatter.
- */
-function numericDate(): Intl.DateTimeFormat {
-  return new Intl.DateTimeFormat("ru", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: TIME_ZONE,
-  });
-}
-
-/**
- * Date formats per UI language. Browsers often ship no Uzbek date data, so Uzbek uses the numeric
- * `dd.mm.yyyy` form common in Uzbekistan (via the `ru` locale, which always has it).
- */
-const DATE_FORMATS: Record<Lang, Intl.DateTimeFormat> = {
-  "uz-Latn": numericDate(),
-  "uz-Cyrl": numericDate(),
-  ru: numericDate(),
-  en: new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeZone: TIME_ZONE }),
-};
-
-/**
- * Format an ISO date or datetime for the UI language, in Tashkent time.
+ * Format an ISO date or datetime as `DD.MM.YYYY` in Tashkent time.
  *
  * @param value `YYYY-MM-DD` or ISO datetime.
- * @param lang UI language.
  * @returns The formatted date.
  */
-export function formatDate(value: string, lang: Lang): string {
-  return DATE_FORMATS[lang].format(new Date(value));
+export function formatDate(value: string): string {
+  return NUMERIC_DATE.format(new Date(value));
+}
+
+/** How a history date is shown. */
+export type RelativeDay = { kind: "today" } | { kind: "yesterday" } | { kind: "date"; text: string };
+
+/**
+ * "Today" / "Yesterday" / `DD.MM.YYYY`, by Tashkent calendar day.
+ *
+ * @param value ISO datetime.
+ * @param now The current moment.
+ * @returns Which label to show.
+ */
+export function relativeDay(value: string, now: Date): RelativeDay {
+  const day = formatDate(value);
+  if (day === formatDate(now.toISOString())) return { kind: "today" };
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  if (day === formatDate(yesterday.toISOString())) return { kind: "yesterday" };
+  return { kind: "date", text: day };
 }
 
 /**
- * Whole minutes to wait, rounded up, for `retry_after` messages.
+ * Whole minutes to wait, rounded up (minutes = ⌈retry_after / 60⌉, screens.md §12).
  *
  * @param seconds `retry_after` in seconds.
  * @returns Minutes, at least 1.

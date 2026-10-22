@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { WorkingHours } from "../api/types";
-import { openStatus, toMinutes } from "./openNow";
+import { hoursTable, openStatus, toMinutes } from "./openNow";
 
 /** Contract §6 sample hours: weekdays with a lunch break, a short Saturday, closed on Sunday. */
 const HOURS: WorkingHours[] = [
@@ -30,12 +30,8 @@ describe("openStatus", () => {
     expect(openStatus([], new Date())).toEqual({ state: "unknown" });
   });
 
-  it("is open before lunch and points at the break", () => {
-    expect(openStatus(HOURS, tashkent("2026-10-22", "10:15"))).toEqual({
-      state: "open",
-      closesAt: "13:00",
-      forBreak: true,
-    });
+  it("is open before lunch until closing time", () => {
+    expect(openStatus(HOURS, tashkent("2026-10-22", "10:15"))).toEqual({ state: "open", closesAt: "18:00" });
   });
 
   it("reports the lunch break and when it ends", () => {
@@ -46,19 +42,11 @@ describe("openStatus", () => {
   });
 
   it("is open after lunch until closing", () => {
-    expect(openStatus(HOURS, tashkent("2026-10-22", "14:00"))).toEqual({
-      state: "open",
-      closesAt: "18:00",
-      forBreak: false,
-    });
+    expect(openStatus(HOURS, tashkent("2026-10-22", "14:00"))).toEqual({ state: "open", closesAt: "18:00" });
   });
 
   it("is open on a rule without a break", () => {
-    expect(openStatus(HOURS, tashkent("2026-10-24", "09:00"))).toEqual({
-      state: "open",
-      closesAt: "13:00",
-      forBreak: false,
-    });
+    expect(openStatus(HOURS, tashkent("2026-10-24", "09:00"))).toEqual({ state: "open", closesAt: "13:00" });
   });
 
   it("opens later today when it is early", () => {
@@ -97,5 +85,16 @@ describe("openStatus", () => {
 describe("toMinutes", () => {
   it("converts HH:MM", () => {
     expect(toMinutes("13:45")).toBe(825);
+  });
+});
+
+/** hoursTable(): week rows for the office hours table. */
+describe("hoursTable", () => {
+  it("groups days, adds days off and marks today", () => {
+    expect(hoursTable(HOURS, tashkent("2026-10-22", "10:00"))).toEqual([
+      { from: "mon", to: "fri", rule: HOURS[0], isToday: true },
+      { from: "sat", to: "sat", rule: HOURS[1], isToday: false },
+      { from: "sun", to: "sun", rule: null, isToday: false },
+    ]);
   });
 });

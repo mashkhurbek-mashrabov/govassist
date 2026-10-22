@@ -6,7 +6,6 @@ import { RouterProvider } from "react-router";
 import { fetchCsrf } from "./api/endpoints";
 import { ApiError, setUnauthorizedHandler } from "./api/http";
 import { resetToAnonymous } from "./api/queries";
-import { LOGIN_PATH } from "./app/guards";
 import { createAppRouter } from "./app/router";
 import "./i18n";
 import "./styles/index.css";
@@ -46,10 +45,8 @@ async function boot(): Promise<void> {
   await fetchCsrf().catch((error: unknown) => console.error("CSRF bootstrap failed", error));
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: shouldRetry } } });
   const router = createAppRouter(queryClient);
-  setUnauthorizedHandler(() => {
-    resetToAnonymous(queryClient);
-    void router.navigate(LOGIN_PATH);
-  });
+  // AppShell sees the anonymous viewer and leaves for the login page with the "session ended" notice.
+  setUnauthorizedHandler(() => resetToAnonymous(queryClient, true));
   const root = document.getElementById("root");
   if (!root) throw new Error("#root element missing from index.html");
   createRoot(root).render(

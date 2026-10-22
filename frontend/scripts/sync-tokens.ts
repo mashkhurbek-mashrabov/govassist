@@ -1,25 +1,48 @@
 /**
- * Copy `docs/design/tokens.css` (the single source of design values) to `src/styles/tokens.css`.
- * `--check` fails when the copy differs. Before gate G2 the source does not exist yet; both modes then
- * report that and succeed.
+ * Copy the design lane's single sources into the app, unchanged:
+ * `docs/design/tokens.css` → `src/styles/tokens.css` and `docs/design/fonts/*` → `src/styles/fonts/`.
+ * `--check` fails when any copy differs (CI). Never edit the copies by hand.
  *
  * Usage: `node scripts/sync-tokens.ts [--check]`
  */
-import { copyFileSync, existsSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-const source = fileURLToPath(new URL("../../docs/design/tokens.css", import.meta.url));
-const target = fileURLToPath(new URL("../src/styles/tokens.css", import.meta.url));
+/**
+ * Absolute path relative to this script.
+ *
+ * @param path Relative path.
+ * @returns Absolute path.
+ */
+function here(path: string): string {
+  return fileURLToPath(new URL(path, import.meta.url));
+}
+
+const design = here("../../docs/design/");
+const styles = here("../src/styles/");
+/** Source → target pairs. */
+const pairs: [string, string][] = [
+  [`${design}tokens.css`, `${styles}tokens.css`],
+  ...readdirSync(`${design}fonts`).map((name): [string, string] => [
+    `${design}fonts/${name}`,
+    `${styles}fonts/${name}`,
+  ]),
+];
 const check = process.argv.includes("--check");
 
-if (!existsSync(source)) {
-  console.info("docs/design/tokens.css does not exist yet (before G2); nothing to sync.");
-} else if (!check) {
-  copyFileSync(source, target);
-  console.info(`Copied ${source} → ${target}`);
-} else if (!existsSync(target) || readFileSync(source, "utf8") !== readFileSync(target, "utf8")) {
-  console.error("src/styles/tokens.css differs from docs/design/tokens.css. Run `npm run sync:tokens`.");
-  process.exit(1);
+const stale = pairs.filter(
+  ([source, target]) => !existsSync(target) || !readFileSync(source).equals(readFileSync(target)),
+);
+if (check) {
+  if (stale.length > 0) {
+    console.error(
+      `Out of sync with docs/design: ${stale.map(([, target]) => target).join(", ")}. Run \`npm run sync:tokens\`.`,
+    );
+    process.exit(1);
+  }
+  console.info("tokens.css and fonts are in sync.");
 } else {
-  console.info("tokens.css is in sync.");
+  mkdirSync(`${styles}fonts`, { recursive: true });
+  for (const [source, target] of pairs) copyFileSync(source, target);
+  console.info(`Synced ${pairs.length} files from docs/design.`);
 }

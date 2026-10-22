@@ -1,18 +1,21 @@
+import { Compass, House } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
+import { CenterState } from "../../components/ui/CenterState";
+import { LinkButton } from "../../components/ui/LinkButton";
 
 /**
- * 404 page.
+ * 404 (screen 16, not-found state).
  *
  * @returns The page.
  */
 export function NotFoundPage() {
   const { t } = useTranslation();
   return (
-    <>
-      <h1>{t("notFound.title")}</h1>
-      <p>{t("notFound.body")}</p>
-      <Link to="/">{t("notFound.home")}</Link>
-    </>
+    <CenterState icon={<Compass className="icon" aria-hidden="true" />} title={t("notfound.title")}>
+      <p className="t-body-lg t-muted">{t("notfound.lead")}</p>
+      <LinkButton variant="primary" to="/" icon={<House className="icon" aria-hidden="true" />}>
+        {t("notfound.home")}
+      </LinkButton>
+    </CenterState>
   );
 }

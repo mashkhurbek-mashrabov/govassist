@@ -1,16 +1,17 @@
 import { Outlet } from "react-router";
-import { OfflineBanner } from "./OfflineBanner";
+import { ToastProvider } from "../../components/ui/ToastProvider";
+import { BackOnlineToast } from "./BackOnlineToast";
 
 /**
- * Top-level layout: global banners above every page.
+ * Top-level layout: the toast region and connectivity notices around every page.
  *
  * @returns The layout.
  */
 export function RootLayout() {
   return (
-    <>
-      <OfflineBanner />
+    <ToastProvider>
+      <BackOnlineToast />
       <Outlet />
-    </>
+    </ToastProvider>
   );
 }

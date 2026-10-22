@@ -36,6 +36,19 @@ export function safeNext(next: string | null): string {
   return next;
 }
 
+/** Login page variant that explains the session ended (401). */
+export const SESSION_ENDED_PATH = `${LOGIN_PATH}?session=ended`;
+
+/**
+ * Where a viewer goes once signed out: the landing after logout, the login page after a 401.
+ *
+ * @param viewer The (anonymous) viewer.
+ * @returns The target path.
+ */
+export function signedOutPath(viewer: Viewer | undefined): string {
+  return viewer?.state === "anonymous" && viewer.sessionEnded ? SESSION_ENDED_PATH : WELCOME_PATH;
+}
+
 /**
  * Append a `next` target, unless it is the home page (the default anyway).
  *

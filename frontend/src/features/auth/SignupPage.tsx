@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -6,16 +7,25 @@ import { Link, useNavigate } from "react-router";
 import { signup } from "../../api/auth";
 import { useAuthMutation } from "../../api/queries";
 import { CHECK_EMAIL_PATH, HOME_PATH } from "../../app/guards";
+import { Alert } from "../../components/ui/Alert";
+import { Button } from "../../components/ui/Button";
+import { FieldError } from "../../components/ui/FieldError";
 import { PasswordField } from "../../components/ui/PasswordField";
 import { TextField } from "../../components/ui/TextField";
 import { TURNSTILE_SITE_KEY } from "../../config";
-import { AuthErrorAlert } from "./AuthErrorAlert";
+import { authErrorInfo } from "./authErrors";
+import { FormSummary } from "./FormSummary";
 import { GoogleLoginButton } from "./GoogleLoginButton";
-import { MIN_PASSWORD_LENGTH, signupSchema, type SignupValues } from "./schemas";
+import { PrivacyNote } from "./PrivacyNote";
+import { signupSchema, type SignupValues } from "./schemas";
 import { TurnstileWidget } from "./TurnstileWidget";
 
+/** Id of the Turnstile error line. */
+const TURNSTILE_ERROR_ID = "turnstile-error";
+
 /**
- * Email + password signup with Turnstile. On success the guards route to "check your email".
+ * Sign up (screen 1): Google, email + password with strength hint, Turnstile, privacy note.
+ * allauth errors go to the field named by their `param`; unknown ones become a server-error alert.
  *
  * @returns The page.
  */
@@ -23,15 +33,20 @@ export function SignupPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileError, setTurnstileError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
   const mutation = useAuthMutation(signup);
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<SignupValues>({ resolver: zodResolver(signupSchema) });
-  const waitingForTurnstile = TURNSTILE_SITE_KEY !== "" && turnstileToken === "";
+  const hasFieldErrors = Object.keys(errors).length > 0 || turnstileError !== null;
 
-  const onSubmit = handleSubmit((values) =>
+  const onSubmit = handleSubmit((values) => {
+    setServerError(null);
+    setTurnstileError(null);
     mutation.mutate(
       { ...values, turnstile_token: turnstileToken },
       {
@@ -39,47 +54,78 @@ export function SignupPage() {
           void navigate(viewer.state === "pending_verification" ? CHECK_EMAIL_PATH : HOME_PATH, {
             state: { email: values.email },
           }),
+        onError: (error) => {
+          const info = authErrorInfo(error);
+          if (info.field === "email" || info.field === "password")
+            setError(info.field, { message: info.key });
+          else if (info.field === "turnstile_token") setTurnstileError(info.key);
+          else setServerError(info.key);
+        },
       },
-    ),
-  );
+    );
+  });
 
   return (
     <>
-      <h1>{t("auth.signup.title")}</h1>
+      <div className="auth__intro">
+        <h1>{t("signup.title")}</h1>
+        <p className="t-muted">{t("signup.lead")}</p>
+      </div>
+      <FormSummary show={hasFieldErrors} />
+      {serverError && <Alert tone="danger">{t(serverError)}</Alert>}
       <GoogleLoginButton />
-      <form noValidate onSubmit={(event) => void onSubmit(event)} className="flex flex-col gap-3">
+      <form className="form" noValidate onSubmit={(event) => void onSubmit(event)}>
         <TextField
-          label={t("auth.fields.email")}
+          label={t("auth.email")}
           type="email"
           autoComplete="email"
+          placeholder={t("auth.email_placeholder")}
+          disabled={mutation.isPending}
           error={errors.email?.message && t(errors.email.message)}
           {...register("email")}
         />
         <PasswordField
-          label={t("auth.fields.password")}
+          label={t("auth.password")}
           autoComplete="new-password"
-          hint={t("auth.fields.passwordHint", { count: MIN_PASSWORD_LENGTH })}
-          error={errors.password?.message && t(errors.password.message, { count: MIN_PASSWORD_LENGTH })}
+          showStrength
+          hint={t("auth.password_hint")}
+          disabled={mutation.isPending}
+          error={errors.password?.message && t(errors.password.message)}
           {...register("password")}
         />
-        {TURNSTILE_SITE_KEY && (
-          <TurnstileWidget
-            siteKey={TURNSTILE_SITE_KEY}
-            language={i18n.language}
-            onToken={setTurnstileToken}
-          />
-        )}
-        <AuthErrorAlert error={mutation.error} />
-        <button
-          type="submit"
-          className="min-h-11 border"
-          disabled={mutation.isPending || waitingForTurnstile}
+        <div
+          className="turnstile"
+          role="group"
+          aria-label="Cloudflare Turnstile"
+          aria-describedby={turnstileError ? TURNSTILE_ERROR_ID : undefined}
         >
-          {t("auth.signup.submit")}
-        </button>
+          <ShieldCheck className="icon" aria-hidden="true" />
+          {TURNSTILE_SITE_KEY && (
+            <TurnstileWidget
+              siteKey={TURNSTILE_SITE_KEY}
+              language={i18n.language}
+              onToken={setTurnstileToken}
+            />
+          )}
+        </div>
+        <p className="field__hint">{t("auth.turnstile_note")}</p>
+        {turnstileError && <FieldError id={TURNSTILE_ERROR_ID}>{t(turnstileError)}</FieldError>}
+        <div className="form__actions">
+          <Button
+            type="submit"
+            variant="primary"
+            block
+            busy={mutation.isPending}
+            busyLabel={t("signup.submitting")}
+            disabled={TURNSTILE_SITE_KEY !== "" && turnstileToken === ""}
+          >
+            {t("signup.submit")}
+          </Button>
+        </div>
       </form>
+      <PrivacyNote />
       <p>
-        {t("auth.signup.haveAccount")} <Link to="/login">{t("auth.signup.loginLink")}</Link>
+        {t("signup.have_account")} <Link to="/login">{t("signup.login_link")}</Link>
       </p>
     </>
   );

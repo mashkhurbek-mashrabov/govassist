@@ -24,13 +24,17 @@
     "i18n:cyrl": "node scripts/translit-uz.ts",
     "check:i18n": "node scripts/translit-uz.ts --check",
     "check:size": "node scripts/check-bundle-size.ts",
-    "preview:mock": "vite preview --outDir dist-mock --port 4173 --strictPort"
+    "preview:mock": "vite preview --outDir dist-mock --port 4173 --strictPort",
+    "i18n:copy": "node scripts/import-copy.ts",
+    "check:copy": "node scripts/import-copy.ts --check",
+    "i18n": "node scripts/import-copy.ts && node scripts/translit-uz.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "6.0.0",
     "@tanstack/react-query": "5.104.5",
     "eventsource-parser": "4.1.2",
     "i18next": "26.5.5",
+    "lucide-react": "1.61.0",
     "partial-json": "0.1.7",
     "react": "19.3.1",
     "react-dom": "19.3.1",

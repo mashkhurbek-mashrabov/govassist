@@ -1,45 +1,89 @@
+import { BookOpen, Building2, FileText, Scale, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useSources } from "../../api/queries";
-import type { Lang } from "../../api/types";
+import type { SourceSummary } from "../../api/types";
 import { Alert } from "../../components/ui/Alert";
+import { ExternalLink } from "../../components/ui/ExternalLink";
 import { formatDate } from "../../lib/format";
+import { Disclaimer } from "../answer/Disclaimer";
+
+/** Icon per source kind. */
+const KIND_ICONS: Record<SourceSummary["kind"], LucideIcon> = {
+  law: Scale,
+  service_page: FileText,
+  office: Building2,
+  other: BookOpen,
+};
+
+/** The four "How answers are made" and "Privacy" points. */
+const POINTS = [1, 2, 3, 4] as const;
 
 /**
- * What GovAssist is, the reviewed sources behind the answers (`GET /sources`), and the disclaimer. Public.
+ * About (screen 15): not-official note, what it is, how answers are made, privacy, and the source list
+ * from `GET /sources`. Public.
  *
  * @returns The page.
  */
 export function AboutPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const sources = useSources();
   return (
-    <>
-      <h1 className="font-bold">{t("about.title")}</h1>
-      <p>{t("about.body")}</p>
-      <section className="flex flex-col gap-2">
-        <h2 className="font-bold">{t("about.sourcesTitle")}</h2>
-        <p>{t("about.sources")}</p>
-        {sources.isError && <Alert tone="error">{t("common.error")}</Alert>}
-        <ul className="list-disc pl-6">
-          {sources.data?.map((source) => (
-            <li key={source.url}>
-              <a href={source.url} target="_blank" rel="noopener noreferrer">
-                {source.name}
-              </a>
-              {" · "}
-              {source.publisher}
-              {" · "}
-              {source.last_fetched_at === null
-                ? t("about.sourceCount", { count: source.documents })
-                : t("about.sourceMeta", {
-                    count: source.documents,
-                    date: formatDate(source.last_fetched_at, i18n.language as Lang),
-                  })}
-            </li>
+    <main className="page" id="main">
+      <h1>{t("about.title")}</h1>
+      <Alert tone="warning" title={t("about.not_official_title")} role="note">
+        {t("app.not_official_long")}
+      </Alert>
+      <section className="prose" aria-labelledby="about-what">
+        <h2 id="about-what">{t("about.what_title")}</h2>
+        <p>{t("about.what")}</p>
+      </section>
+      <section className="prose" aria-labelledby="about-how">
+        <h2 id="about-how">{t("about.how_title")}</h2>
+        <ul>
+          {POINTS.map((n) => (
+            <li key={n}>{t(`about.how_${n}`)}</li>
+          ))}
+        </ul>
+        <Disclaimer />
+      </section>
+      <section className="prose" aria-labelledby="about-privacy" id="privacy">
+        <h2 id="about-privacy">{t("about.privacy_title")}</h2>
+        <ul>
+          {POINTS.map((n) => (
+            <li key={n}>{t(`about.privacy_${n}`)}</li>
           ))}
         </ul>
       </section>
-      <p>{t("answer.disclaimer")}</p>
-    </>
+      <section className="section" aria-labelledby="about-sources">
+        <h2 id="about-sources">{t("about.sources_title")}</h2>
+        <p>{t("about.sources_lead")}</p>
+        {sources.isError && <Alert tone="danger">{t("error.server")}</Alert>}
+        <ol className="sources">
+          {sources.data?.map((source) => {
+            const Icon = KIND_ICONS[source.kind];
+            const meta = [
+              source.publisher,
+              t(`answer.source_kind_${source.kind}`),
+              t("about.source_docs", { n: source.documents }),
+              source.last_fetched_at &&
+                t("about.source_updated", { date: formatDate(source.last_fetched_at) }),
+            ].filter(Boolean);
+            return (
+              <li key={source.url} className="source">
+                <span className="source__num" aria-hidden="true">
+                  <Icon className="icon" />
+                </span>
+                <div>
+                  <p className="source__title">
+                    <ExternalLink href={source.url}>{source.name}</ExternalLink>
+                  </p>
+                  <p className="source__meta">{meta.join(" · ")}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+    </main>
   );
 }

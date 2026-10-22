@@ -92,7 +92,7 @@ export const SAMPLE_OFF_TOPIC_ANSWER: Answer = {
   follow_up_questions: ["Pasportimni qanday yangilayman?"],
 };
 
-/** Regions: the contract's illustrative Tashkent id plus one obviously fake region. */
+/** Regions: the contract's illustrative Tashkent id plus obviously fake regions. */
 export const SAMPLE_REGIONS: Region[] = [
   { id: 1726, name: "Toshkent shahri" },
   { id: 90001, name: "NAMUNA viloyati" },
@@ -107,11 +107,12 @@ export const SAMPLE_DISTRICTS: Record<number, District[]> = {
   90001: [{ id: 9000101, name: "NAMUNA-2 tumani" }],
 };
 
-/** Starter questions. */
+/** Starter questions (the design's four chips). */
 export const SAMPLE_SUGGESTIONS: Suggestion[] = [
   { text: "Pasportimni qanday yangilayman?", category: "documents" },
-  { text: "Tugʻilganlik haqidagi guvohnomani qanday olaman?", category: "civil_registry" },
-  { text: "Ishdan boʻshatilganda qanday huquqlarim bor?", category: "legal" },
+  { text: "Pasportni onlayn almashtirsa boʻladimi?", category: "documents" },
+  { text: "NAMUNA savol: tugʻilganlik haqida guvohnoma", category: "civil_registry" },
+  { text: "NAMUNA savol: haydovchilik guvohnomasini almashtirish", category: "transport" },
 ];
 
 /** About-page sources (contract v1.1 `SourceSummary`); names and counts are placeholders. */

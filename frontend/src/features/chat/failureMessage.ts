@@ -1,64 +1,86 @@
-/** Which message to show for a failed turn or a failed stored answer. */
-import type { AssistantErrorCode, QuotaScope } from "../../api/types";
+/** Which alert to show for a failed answer (screen 12; copy.md → Error codes). */
+import type { AssistantErrorCode } from "../../api/types";
 import { retryMinutes } from "../../lib/format";
 import type { TurnFailure } from "./useChatStream";
 
-/** i18n key plus interpolation values. */
+/** A translatable failure alert. */
 export interface FailureMessage {
+  titleKey: string;
   key: string;
   values?: Record<string, number>;
+  tone: "danger" | "warning";
+  /** Whether Retry makes sense (not for limits: they need waiting). */
+  retry: boolean;
 }
 
-/** Problem codes with their own chat message (others get the generic one). */
-const REQUEST_CODES = new Set(["rate_limited", "quota_exceeded", "stream_in_progress", "llm_unavailable"]);
+/** Codes with their own `chat_error.*` copy. */
+const OWN_COPY = new Set(["llm_unavailable", "llm_timeout", "invalid_answer", "stream_in_progress"]);
 
 /**
- * Message key for an error code; the service-wide quota has its own copy (contract v1.1 `scope`).
+ * Alert for an error code.
  *
- * @param code Error code.
- * @param scope Quota scope, when known.
- * @returns The i18n key.
+ * @param code Contract error code (`null` when unknown).
+ * @param scope Quota scope, for `quota_exceeded`.
+ * @param retryAfter Seconds to wait, for `rate_limited`.
+ * @param hourLimit `Me.quota.hour_limit`, shown in the rate-limit copy.
+ * @returns Copy keys, values, tone and the Retry flag.
  */
-function codeKey(code: string, scope: QuotaScope | null): string {
-  return code === "quota_exceeded" && scope === "global"
-    ? "chat.errors.quota_exceeded_global"
-    : `chat.errors.${code}`;
+function codeMessage(
+  code: string | null,
+  scope: string | null,
+  retryAfter: number | null,
+  hourLimit: number,
+): FailureMessage {
+  const base = { titleKey: "chat_error.title" };
+  if (code === "rate_limited") {
+    const values = { limit: hourLimit, minutes: retryMinutes(retryAfter ?? 0) };
+    return { ...base, key: "chat_error.rate_limited", values, tone: "warning", retry: false };
+  }
+  if (code === "quota_exceeded") {
+    return {
+      ...base,
+      key: scope === "global" ? "chat_error.quota_global" : "chat_error.quota_user",
+      tone: "warning",
+      retry: false,
+    };
+  }
+  if (code === "stream_in_progress")
+    return { ...base, key: "chat_error.stream_in_progress", tone: "warning", retry: true };
+  if (code && OWN_COPY.has(code)) return { ...base, key: `chat_error.${code}`, tone: "danger", retry: true };
+  return { ...base, key: "error.server", tone: "danger", retry: true };
 }
 
 /**
- * Map a live turn failure to a translatable message.
+ * Alert for a live turn that failed (the user's own Stop is shown by the progress line instead).
  *
  * @param failure Why the turn failed.
- * @returns Key and values for `t()`.
+ * @param hourLimit `Me.quota.hour_limit`.
+ * @returns The alert content.
  */
-export function failureMessage(failure: TurnFailure): FailureMessage {
+export function failureMessage(
+  failure: Exclude<TurnFailure, { kind: "stopped" }>,
+  hourLimit: number,
+): FailureMessage {
   switch (failure.kind) {
-    case "stopped":
-      return { key: "chat.errors.stopped" };
     case "network":
-      return { key: "chat.errors.network" };
+      return codeMessage(null, null, null, hourLimit);
     case "stream":
-      return { key: codeKey(failure.code, failure.scope) };
+      return codeMessage(failure.code, failure.scope, null, hourLimit);
     case "request":
-      if (!failure.code || !REQUEST_CODES.has(failure.code)) return { key: "chat.errors.generic" };
-      if (failure.scope === "global") return { key: codeKey(failure.code, failure.scope) };
-      if (failure.retryAfter !== null) {
-        return {
-          key: `chat.errors.${failure.code}_retry`,
-          values: { minutes: retryMinutes(failure.retryAfter) },
-        };
-      }
-      return { key: `chat.errors.${failure.code}` };
+      return codeMessage(failure.code, failure.scope, failure.retryAfter, hourLimit);
   }
 }
 
 /**
- * Map a stored failed answer (`error_code`, contract v1.1) to a translatable message.
+ * Alert for a stored failed answer (`error_code`, e.g. after a reload).
  *
- * @param code The message's `error_code`, or `null` when the backend gave none.
- * @returns Key for `t()`.
+ * @param code The message's `error_code`.
+ * @param hourLimit `Me.quota.hour_limit`.
+ * @returns The alert content.
  */
-export function storedFailureMessage(code: AssistantErrorCode | null): FailureMessage {
-  if (code === "stopped") return { key: "chat.answerStopped" };
-  return { key: code ? `chat.errors.${code}` : "chat.failedMessage" };
+export function storedFailureMessage(code: AssistantErrorCode | null, hourLimit: number): FailureMessage {
+  if (code === "stopped") {
+    return { titleKey: "chat_error.stopped_title", key: "chat_error.stopped", tone: "warning", retry: true };
+  }
+  return codeMessage(code, null, null, hourLimit);
 }

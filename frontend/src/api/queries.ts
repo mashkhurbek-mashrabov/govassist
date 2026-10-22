@@ -14,7 +14,10 @@ import type { Conversation, Feedback, Lang, Me, MeUpdate } from "./types";
 
 /** Who is using the app: the allauth session plus `/me` when signed in. */
 export type Viewer =
-  { state: "anonymous" } | { state: "pending_verification" } | { state: "authenticated"; me: Me };
+  /** `sessionEnded`: the app API answered 401 mid-session (login then says so). */
+  | { state: "anonymous"; sessionEnded?: boolean }
+  | { state: "pending_verification" }
+  | { state: "authenticated"; me: Me };
 
 /** Every query key, defined once. */
 export const queryKeys = {
@@ -60,11 +63,13 @@ export function refreshViewer(client: QueryClient): Promise<Viewer> {
  * Drop every cached user query and mark the viewer anonymous (logout, 401, account deletion).
  *
  * @param client The query client.
+ * @param sessionEnded True when the server ended the session (401), so login can say so.
  */
-export function resetToAnonymous(client: QueryClient): void {
+export function resetToAnonymous(client: QueryClient, sessionEnded = false): void {
   // Keep the viewer query itself so mounted observers (AppShell) see the change and redirect.
   client.removeQueries({ predicate: (query) => query.queryKey[0] !== queryKeys.viewer[0] });
-  client.setQueryData(viewerQuery.queryKey, { state: "anonymous" });
+  const viewer: Viewer = { state: "anonymous", sessionEnded };
+  client.setQueryData(viewerQuery.queryKey, viewer);
 }
 
 /**

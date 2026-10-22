@@ -1,32 +1,39 @@
+import { RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "../../components/ui/Alert";
+import { Button } from "../../components/ui/Button";
 import type { FailureMessage } from "./failureMessage";
 
 /** Props of {@link FailureAlert}. */
 interface FailureAlertProps {
   message: FailureMessage;
-  /** A stop is the user's choice, so it is announced politely. */
-  tone: "error" | "info";
-  /** Resend the same question; omit to hide Retry (older answers). */
+  /** Resend the same question; shown only when the message allows it. */
   onRetry?: (() => void) | undefined;
 }
 
 /**
- * Inline message for a failed or stopped answer, with Retry.
+ * Inline alert in place of the answer (screen 12) with Retry when it makes sense.
  *
- * @param props Message, tone and retry callback.
+ * @param props Message and retry callback.
  * @returns The alert.
  */
-export function FailureAlert({ message, tone, onRetry }: FailureAlertProps) {
+export function FailureAlert({ message, onRetry }: FailureAlertProps) {
   const { t } = useTranslation();
   return (
-    <Alert tone={tone}>
-      <p>{t(message.key, message.values)}</p>
-      {onRetry && (
-        <button type="button" className="min-h-11 border px-3" onClick={onRetry}>
-          {t("common.retry")}
-        </button>
-      )}
+    <Alert
+      tone={message.tone}
+      role="alert"
+      title={t(message.titleKey)}
+      actions={
+        message.retry &&
+        onRetry && (
+          <Button small icon={<RefreshCw className="icon" aria-hidden="true" />} onClick={onRetry}>
+            {t("common.retry")}
+          </Button>
+        )
+      }
+    >
+      {t(message.key, message.values)}
     </Alert>
   );
 }

@@ -1,8 +1,17 @@
+/** Props of {@link Skeleton}. */
+interface SkeletonProps {
+  /** Bar width in percent (100 by default) or the taller title bar. */
+  width?: "80" | "60" | "40" | "title";
+}
+
 /**
- * Placeholder block for content that is still streaming, so the layout does not jump.
+ * Placeholder bar for content that is still loading or streaming. Hidden from assistive tech;
+ * pair it with a visually hidden status text.
  *
- * @returns A decorative, hidden-from-AT block.
+ * @param props Width variant.
+ * @returns The bar.
  */
-export function Skeleton() {
-  return <div aria-hidden="true" className="h-6 animate-pulse border motion-reduce:animate-none" />;
+export function Skeleton({ width }: SkeletonProps) {
+  const modifier = width === "title" ? "skeleton--title" : width ? `skeleton--w${width}` : "";
+  return <span className={["skeleton", modifier].filter(Boolean).join(" ")} aria-hidden="true" />;
 }

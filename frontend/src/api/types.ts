@@ -250,7 +250,13 @@ export interface FinalEventData {
 
 /** Codes of in-stream `error` events. */
 export type StreamErrorCode =
-  "llm_unavailable" | "llm_timeout" | "invalid_answer" | "quota_exceeded" | "internal_error";
+  | "llm_unavailable"
+  | "llm_timeout"
+  | "invalid_answer"
+  | "quota_exceeded"
+  /** Contract v1.6: can be the first and only event (no `meta`) when another stream won the lock race. */
+  | "stream_in_progress"
+  | "internal_error";
 
 /** `error` event data. */
 export interface ErrorEventData {

@@ -5,12 +5,12 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { requestPasswordReset } from "../../api/auth";
 import { Alert } from "../../components/ui/Alert";
+import { Button } from "../../components/ui/Button";
 import { TextField } from "../../components/ui/TextField";
-import { AuthErrorAlert } from "./AuthErrorAlert";
-import { forgotSchema, type ForgotValues } from "./schemas";
+import { emailSchema, type EmailValues } from "./schemas";
 
 /**
- * Request a password-reset email. Always reports success, so it does not reveal which emails exist.
+ * Forgot password (screen 5): the same "sent" message whether or not the account exists.
  *
  * @returns The page.
  */
@@ -21,32 +21,37 @@ export function ForgotPasswordPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ForgotValues>({ resolver: zodResolver(forgotSchema) });
+  } = useForm<EmailValues>({ resolver: zodResolver(emailSchema) });
 
   const onSubmit = handleSubmit(({ email }) => mutation.mutate(email));
 
   return (
     <>
-      <h1>{t("auth.forgot.title")}</h1>
+      <div className="auth__intro">
+        <h1>{t("forgot.title")}</h1>
+        {!mutation.isSuccess && <p className="t-muted">{t("forgot.lead")}</p>}
+      </div>
       {mutation.isSuccess ? (
-        <Alert>{t("auth.forgot.sent")}</Alert>
+        <Alert tone="success">{t("forgot.sent")}</Alert>
       ) : (
-        <form noValidate onSubmit={(event) => void onSubmit(event)} className="flex flex-col gap-3">
-          <p>{t("auth.forgot.body")}</p>
+        <form className="form" noValidate onSubmit={(event) => void onSubmit(event)}>
+          {mutation.isError && <Alert tone="danger">{t("error.server")}</Alert>}
           <TextField
-            label={t("auth.fields.email")}
+            label={t("auth.email")}
             type="email"
             autoComplete="email"
+            placeholder={t("auth.email_placeholder")}
             error={errors.email?.message && t(errors.email.message)}
             {...register("email")}
           />
-          <AuthErrorAlert error={mutation.error} />
-          <button type="submit" className="min-h-11 border" disabled={mutation.isPending}>
-            {t("auth.forgot.submit")}
-          </button>
+          <div className="form__actions">
+            <Button type="submit" variant="primary" block busy={mutation.isPending}>
+              {t("forgot.submit")}
+            </Button>
+          </div>
         </form>
       )}
-      <Link to="/login">{t("auth.backToLogin")}</Link>
+      <Link to="/login">{t("forgot.back_to_login")}</Link>
     </>
   );
 }

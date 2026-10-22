@@ -5,63 +5,88 @@ import { useTranslation } from "react-i18next";
 import { changePassword } from "../../api/auth";
 import { refreshViewer } from "../../api/queries";
 import { Alert } from "../../components/ui/Alert";
+import { Button } from "../../components/ui/Button";
 import { PasswordField } from "../../components/ui/PasswordField";
-import { AuthErrorAlert } from "../auth/AuthErrorAlert";
-import { changePasswordSchema, MIN_PASSWORD_LENGTH, type ChangePasswordValues } from "../auth/schemas";
+import { authErrorInfo } from "../auth/authErrors";
+import { changePasswordSchema, type ChangePasswordValues } from "../auth/schemas";
 
 /** Props of {@link ChangePasswordForm}. */
 interface ChangePasswordFormProps {
   /** `Me.has_password`; false for Google-only accounts setting a first password. */
   hasPassword: boolean;
+  onCancel: () => void;
+  onSaved: () => void;
 }
 
 /**
- * Change the password, or set a first one for a Google-only account (allauth). Clears the form and
- * re-reads `Me` (for `has_password`) on success.
+ * Inline change-password form in the Account card (components.md → ChangePasswordForm). A Google-only
+ * account sets a first password without the current one; `Me` is re-read afterwards for `has_password`.
  *
- * @param props Whether the account already has a password.
+ * @param props Password flag and callbacks.
  * @returns The form.
  */
-export function ChangePasswordForm({ hasPassword }: ChangePasswordFormProps) {
+export function ChangePasswordForm({ hasPassword, onCancel, onSaved }: ChangePasswordFormProps) {
   const { t } = useTranslation();
   const client = useQueryClient();
   const mutation = useMutation({ mutationFn: changePassword, onSuccess: () => refreshViewer(client) });
   const {
     register,
     handleSubmit,
-    reset,
+    setError,
     formState: { errors },
   } = useForm<ChangePasswordValues>({ resolver: zodResolver(changePasswordSchema(hasPassword)) });
+  const serverError = mutation.isError && authErrorInfo(mutation.error).field === null;
 
   const onSubmit = handleSubmit(({ current, password }) =>
     mutation.mutate(
       hasPassword ? { current_password: current, new_password: password } : { new_password: password },
-      { onSuccess: () => reset() },
+      {
+        onSuccess: onSaved,
+        onError: (error) => {
+          const info = authErrorInfo(error);
+          if (info.field === "current_password") setError("current", { message: info.key });
+          if (info.field === "password") setError("password", { message: info.key });
+        },
+      },
     ),
   );
 
   return (
-    <form noValidate onSubmit={(event) => void onSubmit(event)} className="flex flex-col gap-3">
+    <form
+      className="card"
+      aria-labelledby="password-form-title"
+      noValidate
+      onSubmit={(event) => void onSubmit(event)}
+    >
+      <h3 id="password-form-title">
+        {t(hasPassword ? "settings.change_password" : "password_change.set_title")}
+      </h3>
+      {!hasPassword && <p className="t-muted">{t("password_change.set_lead")}</p>}
+      {serverError && <Alert tone="danger">{t("error.server")}</Alert>}
       {hasPassword && (
         <PasswordField
-          label={t("auth.fields.currentPassword")}
+          label={t("password_change.current")}
           autoComplete="current-password"
           error={errors.current?.message && t(errors.current.message)}
           {...register("current")}
         />
       )}
       <PasswordField
-        label={t("auth.fields.newPassword")}
+        label={t("reset.new_password")}
         autoComplete="new-password"
-        hint={t("auth.fields.passwordHint", { count: MIN_PASSWORD_LENGTH })}
-        error={errors.password?.message && t(errors.password.message, { count: MIN_PASSWORD_LENGTH })}
+        showStrength
+        hint={t("auth.password_hint")}
+        error={errors.password?.message && t(errors.password.message)}
         {...register("password")}
       />
-      <AuthErrorAlert error={mutation.error} />
-      {mutation.isSuccess && <Alert>{t("settings.password.saved")}</Alert>}
-      <button type="submit" className="min-h-11 border" disabled={mutation.isPending}>
-        {t(hasPassword ? "settings.password.submit" : "settings.password.set")}
-      </button>
+      <div className="row-actions">
+        <Button type="submit" variant="primary" busy={mutation.isPending} busyLabel={t("common.saving")}>
+          {t("reset.submit")}
+        </Button>
+        <Button variant="ghost" onClick={onCancel}>
+          {t("common.cancel")}
+        </Button>
+      </div>
     </form>
   );
 }

@@ -11,15 +11,6 @@ import uzLatn from "./locales/uz-Latn.json";
 export const LANGUAGES: readonly Lang[] = ["uz-Latn", "uz-Cyrl", "ru", "en"];
 /** Default UI language. */
 export const DEFAULT_LANGUAGE: Lang = "uz-Latn";
-/** Language names in their own language (endonyms), shown in every UI language as-is. */
-export const LANGUAGE_NAMES: Record<Lang, string> = {
-  "uz-Latn": "Oʻzbekcha",
-  "uz-Cyrl": "Ўзбекча",
-  ru: "Русский",
-  en: "English",
-};
-/** Options for language pickers, labelled by endonym. */
-export const LANGUAGE_OPTIONS = LANGUAGES.map((lang) => ({ value: lang, label: LANGUAGE_NAMES[lang] }));
 /** Pre-login language preference (a convenience only: not PII, not a token). */
 const LANGUAGE_STORAGE_KEY = "govassist.lang";
 
@@ -75,7 +66,8 @@ void i18n.use(initReactI18next).init({
   fallbackLng: DEFAULT_LANGUAGE,
   supportedLngs: [...LANGUAGES],
   load: "currentOnly",
-  interpolation: { escapeValue: false },
+  // copy.md uses ICU-style `{name}` placeholders; React escapes output, so i18next must not.
+  interpolation: { escapeValue: false, prefix: "{", suffix: "}" },
   returnNull: false,
 });
 

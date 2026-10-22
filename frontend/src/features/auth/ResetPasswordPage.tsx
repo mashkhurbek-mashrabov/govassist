@@ -2,16 +2,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router";
-import { resetPassword } from "../../api/auth";
+import { AuthError, resetPassword } from "../../api/auth";
 import { useAuthMutation } from "../../api/queries";
-import { HOME_PATH } from "../../app/guards";
+import { HOME_PATH, LOGIN_PATH } from "../../app/guards";
 import { Alert } from "../../components/ui/Alert";
+import { Button } from "../../components/ui/Button";
+import { LinkButton } from "../../components/ui/LinkButton";
 import { PasswordField } from "../../components/ui/PasswordField";
-import { AuthErrorAlert } from "./AuthErrorAlert";
-import { MIN_PASSWORD_LENGTH, newPasswordSchema, type NewPasswordValues } from "./schemas";
+import { authErrorInfo } from "./authErrors";
+import { resetSchema, type ResetValues } from "./schemas";
+
+/** allauth code for a bad or expired key. */
+const INVALID_KEY = "invalid";
 
 /**
- * Set a new password with the key from the reset email.
+ * Reset password (screen 5): new password with strength hint; invalid key and success states.
  *
  * @returns The page.
  */
@@ -23,8 +28,11 @@ export function ResetPasswordPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
-  } = useForm<NewPasswordValues>({ resolver: zodResolver(newPasswordSchema) });
+  } = useForm<ResetValues>({ resolver: zodResolver(resetSchema) });
+  const invalidKey = mutation.error instanceof AuthError && mutation.error.codes.includes(INVALID_KEY);
+  const serverError = mutation.isError && !invalidKey && authErrorInfo(mutation.error).field === null;
 
   const onSubmit = handleSubmit(({ password }) =>
     mutation.mutate(
@@ -33,41 +41,60 @@ export function ResetPasswordPage() {
         onSuccess: (viewer) => {
           if (viewer.state === "authenticated") void navigate(HOME_PATH);
         },
+        onError: (error) => {
+          const info = authErrorInfo(error);
+          if (info.field === "password") setError("password", { message: info.key });
+        },
       },
     ),
   );
 
-  if (mutation.data && mutation.data.state !== "authenticated") {
+  if (mutation.isSuccess) {
     return (
       <>
-        <h1>{t("auth.reset.title")}</h1>
-        <Alert>{t("auth.reset.success")}</Alert>
-        <Link to="/login">{t("auth.backToLogin")}</Link>
+        <div className="auth__intro">
+          <h1>{t("reset.title")}</h1>
+        </div>
+        <Alert tone="success">{t("reset.success")}</Alert>
+        <LinkButton variant="primary" block to={LOGIN_PATH}>
+          {t("login.submit")}
+        </LinkButton>
       </>
     );
   }
 
   return (
     <>
-      <h1>{t("auth.reset.title")}</h1>
-      <form noValidate onSubmit={(event) => void onSubmit(event)} className="flex flex-col gap-3">
+      <div className="auth__intro">
+        <h1>{t("reset.title")}</h1>
+      </div>
+      {invalidKey && (
+        <Alert tone="danger">
+          <p>{t("reset.invalid")}</p>
+          <Link to="/forgot-password">{t("forgot.submit")}</Link>
+        </Alert>
+      )}
+      {serverError && <Alert tone="danger">{t("error.server")}</Alert>}
+      <form className="form" noValidate onSubmit={(event) => void onSubmit(event)}>
         <PasswordField
-          label={t("auth.fields.newPassword")}
+          label={t("reset.new_password")}
           autoComplete="new-password"
-          hint={t("auth.fields.passwordHint", { count: MIN_PASSWORD_LENGTH })}
-          error={errors.password?.message && t(errors.password.message, { count: MIN_PASSWORD_LENGTH })}
+          showStrength
+          hint={t("auth.password_hint")}
+          error={errors.password?.message && t(errors.password.message)}
           {...register("password")}
         />
-        <PasswordField
-          label={t("auth.fields.confirmPassword")}
-          autoComplete="new-password"
-          error={errors.confirm?.message && t(errors.confirm.message)}
-          {...register("confirm")}
-        />
-        <AuthErrorAlert error={mutation.error} />
-        <button type="submit" className="min-h-11 border" disabled={mutation.isPending}>
-          {t("auth.reset.submit")}
-        </button>
+        <div className="form__actions">
+          <Button
+            type="submit"
+            variant="primary"
+            block
+            busy={mutation.isPending}
+            busyLabel={t("common.saving")}
+          >
+            {t("reset.submit")}
+          </Button>
+        </div>
       </form>
     </>
   );
