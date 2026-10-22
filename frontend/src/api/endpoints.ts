@@ -1,5 +1,5 @@
 /** App API calls (`/api/v1/`, contract §3). Components never call these directly: use `queries.ts`. */
-import { request } from "./http";
+import { API_BASE, CSRF_PATH, request } from "./http";
 import type {
   Conversation,
   ConversationSummary,
@@ -14,14 +14,13 @@ import type {
   Suggestion,
 } from "./types";
 
-/** App API prefix. */
-export const API_BASE = "/api/v1";
+export { API_BASE };
 
 /**
  * Ask Django to set the `csrftoken` cookie. Runs once on boot.
  */
 export function fetchCsrf(): Promise<void> {
-  return request<undefined>(`${API_BASE}/csrf`);
+  return request<undefined>(CSRF_PATH);
 }
 
 /**

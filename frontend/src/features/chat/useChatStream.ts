@@ -8,6 +8,7 @@ import { invalidateAfterAnswer } from "../../api/queries";
 import type { PartialAnswer } from "../answer/answerTypes";
 import type {
   AssistantMessage,
+  ChatRequest,
   ChatEvent,
   MetaEventData,
   OfficeMatch,
@@ -136,16 +137,68 @@ function toFailure(error: unknown, stopped: boolean): TurnFailure {
   return { kind: "network" };
 }
 
+/** How long Retry waits before trying again after `409 stream_in_progress` (contract v1.4). */
+export const BUSY_RETRY_DELAY_MS = 1000;
+
+/**
+ * Wait, unless the signal aborts first.
+ *
+ * @param ms Milliseconds to wait.
+ * @param signal Abort signal (Stop / reset).
+ * @returns Resolves after `ms`; rejects with the abort reason when aborted.
+ */
+function abortableDelay(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(resolve, ms);
+    signal.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timer);
+        reject(signal.reason as Error);
+      },
+      { once: true },
+    );
+  });
+}
+
+/**
+ * Open the chat stream. With `busyWaitMs`, a `409 stream_in_progress` (the previous stream's lock is
+ * still being released, e.g. right after Stop) is retried once after that wait.
+ *
+ * @param body Chat request.
+ * @param signal Abort signal.
+ * @param busyWaitMs Wait before the single retry, or `null` for no retry.
+ * @yields Chat events.
+ */
+export async function* streamWithBusyRetry(
+  body: ChatRequest,
+  signal: AbortSignal,
+  busyWaitMs: number | null,
+): AsyncGenerator<ChatEvent> {
+  try {
+    yield* streamChat(body, signal);
+  } catch (error) {
+    const busy = error instanceof ApiError && error.code === "stream_in_progress";
+    if (!busy || busyWaitMs === null) throw error;
+    await abortableDelay(busyWaitMs, signal);
+    yield* streamChat(body, signal);
+  }
+}
+
 /** Options of {@link useChatStream}. */
 export interface ChatStreamOptions {
   /** Called once when the server created a new conversation (on `meta`). */
   onConversationStarted?: (conversationId: string) => void;
+  /** Override of {@link BUSY_RETRY_DELAY_MS} (tests). */
+  busyRetryDelayMs?: number;
 }
 
 /** What {@link useChatStream} returns. */
 export interface ChatStream {
   turn: LiveTurn | null;
   send: (text: string, conversationId: string | null) => void;
+  /** Resend a question as a Retry (one wait-and-retry on `409 stream_in_progress`). */
+  resend: (text: string, conversationId: string | null) => void;
   stop: () => void;
   retry: () => void;
   reset: () => void;
@@ -220,8 +273,9 @@ export function useChatStream(options: ChatStreamOptions = {}): ChatStream {
     [cancelFrame, onDelta],
   );
 
-  const send = useCallback(
-    (text: string, conversationId: string | null) => {
+  /** Start a stream; `busyWaitMs` enables the one-time 409 retry (used by Retry). */
+  const start = useCallback(
+    (text: string, conversationId: string | null, busyWaitMs: number | null) => {
       if (controllerRef.current) return;
       const controller = new AbortController();
       controllerRef.current = controller;
@@ -232,9 +286,10 @@ export function useChatStream(options: ChatStreamOptions = {}): ChatStream {
       void (async () => {
         let answeredIn: string | null = conversationId;
         try {
-          for await (const event of streamChat(
+          for await (const event of streamWithBusyRetry(
             { conversation_id: conversationId, text },
             controller.signal,
+            busyWaitMs,
           )) {
             if (!isActive()) break;
             if (event.event === "meta") answeredIn = event.data.conversation_id;
@@ -255,13 +310,26 @@ export function useChatStream(options: ChatStreamOptions = {}): ChatStream {
     [cancelFrame, client, onEvent],
   );
 
+  /** Ask a new question. */
+  const send = useCallback(
+    (text: string, conversationId: string | null) => start(text, conversationId, null),
+    [start],
+  );
+
   /** Abort the running stream (the Stop button). */
   const stop = useCallback(() => controllerRef.current?.abort(), []);
 
-  /** Resend the same question into the same conversation. */
+  /** Retry a question (live or stored) with the one-time 409 wait. */
+  const resend = useCallback(
+    (text: string, conversationId: string | null) =>
+      start(text, conversationId, optionsRef.current.busyRetryDelayMs ?? BUSY_RETRY_DELAY_MS),
+    [start],
+  );
+
+  /** Resend the live turn's question into the same conversation. */
   const retry = useCallback(() => {
-    if (turn && !turn.isStreaming) send(turn.text, turn.conversationId);
-  }, [send, turn]);
+    if (turn && !turn.isStreaming) resend(turn.text, turn.conversationId);
+  }, [resend, turn]);
 
   /** Abort and forget the live turn (new chat, another conversation). */
   const reset = useCallback(() => {
@@ -273,5 +341,5 @@ export function useChatStream(options: ChatStreamOptions = {}): ChatStream {
 
   useEffect(() => () => controllerRef.current?.abort(), []);
 
-  return { turn, send, stop, retry, reset };
+  return { turn, send, resend, stop, retry, reset };
 }

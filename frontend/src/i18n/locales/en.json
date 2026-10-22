@@ -229,7 +229,8 @@
     "body": "GovAssist explains how to get a public service in Uzbekistan, step by step, and shows the office in your district.",
     "sources": "Answers are built only from a reviewed collection of official pages, such as lex.uz and my.gov.uz, with links to every source.",
     "sourcesTitle": "Sources",
-    "sourceMeta": "documents: {{count}} · updated {{date}}"
+    "sourceMeta": "documents: {{count}} · updated {{date}}",
+    "sourceCount": "documents: {{count}}"
   },
   "notFound": {
     "title": "Page not found",

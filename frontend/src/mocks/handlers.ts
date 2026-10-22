@@ -32,8 +32,10 @@ const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 50;
 /** `retry_after` the mock returns for rate limits (seconds). */
 const MOCK_RETRY_AFTER = 1260;
-/** Max characters of a new conversation's title. */
+/** Max characters of a new conversation's title (from the question, contract v1.4). */
 const TITLE_LENGTH = 60;
+/** Max characters of a history preview (contract v1.4). */
+const PREVIEW_LENGTH = 120;
 
 // ── Response helpers ────────────────────────────────────────────────────────────────────────────
 
@@ -182,6 +184,10 @@ function validateMeUpdate(me: Me, body: MeUpdate): Record<string, string[]> {
   if (body.region_id !== undefined && !SAMPLE_REGIONS.some((region) => region.id === body.region_id)) {
     errors.region_id = ["SAMPLE: unknown region"];
   }
+  // Contract v1.4: changing the region requires a district in the same request.
+  if (body.region_id !== undefined && body.region_id !== me.region?.id && body.district_id === undefined) {
+    errors.district_id = ["SAMPLE: required when the region changes"];
+  }
   if (body.district_id !== undefined) {
     const districts = regionId === undefined ? [] : (SAMPLE_DISTRICTS[regionId] ?? []);
     if (!districts.some((district) => district.id === body.district_id)) {
@@ -214,14 +220,14 @@ function publicConversation({ owner, ...conversation }: Conversation & { owner: 
 }
 
 /**
- * Plain-text preview of a message for the history list.
+ * History preview: the last user message (already scrubbed by the real backend), ≤ 120 chars (contract v1.4).
  *
- * @param message Last message.
+ * @param messages Conversation messages, oldest first.
  * @returns Preview text.
  */
-function preview(message: Message | undefined): string {
-  if (!message) return "";
-  return message.role === "user" ? message.text : (message.answer?.summary ?? "");
+function preview(messages: Message[]): string {
+  const question = messages.findLast((message) => message.role === "user");
+  return question?.role === "user" ? question.text.slice(0, PREVIEW_LENGTH) : "";
 }
 
 // ── allauth ─────────────────────────────────────────────────────────────────────────────────────
@@ -434,6 +440,14 @@ async function chat(request: Request, me: Me) {
   return sseResponse(successFrames(meta, final, offTopic ? null : SAMPLE_OFFICE), {
     onComplete: () => {
       Object.assign(stored, final);
+      // Contract v1.4: the first successful answer's title replaces the question-based title.
+      if (
+        conversation.messages.filter(
+          (message) => message.role === "assistant" && message.status === "complete",
+        ).length === 1
+      ) {
+        conversation.title = final.answer?.title ?? conversation.title;
+      }
       saveDb();
     },
     onAbort: () => {
@@ -539,7 +553,7 @@ const apiHandlers = [
         id: conversation.id,
         title: conversation.title,
         updated_at: conversation.updated_at,
-        last_message_preview: preview(conversation.messages.at(-1)),
+        last_message_preview: preview(conversation.messages),
       }));
       const next = offset + limit < own.length ? String(offset + limit) : null;
       return HttpResponse.json({ results, next });

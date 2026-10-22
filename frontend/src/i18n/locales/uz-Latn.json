@@ -229,7 +229,8 @@
     "body": "GovAssist Oʻzbekistonda davlat xizmatidan qanday foydalanishni bosqichma-bosqich tushuntiradi va tumaningizdagi idorani koʻrsatadi.",
     "sources": "Javoblar faqat lex.uz va my.gov.uz kabi tekshirilgan rasmiy sahifalardan tuziladi va har bir manbaga havola beriladi.",
     "sourcesTitle": "Manbalar",
-    "sourceMeta": "hujjatlar: {{count}} · {{date}} da yangilangan"
+    "sourceMeta": "hujjatlar: {{count}} · {{date}} da yangilangan",
+    "sourceCount": "hujjatlar: {{count}}"
   },
   "notFound": {
     "title": "Sahifa topilmadi",

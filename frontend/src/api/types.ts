@@ -267,7 +267,8 @@ export interface SourceSummary {
   kind: "law" | "service_page" | "office" | "other";
   url: string;
   documents: number;
-  last_fetched_at: string;
+  /** Null until the source was crawled; the UI then hides the date (contract v1.4). */
+  last_fetched_at: string | null;
 }
 
 /** A typed SSE event from the chat stream. */

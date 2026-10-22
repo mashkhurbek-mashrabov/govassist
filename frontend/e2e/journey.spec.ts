@@ -83,7 +83,7 @@ test("welcome → signup → verify → onboarding → streamed answer, stop/ret
   await expect(page.getByRole("button", { name: "Qayta urinish" })).toHaveCount(0);
 
   await page.goto("/history");
-  await expect(page.getByRole("link", { name: /Pasportimni qanday yangilayman/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Pasportni almashtirish/ })).toBeVisible();
   await expectAccessible(page);
 
   await page.goto("/settings");

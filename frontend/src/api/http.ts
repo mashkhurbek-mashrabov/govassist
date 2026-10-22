@@ -6,6 +6,12 @@ const CSRF_COOKIE = "csrftoken";
 export const CSRF_HEADER = "X-CSRFToken";
 /** Methods that need no CSRF token. */
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+/** App API prefix. */
+export const API_BASE = "/api/v1";
+/** Sets the `csrftoken` cookie (contract §1). */
+export const CSRF_PATH = `${API_BASE}/csrf`;
+/** Problem code for a missing or stale CSRF token (contract v1.4 §1). */
+const CSRF_FAILED = "csrf_failed";
 
 /** Options for {@link send} and {@link request}. */
 export interface RequestOptions {
@@ -81,14 +87,14 @@ export function csrfToken(): string {
 }
 
 /**
- * Low-level same-origin fetch: JSON body, CSRF header on unsafe methods. Does not check the status.
+ * One same-origin fetch with the current CSRF token.
  *
- * @param path Absolute same-origin path, e.g. `/api/v1/me`.
- * @param options Method, JSON body, extra headers, abort signal.
+ * @param path Absolute same-origin path.
+ * @param method Upper-case HTTP method.
+ * @param options Body, extra headers, abort signal.
  * @returns The raw response.
  */
-export function send(path: string, options: RequestOptions = {}): Promise<Response> {
-  const method = (options.method ?? "GET").toUpperCase();
+function fetchOnce(path: string, method: string, options: RequestOptions): Promise<Response> {
   const headers: Record<string, string> = { Accept: "application/json", ...options.headers };
   if (options.body !== undefined) headers["Content-Type"] = "application/json";
   if (!SAFE_METHODS.has(method)) headers[CSRF_HEADER] = csrfToken();
@@ -99,6 +105,35 @@ export function send(path: string, options: RequestOptions = {}): Promise<Respon
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
     signal: options.signal,
   });
+}
+
+/**
+ * Whether a response is the backend's `csrf_failed` problem.
+ *
+ * @param response Any response.
+ * @returns `true` for a 403 problem with code `csrf_failed`.
+ */
+async function isCsrfFailure(response: Response): Promise<boolean> {
+  if (response.status !== 403 || !(response.headers.get("Content-Type") ?? "").includes("json")) return false;
+  const body = (await response.clone().json()) as { code?: unknown };
+  return body.code === CSRF_FAILED;
+}
+
+/**
+ * Low-level same-origin fetch: JSON body, CSRF header on unsafe methods. Does not check the status.
+ * On `csrf_failed` it refetches the CSRF cookie and retries once (contract v1.4); a second failure
+ * is returned as is.
+ *
+ * @param path Absolute same-origin path, e.g. `/api/v1/me`.
+ * @param options Method, JSON body, extra headers, abort signal.
+ * @returns The raw response.
+ */
+export async function send(path: string, options: RequestOptions = {}): Promise<Response> {
+  const method = (options.method ?? "GET").toUpperCase();
+  const response = await fetchOnce(path, method, options);
+  if (SAFE_METHODS.has(method) || !(await isCsrfFailure(response))) return response;
+  await fetch(CSRF_PATH, { credentials: "same-origin", signal: options.signal });
+  return fetchOnce(path, method, options);
 }
 
 /**

@@ -20,7 +20,7 @@ import { retryableQuestion, visibleMessages } from "./visibleMessages";
 export function ChatPage() {
   const { t } = useTranslation();
   const { conversationId = null } = useParams();
-  const { turn, send, stop, retry } = useChatContext();
+  const { turn, send, resend, stop, retry } = useChatContext();
   const conversation = useConversation(conversationId);
   const { messages, showTurn } = visibleMessages(conversation.data?.messages ?? [], turn);
   const streaming = turn?.isStreaming ?? false;
@@ -52,7 +52,9 @@ export function ChatPage() {
               conversationId={conversationId}
               onAsk={!showTurn && !streaming && message.id === lastAssistantId ? ask : undefined}
               onRetry={
-                retryText !== null && message.id === lastAssistantId ? () => ask(retryText) : undefined
+                retryText !== null && message.id === lastAssistantId
+                  ? () => resend(retryText, conversationId)
+                  : undefined
               }
             />
           ),

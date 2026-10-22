@@ -29,10 +29,12 @@ export function AboutPage() {
               {" · "}
               {source.publisher}
               {" · "}
-              {t("about.sourceMeta", {
-                count: source.documents,
-                date: formatDate(source.last_fetched_at, i18n.language as Lang),
-              })}
+              {source.last_fetched_at === null
+                ? t("about.sourceCount", { count: source.documents })
+                : t("about.sourceMeta", {
+                    count: source.documents,
+                    date: formatDate(source.last_fetched_at, i18n.language as Lang),
+                  })}
             </li>
           ))}
         </ul>

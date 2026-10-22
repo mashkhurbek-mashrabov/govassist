@@ -6,6 +6,7 @@ import type { ConversationSummary, Lang } from "../../api/types";
 import { Alert } from "../../components/ui/Alert";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { formatDate } from "../../lib/format";
+import { conversationLabel } from "./conversationLabel";
 
 /**
  * Conversation history: newest first, "Load more" for the next cursor page, delete with confirmation.
@@ -46,14 +47,14 @@ export function HistoryList() {
         {items.map((item) => (
           <li key={item.id} className="flex items-start gap-2">
             <NavLink to={`/c/${item.id}`} className="flex min-h-11 grow flex-col">
-              <span>{item.title}</span>
+              <span>{conversationLabel(item)}</span>
               <span className="text-sm">{item.last_message_preview}</span>
               <span className="text-sm">{formatDate(item.updated_at, i18n.language as Lang)}</span>
             </NavLink>
             <button
               type="button"
               className="min-h-11 min-w-11"
-              aria-label={t("history.delete", { title: item.title })}
+              aria-label={t("history.delete", { title: conversationLabel(item) })}
               onClick={() => setPendingDelete(item)}
             >
               ✕
@@ -74,7 +75,9 @@ export function HistoryList() {
       <ConfirmDialog
         open={pendingDelete !== null}
         title={t("history.deleteConfirmTitle")}
-        body={t("history.deleteConfirmBody", { title: pendingDelete?.title ?? "" })}
+        body={t("history.deleteConfirmBody", {
+          title: pendingDelete ? conversationLabel(pendingDelete) : "",
+        })}
         confirmLabel={t("common.delete")}
         pending={deletion.isPending}
         onConfirm={confirmDelete}
