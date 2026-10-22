@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router";
-import { verifyEmail } from "../../api/auth";
+import { AuthError, verifyEmail } from "../../api/auth";
 import { resendVerification } from "../../api/endpoints";
 import { useAuthMutation } from "../../api/queries";
 import { CHECK_EMAIL_PATH, HOME_PATH, LOGIN_PATH } from "../../app/guards";
@@ -15,8 +15,22 @@ import { CenterState } from "../../components/ui/CenterState";
 import { LinkButton } from "../../components/ui/LinkButton";
 import { Spinner } from "../../components/ui/Spinner";
 import { TextField } from "../../components/ui/TextField";
+import { authErrorInfo } from "./authErrors";
 import { resendFailure } from "./resendFailure";
 import { emailSchema, type EmailValues } from "./schemas";
+
+/** allauth code for an invalid or expired email-verification key (contract v1.9). */
+const INVALID_KEY = "invalid_or_expired_key";
+
+/**
+ * Whether verification failed because of the key itself (then a new link is the fix).
+ *
+ * @param error What the verify call threw.
+ * @returns `true` for `invalid_or_expired_key`.
+ */
+function isInvalidKey(error: unknown): boolean {
+  return error instanceof AuthError && error.codes.includes(INVALID_KEY);
+}
 
 /**
  * Verify email (screen 4): confirms the key on load (decoded by the router, contract v1.3), then
@@ -59,12 +73,26 @@ export function VerifyEmailPage() {
       </>
     );
   }
-  if (verify.isError)
+  if (verify.isError && isInvalidKey(verify.error))
     return (
       <InvalidLink
         onResent={(email) => void navigate(CHECK_EMAIL_PATH, { state: { email, resent: true } })}
       />
     );
+  if (verify.isError) {
+    // Not the key's fault (rate limit, server down): say so and let the user try the same link again.
+    const failure = authErrorInfo(verify.error);
+    return (
+      <>
+        <Alert tone={failure.warning ? "warning" : "danger"} role="alert">
+          {t(failure.key)}
+        </Alert>
+        <Button variant="primary" block onClick={() => verify.mutate(key)}>
+          {t("common.retry")}
+        </Button>
+      </>
+    );
+  }
   return <CenterState icon={<Spinner />} title={t("verify.verifying")} role="status" />;
 }
 

@@ -3,9 +3,9 @@ name: frontend
 on:
   push:
     branches: [main]
-    paths: ["frontend/**", "docs/design/tokens.css", "docs/design/fonts/**", "docs/design/copy.md", ".github/workflows/frontend.yml"]
+    paths: ["frontend/**", "docs/design/tokens.css", "docs/design/fonts/**", "docs/design/copy.md", "docs/schema/**", ".github/workflows/frontend.yml"]
   pull_request:
-    paths: ["frontend/**", "docs/design/tokens.css", "docs/design/fonts/**", "docs/design/copy.md", ".github/workflows/frontend.yml"]
+    paths: ["frontend/**", "docs/design/tokens.css", "docs/design/fonts/**", "docs/design/copy.md", "docs/schema/**", ".github/workflows/frontend.yml"]
 
 permissions:
   contents: read
@@ -32,6 +32,8 @@ jobs:
       - run: npm ci
       - name: Lint
         run: npm run lint
+      - name: API types match docs/schema
+        run: npm run check:types
       - name: Typecheck
         run: npm run typecheck
       - name: Unit and component tests (coverage)

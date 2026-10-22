@@ -12,10 +12,12 @@ export default tseslint.config(
     ignores: [
       "dist",
       "dist-mock",
+      "src/api/generated",
       "coverage",
       "public/mockServiceWorker.js",
       "playwright-report",
       "test-results",
+      "test-results-real",
     ],
   },
   {

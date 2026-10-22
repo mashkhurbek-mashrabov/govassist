@@ -7,8 +7,8 @@ import { assertBuildEnv } from "./scripts/build-env";
 /** Backend origin used by the dev-server proxy when mocks are off. */
 const BACKEND_ORIGIN = "http://localhost:8000";
 
-/** Same-origin paths that the dev server forwards to Django. */
-const PROXIED_PATHS = ["/api", "/_allauth", "/static", "/admin"];
+/** Same-origin paths that the dev server forwards to Django (`/accounts`: the Google OAuth callback). */
+const PROXIED_PATHS = ["/api", "/_allauth", "/accounts", "/static", "/admin"];
 
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd());
