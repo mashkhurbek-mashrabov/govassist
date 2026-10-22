@@ -16,6 +16,8 @@ api_v1: list[URLPattern | URLResolver] = [
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("_allauth/", include("allauth.headless.urls")),
+    # With HEADLESS_ONLY this mounts only the provider callbacks (e.g. Google's).
+    path("accounts/", include("allauth.urls")),
     path("api/v1/", include(api_v1)),
 ]
 

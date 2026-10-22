@@ -18,7 +18,7 @@ from pydantic import ValidationError
 from apps.accounts.models import User
 from apps.chat.api.serializers import serialize_message
 from apps.chat.citations import Citations, resolve_citations
-from apps.chat.constants import STOPPED, TITLE_FROM_QUESTION_CHARS
+from apps.chat.constants import TITLE_FROM_QUESTION_CHARS, MessageErrorCode
 from apps.chat.generator import AnswerGenerator
 from apps.chat.limits import QuotaService
 from apps.chat.models import Conversation, Message, Retrieval
@@ -491,7 +491,7 @@ class AnswerService:
             async for event in events:
                 yield event
         except asyncio.CancelledError, GeneratorExit:
-            await self._fail(run, STOPPED)
+            await self._fail(run, MessageErrorCode.STOPPED)
             raise
         except AnswerError as exc:
             await self._fail(run, exc.code)
