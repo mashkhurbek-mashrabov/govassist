@@ -5,6 +5,7 @@ from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema_fiel
 from rest_framework import serializers
 
 from apps.chat.api.serializers.feedback import FeedbackSerializer
+from apps.chat.constants import ASSISTANT_ROLE, USER_ROLE, MessageErrorCode, MessageRole
 from apps.chat.models import Message
 from apps.chat.schemas import Answer, SourceList
 from apps.offices.schemas import OfficeMatch
@@ -14,7 +15,7 @@ class UserMessageSerializer(serializers.Serializer[Message]):
     """A user message (text is PII-scrubbed)."""
 
     id = serializers.UUIDField()
-    role = serializers.CharField()
+    role = serializers.ChoiceField(choices=USER_ROLE)
     text = serializers.CharField()
     created_at = serializers.DateTimeField()
 
@@ -23,7 +24,7 @@ class AssistantMessageSerializer(serializers.Serializer[Message]):
     """An assistant message: answer card, cited sources, office and status."""
 
     id = serializers.UUIDField()
-    role = serializers.CharField()
+    role = serializers.ChoiceField(choices=ASSISTANT_ROLE)
     created_at = serializers.DateTimeField()
     status = serializers.ChoiceField(choices=Message.Status.choices)
     error_code = serializers.SerializerMethodField()
@@ -33,6 +34,7 @@ class AssistantMessageSerializer(serializers.Serializer[Message]):
     refused = serializers.BooleanField()
     feedback = serializers.SerializerMethodField()
 
+    @extend_schema_field(serializers.ChoiceField(choices=MessageErrorCode.choices, allow_null=True))
     def get_error_code(self, obj: Message) -> str | None:
         """The failure code, or null while streaming / on success.
 
@@ -84,7 +86,10 @@ class AssistantMessageSerializer(serializers.Serializer[Message]):
 
 MESSAGE_SCHEMA = PolymorphicProxySerializer(
     component_name="Message",
-    serializers=[UserMessageSerializer, AssistantMessageSerializer],
+    serializers={
+        MessageRole.USER: UserMessageSerializer,
+        MessageRole.ASSISTANT: AssistantMessageSerializer,
+    },
     resource_type_field_name="role",
     many=False,
 )

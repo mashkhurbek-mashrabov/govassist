@@ -459,7 +459,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SourceList"
+                                    "$ref": "#/components/schemas/SourceSummaryList"
                                 }
                             }
                         },
@@ -710,7 +710,7 @@
                         "format": "uuid"
                     },
                     "role": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/AssistantRoleEnum"
                     },
                     "created_at": {
                         "type": "string",
@@ -720,20 +720,26 @@
                         "$ref": "#/components/schemas/StatusEnum"
                     },
                     "error_code": {
-                        "type": [
-                            "string",
-                            "null"
-                        ],
-                        "description": "The failure code, or null while streaming / on success.\n\nArgs:\n    obj: The message.",
-                        "readOnly": true
+                        "readOnly": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/MessageErrorCodeEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/NullEnum"
+                            }
+                        ]
                     },
                     "answer": {
-                        "allOf": [
+                        "readOnly": true,
+                        "oneOf": [
                             {
                                 "$ref": "#/components/schemas/Answer"
+                            },
+                            {
+                                "type": "null"
                             }
-                        ],
-                        "readOnly": true
+                        ]
                     },
                     "sources": {
                         "allOf": [
@@ -744,12 +750,15 @@
                         "readOnly": true
                     },
                     "office": {
-                        "allOf": [
+                        "readOnly": true,
+                        "oneOf": [
                             {
                                 "$ref": "#/components/schemas/OfficeMatch"
+                            },
+                            {
+                                "type": "null"
                             }
-                        ],
-                        "readOnly": true
+                        ]
                     },
                     "refused": {
                         "type": "boolean"
@@ -778,6 +787,13 @@
                     "sources",
                     "status"
                 ]
+            },
+            "AssistantRoleEnum": {
+                "enum": [
+                    "assistant"
+                ],
+                "type": "string",
+                "description": "* `assistant` - assistant"
             },
             "BreakTime": {
                 "description": "Daily break window within working hours.",
@@ -812,8 +828,7 @@
                         "readOnly": true
                     },
                     "title": {
-                        "type": "string",
-                        "maxLength": 120
+                        "type": "string"
                     },
                     "created_at": {
                         "type": "string",
@@ -837,6 +852,7 @@
                     "created_at",
                     "id",
                     "messages",
+                    "title",
                     "updated_at"
                 ]
             },
@@ -850,8 +866,7 @@
                         "readOnly": true
                     },
                     "title": {
-                        "type": "string",
-                        "maxLength": 120
+                        "type": "string"
                     },
                     "updated_at": {
                         "type": "string",
@@ -865,6 +880,7 @@
                 "required": [
                     "id",
                     "last_message_preview",
+                    "title",
                     "updated_at"
                 ]
             },
@@ -1072,11 +1088,11 @@
                         "type": "boolean"
                     },
                     "quota": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "integer"
-                        },
-                        "description": "Return the quota usage computed by the view.\n\nArgs:\n    obj: The user.",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Quota"
+                            }
+                        ],
                         "readOnly": true
                     }
                 },
@@ -1105,9 +1121,25 @@
                 "discriminator": {
                     "propertyName": "role",
                     "mapping": {
-                        "None": "#/components/schemas/AssistantMessage"
+                        "user": "#/components/schemas/UserMessage",
+                        "assistant": "#/components/schemas/AssistantMessage"
                     }
                 }
+            },
+            "MessageErrorCodeEnum": {
+                "enum": [
+                    "stopped",
+                    "llm_unavailable",
+                    "llm_timeout",
+                    "invalid_answer",
+                    "quota_exceeded",
+                    "internal_error"
+                ],
+                "type": "string",
+                "description": "* `stopped` - Stopped\n* `llm_unavailable` - LLM unavailable\n* `llm_timeout` - LLM timeout\n* `invalid_answer` - Invalid answer\n* `quota_exceeded` - Quota exceeded\n* `internal_error` - Internal error"
+            },
+            "NullEnum": {
+                "type": "null"
             },
             "OfficeMatch": {
                 "description": "Result of the district → region office lookup.",
@@ -1338,6 +1370,30 @@
                 "title": "PlaceRef",
                 "type": "object"
             },
+            "Quota": {
+                "type": "object",
+                "description": "Hourly and daily question usage.",
+                "properties": {
+                    "hour_limit": {
+                        "type": "integer"
+                    },
+                    "hour_used": {
+                        "type": "integer"
+                    },
+                    "day_limit": {
+                        "type": "integer"
+                    },
+                    "day_used": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "day_limit",
+                    "day_used",
+                    "hour_limit",
+                    "hour_used"
+                ]
+            },
             "RatingEnum": {
                 "enum": [
                     1,
@@ -1435,6 +1491,61 @@
                 "title": "SourceList",
                 "type": "array"
             },
+            "SourceSummary": {
+                "type": "object",
+                "description": "``SourceSummary`` of the contract (About page).",
+                "properties": {
+                    "publisher": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "kind": {
+                        "type": "string",
+                        "description": "``office`` for office sources, else the kind of the source's documents.\n\nArgs:\n    obj: An annotated source from ``public_sources``.",
+                        "readOnly": true
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "documents": {
+                        "type": "integer",
+                        "description": "Approved items this source contributes (documents, or offices for office sources).\n\nArgs:\n    obj: An annotated source from ``public_sources``.",
+                        "readOnly": true
+                    },
+                    "last_fetched_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "documents",
+                    "kind",
+                    "last_fetched_at",
+                    "name",
+                    "publisher",
+                    "url"
+                ]
+            },
+            "SourceSummaryList": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SourceSummary"
+                        }
+                    }
+                },
+                "required": [
+                    "items"
+                ]
+            },
             "StatusEnum": {
                 "enum": [
                     "streaming",
@@ -1492,7 +1603,7 @@
                         "format": "uuid"
                     },
                     "role": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/UserRoleEnum"
                     },
                     "text": {
                         "type": "string"
@@ -1508,6 +1619,13 @@
                     "role",
                     "text"
                 ]
+            },
+            "UserRoleEnum": {
+                "enum": [
+                    "user"
+                ],
+                "type": "string",
+                "description": "* `user` - user"
             },
             "WorkingHours": {
                 "description": "Working hours specification for an office matching contract §5.",
@@ -1587,7 +1705,6 @@
                     "type",
                     "title",
                     "status",
-                    "detail",
                     "code",
                     "errors"
                 ],
@@ -1608,8 +1725,16 @@
                         "type": "string"
                     },
                     "errors": {
-                        "type": "object",
-                        "nullable": true
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     },
                     "retry_after": {
                         "type": "integer"

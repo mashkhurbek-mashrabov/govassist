@@ -1,5 +1,6 @@
 from typing import Any
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.accounts.constants import DISPLAY_NAME_MAX_LENGTH
@@ -52,6 +53,7 @@ class MeSerializer(serializers.Serializer[User]):
         """
         return obj.has_usable_password()
 
+    @extend_schema_field(QuotaSerializer)
     def get_quota(self, obj: User) -> dict[str, int]:
         """Return the quota usage computed by the view.
 

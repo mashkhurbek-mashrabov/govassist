@@ -20,6 +20,28 @@ PROBLEM = {"$ref": "#/components/schemas/Problem"}
 
 CHAT_REQUEST = {"$ref": "#/components/schemas/ChatRequest"}
 
+# RFC 9457 body (contract §1): retry_after only on rate_limited / quota_exceeded,
+# scope only on quota_exceeded.
+PROBLEM_SCHEMA = {
+    "type": "object",
+    "required": ["type", "title", "status", "code", "errors"],
+    "properties": {
+        "type": {"type": "string"},
+        "title": {"type": "string"},
+        "status": {"type": "integer"},
+        "detail": {"type": "string"},
+        "code": {"type": "string"},
+        "errors": {
+            "type": ["object", "null"],
+            "additionalProperties": {"type": "array", "items": {"type": "string"}},
+        },
+        "retry_after": {"type": "integer"},
+        "scope": {"type": "string", "enum": ["user", "global"]},
+    },
+}
+
+NULLABLE_ASSISTANT_FIELDS = ("answer", "office")
+
 PROMPTS_DIR = Path(__file__).parent / "prompts"
 
 USER_MARKER = "=== USER ==="
@@ -44,8 +66,6 @@ REFUSED_TYPES = frozenset({"not_found", "off_topic"})
 GEMINI_UNSUPPORTED_KEYS = frozenset({"additionalProperties"})
 
 PREVIEW_CHARS = 120
-
-STOPPED = "stopped"
 
 TITLE_FROM_QUESTION_CHARS = 60
 
@@ -104,6 +124,22 @@ class MessageStatus(models.TextChoices):
     STREAMING = "streaming", "Streaming"
     COMPLETE = "complete", "Complete"
     FAILED = "failed", "Failed"
+
+
+class MessageErrorCode(models.TextChoices):
+    """Why an assistant message failed (``Message.error_code``, contract §3)."""
+
+    STOPPED = "stopped", "Stopped"
+    LLM_UNAVAILABLE = "llm_unavailable", "LLM unavailable"
+    LLM_TIMEOUT = "llm_timeout", "LLM timeout"
+    INVALID_ANSWER = "invalid_answer", "Invalid answer"
+    QUOTA_EXCEEDED = "quota_exceeded", "Quota exceeded"
+    INTERNAL_ERROR = "internal_error", "Internal error"
+
+
+# One-value choice sets: the ``role`` discriminator of each message variant.
+USER_ROLE = [MessageRole.USER]
+ASSISTANT_ROLE = [MessageRole.ASSISTANT]
 
 
 class FeedbackRating(models.IntegerChoices):

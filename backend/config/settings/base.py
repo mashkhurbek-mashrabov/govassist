@@ -209,6 +209,11 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
     "SCHEMA_PATH_PREFIX": "/api/v1",
     "OAS_VERSION": "3.1.0",
+    "ENUM_NAME_OVERRIDES": {
+        "UserRoleEnum": "apps.chat.constants.USER_ROLE",
+        "AssistantRoleEnum": "apps.chat.constants.ASSISTANT_ROLE",
+        "MessageErrorCodeEnum": "apps.chat.constants.MessageErrorCode",
+    },
     "POSTPROCESSING_HOOKS": [
         "drf_spectacular.hooks.postprocess_schema_enums",
         "apps.chat.openapi.add_chat_stream",
