@@ -342,23 +342,22 @@ export interface components {
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            role: "None";
+            role: "assistant";
             /** Format: date-time */
             created_at: string;
             status: components["schemas"]["StatusEnum"];
-            /**
-             * @description The failure code, or null while streaming / on success.
-             *
-             *     Args:
-             *         obj: The message.
-             */
-            readonly error_code: string | null;
-            readonly answer: components["schemas"]["Answer"];
+            readonly error_code: components["schemas"]["MessageErrorCodeEnum"] | components["schemas"]["NullEnum"];
+            readonly answer: components["schemas"]["Answer"] | null;
             readonly sources: components["schemas"]["SourceList"];
-            readonly office: components["schemas"]["OfficeMatch"];
+            readonly office: components["schemas"]["OfficeMatch"] | null;
             refused: boolean;
             readonly feedback: components["schemas"]["Feedback"] | null;
         };
+        /**
+         * @description * `assistant` - assistant
+         * @enum {string}
+         */
+        AssistantRoleEnum: "assistant";
         /**
          * BreakTime
          * @description Daily break window within working hours.
@@ -379,7 +378,7 @@ export interface components {
         Conversation: {
             /** Format: uuid */
             readonly id: string;
-            title?: string;
+            title: string;
             /** Format: date-time */
             readonly created_at: string;
             /** Format: date-time */
@@ -390,7 +389,7 @@ export interface components {
         ConversationSummary: {
             /** Format: uuid */
             readonly id: string;
-            title?: string;
+            title: string;
             /** Format: date-time */
             readonly updated_at: string;
             last_message_preview: string;
@@ -472,17 +471,20 @@ export interface components {
             region: components["schemas"]["Place"] | null;
             district: components["schemas"]["Place"] | null;
             profile_complete: boolean;
-            /**
-             * @description Return the quota usage computed by the view.
-             *
-             *     Args:
-             *         obj: The user.
-             */
-            readonly quota: {
-                [key: string]: number;
-            };
+            readonly quota: components["schemas"]["Quota"];
         };
         Message: components["schemas"]["UserMessage"] | components["schemas"]["AssistantMessage"];
+        /**
+         * @description * `stopped` - Stopped
+         *     * `llm_unavailable` - LLM unavailable
+         *     * `llm_timeout` - LLM timeout
+         *     * `invalid_answer` - Invalid answer
+         *     * `quota_exceeded` - Quota exceeded
+         *     * `internal_error` - Internal error
+         * @enum {string}
+         */
+        MessageErrorCodeEnum: "stopped" | "llm_unavailable" | "llm_timeout" | "invalid_answer" | "quota_exceeded" | "internal_error";
+        NullEnum: null;
         /**
          * OfficeMatch
          * @description Result of the district → region office lookup.
@@ -568,6 +570,13 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** @description Hourly and daily question usage. */
+        Quota: {
+            hour_limit: number;
+            hour_used: number;
+            day_limit: number;
+            day_used: number;
+        };
         /**
          * @description * `1` - Up
          *     * `-1` - Down
@@ -606,6 +615,32 @@ export interface components {
          * @description ``sources`` of an assistant message (for the OpenAPI schema).
          */
         SourceList: components["schemas"]["Source"][];
+        /** @description ``SourceSummary`` of the contract (About page). */
+        SourceSummary: {
+            publisher: string;
+            name: string;
+            /**
+             * @description ``office`` for office sources, else the kind of the source's documents.
+             *
+             *     Args:
+             *         obj: An annotated source from ``public_sources``.
+             */
+            readonly kind: string;
+            /** Format: uri */
+            url: string;
+            /**
+             * @description Approved items this source contributes (documents, or offices for office sources).
+             *
+             *     Args:
+             *         obj: An annotated source from ``public_sources``.
+             */
+            readonly documents: number;
+            /** Format: date-time */
+            last_fetched_at: string | null;
+        };
+        SourceSummaryList: {
+            items: components["schemas"]["SourceSummary"][];
+        };
         /**
          * @description * `streaming` - Streaming
          *     * `complete` - Complete
@@ -636,11 +671,16 @@ export interface components {
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
-            role: "UserMessage";
+            role: "user";
             text: string;
             /** Format: date-time */
             created_at: string;
         };
+        /**
+         * @description * `user` - user
+         * @enum {string}
+         */
+        UserRoleEnum: "user";
         /**
          * WorkingHours
          * @description Working hours specification for an office matching contract §5.
@@ -681,9 +721,11 @@ export interface components {
             type: string;
             title: string;
             status: number;
-            detail: string;
+            detail?: string;
             code: string;
-            errors: Record<string, never> | null;
+            errors: {
+                [key: string]: string[];
+            } | null;
             retry_after?: number;
             /** @enum {string} */
             scope?: "user" | "global";
@@ -978,7 +1020,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SourceList"];
+                    "application/json": components["schemas"]["SourceSummaryList"];
                 };
             };
         };

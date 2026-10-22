@@ -1,7 +1,7 @@
 /**
  * API types, built on the ones generated from `docs/schema/` (`npm run gen:types`), under the names the app
- * uses. Where the generated schema is looser or wrong compared with `docs/contract.md` (the source of truth),
- * the type is narrowed here and marked "Schema gap"; those are reported as contract change requests.
+ * uses. Where the generated schema is looser than `docs/contract.md` (the source of truth), the type is
+ * narrowed here and marked "Schema gap"; those are reported as contract change requests.
  * The SSE events (contract §4) are not in OpenAPI, so they are written here from the contract.
  */
 import type { Answer as GeneratedAnswer } from "./generated/answer";
@@ -16,16 +16,8 @@ export type Lang = Schemas["LangCode"];
 /** `user`: this user's daily limit; `global`: the service-wide daily token cap. */
 export type QuotaScope = NonNullable<Schemas["Problem"]["scope"]>;
 
-/**
- * RFC 9457 problem body returned by `/api/v1/` errors (contract §1).
- * Schema gap: `errors` is `{field: [messages]}` (generated as `Record<string, never>`), `detail` may be
- * missing, and `retry_after` is present only on `rate_limited` / `quota_exceeded`.
- */
-export interface Problem extends Omit<Schemas["Problem"], "errors" | "detail" | "retry_after"> {
-  detail?: string;
-  errors?: Record<string, string[]> | null;
-  retry_after?: number | null;
-}
+/** RFC 9457 problem body returned by `/api/v1/` errors (contract §1). */
+export type Problem = Schemas["Problem"];
 
 /** Cursor-paginated list (contract §1). */
 export interface Page<T> {
@@ -39,19 +31,11 @@ export type Region = Schemas["Place"];
 /** District (SOATO code + localized name). */
 export type District = Schemas["Place"];
 
-/** Per-user question quota (part of `Me`). Schema gap: generated as a free-form number map. */
-export interface Quota {
-  hour_limit: number;
-  hour_used: number;
-  day_limit: number;
-  day_used: number;
-}
+/** Per-user question quota (part of `Me`). */
+export type Quota = Schemas["Quota"];
 
 /** The signed-in user (`GET /api/v1/me`). */
-export interface Me extends Omit<Schemas["Me"], "quota" | "ui_language"> {
-  ui_language: Lang;
-  quota: Quota;
-}
+export type Me = Schemas["Me"];
 
 /** Body of `PATCH /api/v1/me`. */
 export type MeUpdate = Schemas["PatchedMeUpdateRequest"];
@@ -59,47 +43,26 @@ export type MeUpdate = Schemas["PatchedMeUpdateRequest"];
 /** One starter question (`GET /api/v1/suggestions`). */
 export type Suggestion = Schemas["Suggestion"];
 
-/** Item in the history list. Schema gap: `title` is always present (contract §3). */
-export interface ConversationSummary extends Omit<Schemas["ConversationSummary"], "title"> {
-  title: string;
-}
+/** Item in the history list. */
+export type ConversationSummary = Schemas["ConversationSummary"];
 
-/** A full conversation with its messages. Schema gap: `title` is always present. */
-export interface Conversation extends Omit<Schemas["Conversation"], "title" | "messages"> {
-  title: string;
-  messages: Message[];
-}
+/** A full conversation with its messages. */
+export type Conversation = Schemas["Conversation"];
 
-/** A user's question as stored (PII already scrubbed). Schema gap: `role` is generated as `"UserMessage"`. */
-export interface UserMessage extends Omit<Schemas["UserMessage"], "role"> {
-  role: "user";
-}
+/** A user's question as stored (PII already scrubbed). */
+export type UserMessage = Schemas["UserMessage"];
 
 /** Lifecycle of an assistant message. */
 export type AssistantStatus = Schemas["StatusEnum"];
 
 /** Why a stored assistant message failed (`"stopped"`: the user pressed Stop). */
-export type AssistantErrorCode = "stopped" | StreamErrorCode;
+export type AssistantErrorCode = Schemas["MessageErrorCodeEnum"];
 
-/**
- * An assistant answer as stored.
- * Schema gap: `role` is generated as `"None"`; `answer` and `office` are nullable and `error_code` is an enum
- * (contract §3), but generated as non-null / a plain string.
- */
-export interface AssistantMessage extends Omit<
-  Schemas["AssistantMessage"],
-  "role" | "error_code" | "answer" | "office" | "sources"
-> {
-  role: "assistant";
-  /** Set when `status` is `"failed"`. */
-  error_code: AssistantErrorCode | null;
-  answer: Answer | null;
-  sources: Source[];
-  office: OfficeMatch | null;
-}
+/** An assistant answer as stored. */
+export type AssistantMessage = Schemas["AssistantMessage"];
 
 /** Any message in a conversation. */
-export type Message = UserMessage | AssistantMessage;
+export type Message = Schemas["Message"];
 
 /** Thumbs up/down feedback on an assistant message. */
 export type Feedback = Schemas["Feedback"];
@@ -183,17 +146,10 @@ export interface ErrorEventData {
 
 /**
  * A corpus source listed on the About page (`GET /api/v1/sources` → `{items: SourceSummary[]}`).
- * Schema gap: the endpoint's response is generated as `Source[]` (its inline "SourceList" collides with the
- * messages' `SourceList`), so this type is written from the contract and `collector/api/serializers.py`.
+ * Schema gap: `kind` is generated as a plain string; the contract fixes it to these four values.
  */
-export interface SourceSummary {
-  publisher: string;
-  name: string;
+export interface SourceSummary extends Omit<Schemas["SourceSummary"], "kind"> {
   kind: "law" | "service_page" | "office" | "other";
-  url: string;
-  documents: number;
-  /** Null until the source was crawled; the UI then hides the date (contract v1.4). */
-  last_fetched_at: string | null;
 }
 
 /** A typed SSE event from the chat stream. */
