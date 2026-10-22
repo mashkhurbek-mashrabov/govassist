@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from apps.chat.citations import resolve_citations
 from apps.chat.prompts import ContextBlock, Turn, load_template, render_prompt
-from apps.chat.schemas import Answer, ChatRequest
+from apps.chat.schemas import Answer, ChatRequest, gemini_response_schema
 from apps.common.i18n import Lang
 
 FIELD_ORDER = [
@@ -136,3 +136,14 @@ def test_resolve_citations() -> None:
     with_time = answer_dict(processing_time={"text": "NAMUNA", "source_ids": ["S4", "S7"]})
     assert resolve_citations(Answer.model_validate(with_time), sources).answer.processing_time
     assert json.loads(result.answer.model_dump_json())["steps"][0]["source_ids"] == ["S1"]
+
+
+def test_gemini_schema_drops_only_additional_properties() -> None:
+    """Gemini gets the same schema minus additionalProperties, everywhere."""
+    sent = gemini_response_schema()
+    assert "additionalProperties" not in json.dumps(sent)
+    assert list(sent["properties"]) == FIELD_ORDER
+    assert sent["propertyOrdering"] == FIELD_ORDER
+    strict = Answer.model_json_schema()
+    assert strict["additionalProperties"] is False
+    assert sent["required"] == strict["required"]

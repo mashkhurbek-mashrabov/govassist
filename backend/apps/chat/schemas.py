@@ -4,6 +4,7 @@ Field order is part of the contract (the summary must stream first), so every ob
 carries an explicit ``propertyOrdering``.
 """
 
+from functools import cache
 from typing import Any, Literal, Self
 from uuid import UUID
 
@@ -100,6 +101,34 @@ class Answer(OrderedModel):
     def refused(self) -> bool:
         """True for ``not_found`` and ``off_topic`` answers."""
         return self.answer_type in REFUSED_TYPES
+
+
+GEMINI_UNSUPPORTED_KEYS = frozenset({"additionalProperties"})
+
+
+def _without_unsupported(node: Any) -> Any:
+    """Copy a JSON schema without the keywords Gemini's ``response_schema`` rejects."""
+    if isinstance(node, dict):
+        return {
+            key: _without_unsupported(value)
+            for key, value in node.items()
+            if key not in GEMINI_UNSUPPORTED_KEYS
+        }
+    if isinstance(node, list):
+        return [_without_unsupported(item) for item in node]
+    return node
+
+
+@cache
+def gemini_response_schema() -> dict[str, Any]:
+    """The Answer schema as sent to Gemini.
+
+    Identical to ``Answer.model_json_schema()`` except ``additionalProperties`` (from
+    ``extra="forbid"``), which Gemini refuses with 400 INVALID_ARGUMENT. The server still
+    validates with the strict model.
+    """
+    schema: dict[str, Any] = _without_unsupported(Answer.model_json_schema())
+    return schema
 
 
 class ChatRequest(BaseModel):

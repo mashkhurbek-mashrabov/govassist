@@ -10,13 +10,13 @@ from google import genai
 from google.genai import types
 
 from apps.chat.prompts import Prompt
-from apps.chat.schemas import Answer
+from apps.chat.schemas import gemini_response_schema
 from apps.common.gemini import backoff_delay, get_client, is_retryable
 
 
 @dataclass
 class Usage:
-    """Token counts of one generation."""
+    """Token counts of one generation; ``completion_tokens`` includes thinking tokens (billed)."""
 
     prompt_tokens: int = 0
     completion_tokens: int = 0
@@ -59,9 +59,10 @@ class GeminiAnswerGenerator:
         return types.GenerateContentConfig(
             system_instruction=prompt.system,
             response_mime_type="application/json",
-            response_schema=Answer,
+            response_schema=gemini_response_schema(),
             temperature=settings.LLM_TEMPERATURE,
             max_output_tokens=settings.LLM_MAX_OUTPUT_TOKENS,
+            thinking_config=types.ThinkingConfig(thinking_level=settings.LLM_THINKING_LEVEL),
         )
 
     async def _open(
@@ -99,9 +100,9 @@ class GeminiAnswerGenerator:
         """
         metadata = chunk.usage_metadata
         if metadata is not None:
+            output = (metadata.candidates_token_count or 0) + (metadata.thoughts_token_count or 0)
             self.usage = Usage(
-                prompt_tokens=metadata.prompt_token_count or 0,
-                completion_tokens=metadata.candidates_token_count or 0,
+                prompt_tokens=metadata.prompt_token_count or 0, completion_tokens=output
             )
 
     async def stream(self, prompt: Prompt) -> AsyncIterator[str]:

@@ -237,6 +237,8 @@ EMBED_MAX_TRIES = env.int("EMBED_MAX_TRIES", default=5)
 LLM_TIMEOUT_S = env.int("LLM_TIMEOUT_S", default=40)
 LLM_MAX_OUTPUT_TOKENS = env.int("LLM_MAX_OUTPUT_TOKENS", default=1500)
 LLM_TEMPERATURE = env.float("LLM_TEMPERATURE", default=0.1)
+# Gemini 3 thinking tokens count against LLM_MAX_OUTPUT_TOKENS; low keeps room for the answer.
+LLM_THINKING_LEVEL = env.str("LLM_THINKING_LEVEL", default="low")
 LLM_MAX_RETRIES = env.int("LLM_MAX_RETRIES", default=2)
 RAG_TOP_K_VECTOR = env.int("RAG_TOP_K_VECTOR", default=8)
 RAG_TOP_K_KEYWORD = env.int("RAG_TOP_K_KEYWORD", default=8)

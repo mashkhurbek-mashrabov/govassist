@@ -86,9 +86,15 @@ async def test_fake_generator_fragments_and_usage() -> None:
     assert fake.prompts == [PROMPT]
 
 
-def _chunk(text: str | None, prompt_tokens: int = 10, completion: int = 4) -> Any:
+def _chunk(
+    text: str | None, prompt_tokens: int = 10, completion: int = 4, thoughts: int = 0
+) -> Any:
     """A fake Gemini stream chunk."""
-    usage = SimpleNamespace(prompt_token_count=prompt_tokens, candidates_token_count=completion)
+    usage = SimpleNamespace(
+        prompt_token_count=prompt_tokens,
+        candidates_token_count=completion,
+        thoughts_token_count=thoughts,
+    )
     return SimpleNamespace(text=text, usage_metadata=usage)
 
 
@@ -107,13 +113,15 @@ def _client(*responses: Any) -> MagicMock:
 
 async def test_gemini_generator_streams_text_and_usage() -> None:
     """Text chunks are yielded; usage comes from the latest chunk; config uses the schema."""
-    client = _client(_aiter([_chunk('{"a"'), _chunk(None), _chunk(":1}", 12, 9)]))
+    client = _client(_aiter([_chunk('{"a"'), _chunk(None), _chunk(":1}", 12, 9, thoughts=5)]))
     generator = GeminiAnswerGenerator(client, model="m")
     assert [t async for t in generator.stream(PROMPT)] == ['{"a"', ":1}"]
-    assert (generator.usage.prompt_tokens, generator.usage.completion_tokens) == (12, 9)
+    assert (generator.usage.prompt_tokens, generator.usage.completion_tokens) == (12, 14)
     config = client.aio.models.generate_content_stream.call_args.kwargs["config"]
     assert config.response_mime_type == "application/json"
     assert config.system_instruction == "rules"
+    assert "additionalProperties" not in str(config.response_schema)
+    assert config.thinking_config.thinking_level == "LOW"
 
 
 async def test_gemini_generator_retries_before_first_chunk() -> None:
