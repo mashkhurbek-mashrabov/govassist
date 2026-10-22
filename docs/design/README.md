@@ -24,7 +24,7 @@ A calm, phone-first, WCAG 2.2 AA design for GovAssist: landing, auth, onboarding
 | [`screenshots/journeys/`](screenshots/journeys/) | Every journey step in order at 375×812 (`J1-01-landing.png` …), J2 and J6 also at 1440×900: 118 PNGs |
 | [`screenshots/glass/`](screenshots/glass/) | Glass chrome over scrolled content, each next to its two solid fallbacks (`prefers-reduced-transparency` and no `backdrop-filter`): 15 PNGs |
 | [`shoot.cjs`](shoot.cjs) | Playwright script that makes all screenshots and runs the audits below |
-| **Design canvas** | [claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM](https://claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM): 46 artboards, one row per journey (J1, J2, J3, J4, J5, J6, J6 part 2, other screens, incl. a LanguageMenu board) with a title note each; phone boards 390 wide, chat/history/settings boards 1440 wide for J2 and J6. Primary buttons are prototype links between artboards; streaming boards play their stages by themselves (Replay). The canvas is private until shared from its Share menu |
+| **Design canvas** | [claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM](https://claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM): 47 artboards, one row per journey (J1, J2, J3, J4, J5, J6, J6 part 2, other screens). v1.2 adds a phone bottom-sheet board and a desktop landing board with a working language popover, and updates the landing, sign up, log in, onboarding language, settings and Russian landing boards; the other boards keep the v1.1 stylesheet, which v1.2 only extends with a title note each; phone boards 390 wide, chat/history/settings boards 1440 wide for J2 and J6. Primary buttons are prototype links between artboards; streaming boards play their stages by themselves (Replay). The canvas is private until shared from its Share menu |
 
 ## How to use it
 
@@ -122,6 +122,6 @@ No open questions.
 - **Dark theme** tokens exist (`data-theme="dark"`) and pass contrast, but no screen was reviewed in dark mode; treat it as provisional.
 - **ru and uz-Cyrl copy** is out of scope (`copy.md` is uz-Latn + en per plan §6). The Russian UI strings in J6, `settings.html#ru` and the landing's uz-Cyrl / ru / en versions, and the Cyrillic strings in `type.html`, are layout and journey strings, not reviewed translations.
 - Answer content follows the question's script (`answer.language`) while the UI follows `ui_language`, so J2 (uz-Cyrl) and J3 (ru) mix a Latin UI with Cyrillic content. Only J6 switches the UI language itself.
-- The canvas boards are hand-written mirrors of the prototype: same tokens and stylesheet, simplified markup, fewer icons. The prototype in this folder is the markup reference for React.
+- The canvas boards are hand-written mirrors of the prototype: same tokens and stylesheet, simplified markup, fewer icons. On the canvas the language menu shows its states (popover, sheet) but does not translate the board; `welcome.html` in the prototype does the full in-place switch. The prototype in this folder is the markup reference for React.
 - Desktop screenshots are 1440×900 as requested; the plan's 1280 breakpoint is where the sidebar appears, so 1280–1440 share one layout.
 - The Turnstile widget is a 300×65 SAMPLE placeholder; Cloudflare renders the real one.
