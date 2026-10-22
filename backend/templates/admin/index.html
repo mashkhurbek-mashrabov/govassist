@@ -1,0 +1,22 @@
+{% extends 'admin/base.html' %}
+{% load i18n unfold %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block content %}
+    <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-3">
+        {% for kpi in kpis %}
+            {% component "unfold/components/card.html" with title=kpi.title footer=kpi.footer %}
+                <p class="text-2xl font-semibold text-important">{{ kpi.value }}</p>
+                {% if kpi.progress is not None %}
+                    {% component "unfold/components/progress.html" with value=kpi.progress class="mt-4" %}{% endcomponent %}
+                {% endif %}
+            {% endcomponent %}
+        {% endfor %}
+    </div>
+    {% include "unfold/helpers/dashboard_default.html" %}
+{% endblock %}

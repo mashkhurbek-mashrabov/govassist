@@ -1,0 +1,16 @@
+# Dev: live code, auto-reload, host ports.
+services:
+  db:
+    ports: ["127.0.0.1:${DB_HOST_PORT:-5432}:5432"]
+
+  redis:
+    ports: ["127.0.0.1:${REDIS_HOST_PORT:-6379}:6379"]
+
+  backend:
+    volumes: [./backend:/app]
+    command: ["uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    ports: ["127.0.0.1:${BACKEND_HOST_PORT:-8000}:8000"]
+
+  worker:
+    volumes: [./backend:/app, ./data:/data]
+    command: ["python", "manage.py", "db_worker", "--reload"]

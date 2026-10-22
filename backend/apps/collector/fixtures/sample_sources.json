@@ -1,0 +1,9 @@
+[
+ {"name": "my.gov.uz #378 ID karta olish yoki almashtirish", "start_url": "https://my.gov.uz/uz/service/378", "document_kind": "service_page", "publisher": "my.gov.uz"},
+ {"name": "my.gov.uz #418 Xorijga chiqish pasportini rasmiylashtirish", "start_url": "https://my.gov.uz/uz/service/418", "document_kind": "service_page", "publisher": "my.gov.uz"},
+ {"name": "my.gov.uz #133 Nikohni qayd etish", "start_url": "https://my.gov.uz/uz/service/133", "document_kind": "service_page", "publisher": "my.gov.uz"},
+ {"name": "my.gov.uz #913 Tugʻilganlik haqidagi guvohnomani olish", "start_url": "https://my.gov.uz/uz/service/913", "document_kind": "service_page", "publisher": "my.gov.uz"},
+ {"name": "my.gov.uz #865 Tugʻilganlik haqida takroriy guvohnoma", "start_url": "https://my.gov.uz/uz/service/865", "document_kind": "service_page", "publisher": "my.gov.uz"},
+ {"name": "lex.uz VM 129-son 06.03.2020 (ID-kartalar)", "start_url": "https://lex.uz/uz/docs/-4756929", "document_kind": "law", "publisher": "lex.uz"},
+ {"name": "lex.uz Oila kodeksi 30.04.1998", "start_url": "https://lex.uz/uz/docs/-104720", "document_kind": "law", "publisher": "lex.uz"}
+]

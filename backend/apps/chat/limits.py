@@ -1,0 +1,208 @@
+"""Per-user question quotas, the global daily token cap and the one-stream lock.
+
+Counters live in the Django cache (Redis in dev/prod). The lock is ``cache.add`` (an atomic
+``SET NX EX``) with a random token, released by a compare-and-delete so a stream can only
+ever remove its own lock.
+"""
+
+import secrets
+from collections.abc import Callable
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
+from asgiref.sync import sync_to_async
+from django.conf import settings
+from django.core.cache import BaseCache, cache
+from django.core.cache.backends.redis import RedisCache
+from django.utils import timezone
+
+from apps.chat.constants import (
+    DAY_TTL_S,
+    HOUR_TTL_S,
+    LOCK_TOKEN_BITS,
+    RELEASE_LOCK_LUA,
+    STREAM_LOCK_PREFIX,
+)
+from apps.common.problems import QuotaExceeded, RateLimited, StreamInProgress
+
+
+def local_now() -> datetime:
+    """Current time in ``LOCAL_TIME_ZONE`` (Tashkent), where quota windows reset."""
+    return timezone.localtime(timezone=ZoneInfo(settings.LOCAL_TIME_ZONE))
+
+
+@dataclass(frozen=True)
+class QuotaUsage:
+    """Current question counts against the limits (``Me.quota`` in the contract)."""
+
+    hour_limit: int
+    hour_used: int
+    day_limit: int
+    day_used: int
+
+
+class QuotaService:
+    """Checks and counts questions per user, tokens per day, and active streams."""
+
+    def __init__(
+        self,
+        store: BaseCache = cache,
+        clock: Callable[[], datetime] = local_now,
+    ) -> None:
+        self._store = store
+        self._clock = clock
+
+    def _keys(self, user_id: object) -> tuple[str, str]:
+        """Return the (hour, day) counter keys for the current local time."""
+        now = self._clock()
+        return f"q:{user_id}:h:{now:%Y%m%d%H}", f"q:{user_id}:d:{now:%Y%m%d}"
+
+    def _token_key(self) -> str:
+        """Return today's global token counter key."""
+        return f"tok:{self._clock():%Y%m%d}"
+
+    def _seconds_to_next_hour(self) -> int:
+        """Seconds until the hourly window resets."""
+        now = self._clock()
+        next_hour = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+        return int((next_hour - now).total_seconds()) + 1
+
+    def _seconds_to_tomorrow(self) -> int:
+        """Seconds until the daily window resets (local midnight)."""
+        now = self._clock()
+        tomorrow = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+        return int((tomorrow - now).total_seconds()) + 1
+
+    async def ausage(self, user_id: object) -> QuotaUsage:
+        """Return the user's current hour/day usage.
+
+        Args:
+            user_id: The user's id.
+        """
+        hour_key, day_key = self._keys(user_id)
+        return QuotaUsage(
+            hour_limit=settings.CHAT_LIMIT_HOUR,
+            hour_used=int(await self._store.aget(hour_key, 0)),
+            day_limit=settings.CHAT_LIMIT_DAY,
+            day_used=int(await self._store.aget(day_key, 0)),
+        )
+
+    def usage(self, user_id: object) -> QuotaUsage:
+        """Sync variant of :meth:`ausage` for DRF views.
+
+        Args:
+            user_id: The user's id.
+        """
+        hour_key, day_key = self._keys(user_id)
+        return QuotaUsage(
+            hour_limit=settings.CHAT_LIMIT_HOUR,
+            hour_used=int(self._store.get(hour_key, 0)),
+            day_limit=settings.CHAT_LIMIT_DAY,
+            day_used=int(self._store.get(day_key, 0)),
+        )
+
+    async def acheck(self, user_id: object) -> None:
+        """Raise when the user or the whole service is over a limit.
+
+        Args:
+            user_id: The user's id.
+
+        Raises:
+            QuotaExceeded: Daily user limit or global token cap reached.
+            RateLimited: Hourly user limit reached.
+        """
+        used = await self.ausage(user_id)
+        if used.day_used >= used.day_limit:
+            raise QuotaExceeded(retry_after=self._seconds_to_tomorrow(), scope="user")
+        if int(await self._store.aget(self._token_key(), 0)) >= settings.GLOBAL_DAILY_TOKEN_CAP:
+            raise QuotaExceeded(
+                "The service reached its daily limit. Try again tomorrow.",
+                retry_after=self._seconds_to_tomorrow(),
+                scope="global",
+            )
+        if used.hour_used >= used.hour_limit:
+            raise RateLimited(
+                "Hourly question limit reached.", retry_after=self._seconds_to_next_hour()
+            )
+
+    async def _aincrement(self, key: str, amount: int, ttl: int) -> None:
+        """Create the counter if missing, then add ``amount`` atomically."""
+        await self._store.aadd(key, 0, ttl)
+        await self._store.aincr(key, amount)
+
+    async def aconsume(self, user_id: object) -> None:
+        """Count one question for the user.
+
+        Args:
+            user_id: The user's id.
+        """
+        hour_key, day_key = self._keys(user_id)
+        await self._aincrement(hour_key, 1, HOUR_TTL_S)
+        await self._aincrement(day_key, 1, DAY_TTL_S)
+
+    async def aadd_tokens(self, tokens: int) -> None:
+        """Add tokens spent on Gemini to today's global counter.
+
+        Args:
+            tokens: Prompt + completion tokens of one answer.
+        """
+        if tokens > 0:
+            await self._aincrement(self._token_key(), tokens, DAY_TTL_S)
+
+    async def atokens_today(self) -> int:
+        """Return the global tokens spent today."""
+        return int(await self._store.aget(self._token_key(), 0))
+
+    def tokens_today(self) -> int:
+        """Sync variant of :meth:`atokens_today` for the admin dashboard."""
+        return int(self._store.get(self._token_key(), 0))
+
+    @staticmethod
+    def _stream_key(user_id: object) -> str:
+        """Cache key of the user's stream lock."""
+        return f"{STREAM_LOCK_PREFIX}{user_id}"
+
+    async def astream_active(self, user_id: object) -> bool:
+        """True while the user has an answer streaming (pre-check, takes nothing).
+
+        Args:
+            user_id: The user's id.
+        """
+        return await self._store.aget(self._stream_key(user_id)) is not None
+
+    async def aacquire_stream(self, user_id: object) -> int:
+        """Take the user's single stream lock.
+
+        Args:
+            user_id: The user's id.
+
+        Returns:
+            The lock token, needed to release it.
+
+        Raises:
+            StreamInProgress: Another answer is still streaming.
+        """
+        token = secrets.randbits(LOCK_TOKEN_BITS)
+        if not await self._store.aadd(self._stream_key(user_id), token, settings.STREAM_LOCK_TTL_S):
+            raise StreamInProgress
+        return token
+
+    async def arelease_stream(self, user_id: object, token: int) -> None:
+        """Release the lock only if it still holds ``token`` (call in ``finally``).
+
+        On Redis this is one atomic Lua compare-and-delete; other caches (tests, local memory)
+        compare then delete.
+
+        Args:
+            user_id: The user's id.
+            token: The value returned by :meth:`aacquire_stream`.
+        """
+        key = self._stream_key(user_id)
+        if isinstance(self._store, RedisCache):
+            raw_key = self._store.make_and_validate_key(key)
+            client = self._store._cache.get_client(raw_key, write=True)
+            await sync_to_async(client.eval)(RELEASE_LOCK_LUA, 1, raw_key, str(token))
+            return
+        if await self._store.aget(key) == token:
+            await self._store.adelete(key)

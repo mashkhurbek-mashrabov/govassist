@@ -1,0 +1,177 @@
+{
+  "$defs": {
+    "AnswerType": {
+      "enum": [
+        "service",
+        "legal",
+        "not_found",
+        "off_topic"
+      ],
+      "type": "string"
+    },
+    "Item": {
+      "additionalProperties": false,
+      "description": "One statement with the context sources that support it.",
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "source_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        }
+      },
+      "propertyOrdering": [
+        "text",
+        "source_ids"
+      ],
+      "required": [
+        "text",
+        "source_ids"
+      ],
+      "title": "Item",
+      "type": "object"
+    },
+    "LangCode": {
+      "enum": [
+        "uz-Latn",
+        "uz-Cyrl",
+        "ru",
+        "en"
+      ],
+      "type": "string"
+    },
+    "LawPoint": {
+      "additionalProperties": false,
+      "description": "An exact legal clause, its plain-language explanation and sources.",
+      "properties": {
+        "quote": {
+          "title": "Quote",
+          "type": "string"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        },
+        "source_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        }
+      },
+      "propertyOrdering": [
+        "quote",
+        "explanation",
+        "source_ids"
+      ],
+      "required": [
+        "quote",
+        "explanation",
+        "source_ids"
+      ],
+      "title": "LawPoint",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The structured answer card. Every field is always present.",
+  "properties": {
+    "answer_type": {
+      "$ref": "#/$defs/AnswerType"
+    },
+    "language": {
+      "$ref": "#/$defs/LangCode"
+    },
+    "title": {
+      "maxLength": 80,
+      "title": "Title",
+      "type": "string"
+    },
+    "summary": {
+      "title": "Summary",
+      "type": "string"
+    },
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/Item"
+      },
+      "maxItems": 7,
+      "title": "Steps",
+      "type": "array"
+    },
+    "documents": {
+      "items": {
+        "$ref": "#/$defs/Item"
+      },
+      "title": "Documents",
+      "type": "array"
+    },
+    "fee": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Item"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "processing_time": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Item"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "law_points": {
+      "items": {
+        "$ref": "#/$defs/LawPoint"
+      },
+      "title": "Law Points",
+      "type": "array"
+    },
+    "follow_up_questions": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 3,
+      "title": "Follow Up Questions",
+      "type": "array"
+    }
+  },
+  "propertyOrdering": [
+    "answer_type",
+    "language",
+    "title",
+    "summary",
+    "steps",
+    "documents",
+    "fee",
+    "processing_time",
+    "law_points",
+    "follow_up_questions"
+  ],
+  "required": [
+    "answer_type",
+    "language",
+    "title",
+    "summary",
+    "steps",
+    "documents",
+    "fee",
+    "processing_time",
+    "law_points",
+    "follow_up_questions"
+  ],
+  "title": "Answer",
+  "type": "object"
+}
