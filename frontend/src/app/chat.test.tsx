@@ -1,7 +1,7 @@
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { http, HttpResponse } from "msw";
+import { delay, http, HttpResponse } from "msw";
 import type { AssistantMessage } from "../api/types";
 import { server } from "../mocks/server";
 import { encodeFrame } from "../mocks/sse";
@@ -45,6 +45,8 @@ function partialThenHang() {
 
 /** Seeded conversation (mocks/db.ts). */
 const SEED_CONVERSATION = "c0000000-0000-4000-8000-000000000001";
+/** A post-answer refetch that lands long after the test is done. */
+const REFETCH_DELAY_MS = 10_000;
 
 /**
  * Type a question into the composer and press Enter.
@@ -140,6 +142,30 @@ describe("chat", () => {
     expect(
       screen.getByRole("heading", { name: "NAMUNA: Pasportni onlayn almashtirish" }),
     ).toBeInTheDocument();
+  });
+
+  it("keeps the finished answer when a follow-up is asked before the post-answer refetch", async () => {
+    let conversationFetches = 0;
+    server.use(
+      // The first load goes through; every later conversation fetch (the post-answer refetch) is late.
+      http.get("/api/v1/conversations/:id", async () => {
+        conversationFetches += 1;
+        if (conversationFetches > 1) await delay(REFETCH_DELAY_MS);
+        return undefined;
+      }),
+    );
+    const user = userEvent.setup();
+    renderApp(`/c/${SEED_CONVERSATION}`);
+    await screen.findByRole("heading", { name: "Pasportni almashtirish", level: 2 });
+    await ask(user, "NAMUNA: Pasportni onlayn almashtirsa boʻladimi?");
+    await waitForFinal(2);
+    server.use(partialThenHang());
+    await ask(user, "Yana savol");
+    expect(await screen.findByRole("heading", { name: "NAMUNA: qisman javob" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "NAMUNA: Pasportni onlayn almashtirish" }),
+    ).toBeInTheDocument();
+    expect(conversationFetches).toBeGreaterThan(1);
   });
 
   it("renders a legal answer in the question's script with law points before the steps", async () => {

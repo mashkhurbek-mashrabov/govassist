@@ -4,7 +4,7 @@ import { Allow, parse } from "partial-json";
 import { useCallback, useEffect, useLayoutEffect, useReducer, useRef } from "react";
 import { streamChat } from "../../api/chatStream";
 import { ApiError } from "../../api/http";
-import { invalidateAfterAnswer } from "../../api/queries";
+import { invalidateAfterAnswer, storeFinalAnswer } from "../../api/queries";
 import type { PartialAnswer } from "../answer/answerTypes";
 import type {
   AssistantMessage,
@@ -308,6 +308,7 @@ export function useChatStream(options: ChatStreamOptions = {}): ChatStream {
       const isActive = () => controllerRef.current === controller;
       void (async () => {
         let answeredIn: string | null = conversationId;
+        let questionId: string | null = null;
         try {
           for await (const event of streamWithBusyRetry(
             { conversation_id: conversationId, text },
@@ -315,7 +316,13 @@ export function useChatStream(options: ChatStreamOptions = {}): ChatStream {
             busyWaitMs,
           )) {
             if (!isActive()) break;
-            if (event.event === "meta") answeredIn = event.data.conversation_id;
+            if (event.event === "meta") {
+              answeredIn = event.data.conversation_id;
+              questionId = event.data.user_message_id;
+            }
+            if (event.event === "final" && answeredIn && questionId) {
+              storeFinalAnswer(client, answeredIn, { id: questionId, text }, event.data.message);
+            }
             onEvent(event, conversationId === null);
           }
           if (isActive()) dispatch({ type: "end" });

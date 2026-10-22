@@ -10,7 +10,7 @@ import {
 import { useTranslation } from "react-i18next";
 import * as auth from "./auth";
 import * as api from "./endpoints";
-import type { Conversation, Feedback, Lang, Me, MeUpdate } from "./types";
+import type { AssistantMessage, Conversation, Feedback, Lang, Me, MeUpdate, UserMessage } from "./types";
 import { streamingPollInterval } from "../features/chat/streamingMessages";
 
 /** Who is using the app: the allauth session plus `/me` when signed in. */
@@ -188,6 +188,41 @@ export function useConversation(id: string | null, pollStreaming = false) {
     enabled: id !== null,
     refetchInterval: (query) =>
       pollStreaming ? streamingPollInterval(query.state.data?.messages ?? [], Date.now()) : false,
+  });
+}
+
+/**
+ * Put a just-finished answer into the cached conversation right away, before the post-answer refetch. A
+ * follow-up asked in between then shows this answer, not the copy fetched mid-stream (still `streaming`).
+ *
+ * @param client The query client.
+ * @param conversationId Conversation the answer belongs to.
+ * @param question The question's id and text (added too when the cache does not have it yet).
+ * @param answer The `final` assistant message.
+ */
+export function storeFinalAnswer(
+  client: QueryClient,
+  conversationId: string,
+  question: { id: string; text: string },
+  answer: AssistantMessage,
+): void {
+  client.setQueryData<Conversation>(queryKeys.conversation(conversationId), (conversation) => {
+    if (!conversation) return conversation;
+    const { messages } = conversation;
+    if (messages.some((message) => message.id === answer.id)) {
+      return {
+        ...conversation,
+        messages: messages.map((message) => (message.id === answer.id ? answer : message)),
+      };
+    }
+    const asked: UserMessage = {
+      id: question.id,
+      role: "user",
+      text: question.text,
+      created_at: answer.created_at,
+    };
+    const missingQuestion = !messages.some((message) => message.id === question.id);
+    return { ...conversation, messages: [...messages, ...(missingQuestion ? [asked] : []), answer] };
   });
 }
 
