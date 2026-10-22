@@ -1,7 +1,10 @@
 /** Map allauth error codes to i18n keys. */
 import { AuthError } from "../../api/auth";
 
-/** allauth (and our adapter's) error codes → message keys. Unknown codes fall back to a generic message. */
+/**
+ * allauth error codes → message keys (contract v1.2 §2 "Auth errors", plus allauth's key and
+ * current-password codes). Unknown codes fall back to a generic message; allauth's raw `message` is never shown.
+ */
 const AUTH_ERROR_KEYS: Record<string, string> = {
   email_password_mismatch: "auth.errors.invalidCredentials",
   email_taken: "auth.errors.emailTaken",

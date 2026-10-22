@@ -4,9 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { db, SEED_EMAIL, WRONG_PASSWORD } from "../mocks/db";
 import { renderApp, signInSeedUser } from "../test/render";
 
-/** The full mock stream takes a few hundred timer ticks in jsdom. */
-const STREAM_TIMEOUT_MS = 5000;
-
 /** Route guards and auth flows through the real route table and MSW. */
 describe("auth flows", () => {
   it("sends anonymous visitors to /welcome, then through login back to the page", async () => {
@@ -123,13 +120,15 @@ describe("signed-in app", () => {
       await screen.findByRole("button", { name: "Tugʻilganlik haqidagi guvohnomani qanday olaman?" }),
     );
     await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/c\//));
-    expect(await screen.findByRole("heading", { name: "Kerakli hujjatlar" })).toBeInTheDocument();
-    await waitFor(() => expect(screen.getByText("Bu javob foydali boʻldimi?")).toBeInTheDocument(), {
-      timeout: STREAM_TIMEOUT_MS,
+    // The live card is replaced by the stored copy once the conversation refetches, so never hold
+    // element references across awaits: re-query the settled page in one waitFor.
+    await waitFor(() => {
+      expect(screen.getByText("Bu javob foydali boʻldimi?")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Kerakli hujjatlar" })).toBeInTheDocument();
+      expect(
+        screen.getByText("Tugʻilganlik haqidagi guvohnomani qanday olaman?", { selector: "div" }),
+      ).toBeInTheDocument();
     });
-    expect(
-      screen.getByText("Tugʻilganlik haqidagi guvohnomani qanday olaman?", { selector: "div" }),
-    ).toBeInTheDocument();
   });
 
   it("shows an existing conversation and a not-found conversation", async () => {

@@ -14,13 +14,23 @@ describe("authErrorKey", () => {
   it.each([
     [new AuthError(400, [{ code: "email_taken", message: "" }]), "auth.errors.emailTaken"],
     [
+      new AuthError(400, [{ code: "turnstile_failed", param: "turnstile_token", message: "" }]),
+      "auth.errors.turnstile",
+    ],
+    [
+      new AuthError(400, [{ code: "email_password_mismatch", message: "" }]),
+      "auth.errors.invalidCredentials",
+    ],
+    [new AuthError(400, [{ code: "too_many_login_attempts", message: "" }]), "auth.errors.tooManyAttempts"],
+    [new AuthError(400, [{ code: "password_entirely_numeric", message: "" }]), "auth.errors.weakPassword"],
+    [
       new AuthError(400, [
         { code: "unknown", message: "" },
         { code: "password_too_common", message: "" },
       ]),
       "auth.errors.weakPassword",
     ],
-    [new AuthError(400, [{ code: "something_new", message: "" }]), "auth.errors.generic"],
+    [new AuthError(400, [{ code: "something_new", message: "Raw allauth text" }]), "auth.errors.generic"],
     [new Error("network"), "auth.errors.generic"],
   ])("%o → %s", (error, key) => {
     expect(authErrorKey(error)).toBe(key);

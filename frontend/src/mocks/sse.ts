@@ -7,7 +7,7 @@ export type SseFrame = { event: ChatEventName; data: unknown } | { comment: stri
 
 /** Characters per `delta` fragment, small enough to cut keys and strings mid-way. */
 const DELTA_SIZE = 24;
-/** Pause between frames in the browser; tests run without delays. */
+/** Pause between frames in the browser; tests use no timers at all. */
 const FRAME_DELAY_MS = import.meta.env.MODE === "test" ? 0 : 60;
 
 /**
@@ -104,7 +104,7 @@ export function sseResponse(
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       for (const frame of frames) {
-        await pause(FRAME_DELAY_MS);
+        if (FRAME_DELAY_MS > 0) await pause(FRAME_DELAY_MS);
         if (cancelled) return;
         controller.enqueue(encoder.encode(encodeFrame(frame)));
       }

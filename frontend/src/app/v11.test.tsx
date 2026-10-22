@@ -7,8 +7,6 @@ import { renderApp, signInSeedUser } from "../test/render";
 
 /** Seeded conversation id (mocks/db.ts). */
 const SEED_CONVERSATION = "c0000000-0000-4000-8000-000000000001";
-/** The full mock stream takes a few hundred timer ticks in jsdom. */
-const STREAM_TIMEOUT_MS = 5000;
 
 /** Contract v1.1 / plan §3 and §6 additions. */
 describe("contract v1.1 features", () => {
@@ -19,7 +17,8 @@ describe("contract v1.1 features", () => {
     await user.type(await screen.findByLabelText("Elektron pochta"), "qayta@example.com");
     await user.type(screen.getByLabelText("Parol"), "uzun-parol-123");
     await user.click(screen.getByRole("button", { name: "Roʻyxatdan oʻtish" }));
-    expect(await screen.findByLabelText("Elektron pochta")).toHaveValue("qayta@example.com");
+    await screen.findByRole("heading", { name: "Pochtangizni tekshiring" });
+    expect(screen.getByLabelText("Elektron pochta")).toHaveValue("qayta@example.com");
 
     await user.click(screen.getByRole("button", { name: "Havolani qayta yuborish" }));
     expect(await screen.findByText(/yangi havola yuborildi/)).toBeInTheDocument();
@@ -41,9 +40,7 @@ describe("contract v1.1 features", () => {
     renderApp(`/c/${SEED_CONVERSATION}`);
     expect(await screen.findByText("Javob toʻxtatildi.")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Qayta urinish" }));
-    await waitFor(() => expect(screen.getByText("Bu javob foydali boʻldimi?")).toBeInTheDocument(), {
-      timeout: STREAM_TIMEOUT_MS,
-    });
+    await waitFor(() => expect(screen.getByText("Bu javob foydali boʻldimi?")).toBeInTheDocument());
     expect(conversation?.messages.at(-2)).toMatchObject({
       role: "user",
       text: "Pasportimni qanday yangilayman?",
