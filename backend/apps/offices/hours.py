@@ -3,7 +3,7 @@
 import logging
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError
 
 from apps.offices.constants import TIME_REGEX
 
@@ -54,3 +54,18 @@ def clean_working_hours(raw: list[Any]) -> list[dict[str, Any]]:
         except ValidationError as exc:
             logger.warning("Dropping invalid working hours entry: %s (%s)", item, exc)
     return cleaned
+
+
+WORKING_HOURS_LIST = TypeAdapter(list[WorkingHours])
+
+
+def validate_working_hours(raw: Any) -> list[dict[str, Any]]:
+    """Validate a whole ``working_hours`` value (contract §5) and return it normalized.
+
+    Args:
+        raw: The stored JSON value.
+
+    Raises:
+        ValidationError: When any entry is malformed.
+    """
+    return [item.model_dump(by_alias=True) for item in WORKING_HOURS_LIST.validate_python(raw)]

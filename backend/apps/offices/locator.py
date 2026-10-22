@@ -1,19 +1,39 @@
 """Find the office for a retrieved service in the user's district (plan §10, contract §5)."""
 
+import logging
 from collections.abc import Sequence
 from typing import Any
 from uuid import UUID
 
+from pydantic import ValidationError as SchemaError
+
 from apps.common.constants import ReviewStatus
 from apps.corpus.constants import DocumentKind
+from apps.offices.hours import validate_working_hours
 from apps.offices.maps import map_url
 from apps.offices.models import Office, OfficeType, ServiceOffice
 from apps.offices.schemas import OfficeMatch, OfficeOut, OfficeTypeRef, PlaceRef
+
+logger = logging.getLogger(__name__)
 
 
 def _type_ref(office_type: OfficeType, lang: str) -> OfficeTypeRef:
     """``{code, label}`` with the label in ``lang``."""
     return OfficeTypeRef(code=office_type.code, label=office_type.name_for(lang))
+
+
+def _safe_hours(office: Office) -> list[dict[str, Any]]:
+    """Validated working hours, or [] (logged) when a stored row is malformed.
+
+    One bad row must not break the chat stream.
+    """
+    try:
+        return validate_working_hours(office.working_hours)
+    except SchemaError:
+        logger.warning(
+            "Malformed working hours, shown as unknown", extra={"office": str(office.id)}
+        )
+        return []
 
 
 def office_out(office: Office, lang: str) -> OfficeOut:
@@ -32,7 +52,7 @@ def office_out(office: Office, lang: str) -> OfficeOut:
             "district": PlaceRef(id=office.district_id, name=office.district.name_for(lang)),
             "region": PlaceRef(id=office.region_id, name=office.region.name_for(lang)),
             "phone": office.phone,
-            "working_hours": office.working_hours,
+            "working_hours": _safe_hours(office),
             "latitude": office.latitude,
             "longitude": office.longitude,
             "map_url": map_url(office.name, office.address, office.latitude, office.longitude),

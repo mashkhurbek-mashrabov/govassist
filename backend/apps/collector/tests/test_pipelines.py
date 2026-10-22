@@ -156,3 +156,27 @@ def test_classifier_failure_still_stores_the_document(caplog: pytest.LogCaptureF
     DocumentPipeline(Down()).process(_source(), _page(), url=URL, fetched_at=NOW)
     assert Document.objects.filter(url=URL, status="pending").exists()
     assert "Office type suggestion failed" in caplog.text
+
+
+def test_fuzzy_district_match_is_flagged(office_type: OfficeType, district: District) -> None:
+    """A difflib-only district match is stored with needs_review=True; exact ones are not."""
+    District.objects.create(
+        id=9901203,
+        region=district.region,
+        name_uz_latn="Chilonzor tumani",
+        name_uz_cyrl="Чилонзор тумани",
+        name_ru="Чиланзарский район",
+        name_en="Chilonzor",
+    )
+    source = _source(kind="office", office_type=office_type)
+    extractor = FakeOfficeExtractor(
+        [
+            _candidate(name="NAMUNA aniq", district_name="Chilonzor tumani", address="NAMUNA 5"),
+            _candidate(
+                name="NAMUNA taxminiy", district_name="Chilonzorr tumani", address="NAMUNA 6"
+            ),
+        ]
+    )
+    OfficePipeline(extractor).process(source, _page("NAMUNA"), url=URL, fetched_at=NOW)
+    flags = dict(Office.objects.values_list("name", "needs_review"))
+    assert flags == {"NAMUNA aniq": False, "NAMUNA taxminiy": True}

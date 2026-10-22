@@ -69,3 +69,32 @@ def test_no_mapping_means_no_office_event(office_type: OfficeType, district: Dis
     law = namuna_document("NAMUNA qonun matni", kind="law", slug="law")
     assert _locate(law, district) is None
     assert locate([], district_id=None, region_id=None, lang="en") is None
+
+
+def test_malformed_hours_degrade_to_unknown(
+    passport_doc: Document,
+    office_type: OfficeType,
+    district: District,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """A bad working_hours row is logged and shown as [] instead of breaking chat."""
+    make_office(office_type, district, working_hours=[{"days": ["funday"], "open": "9"}])
+    result = _locate(passport_doc, district)
+    assert result is not None
+    assert result["office"]["working_hours"] == []  # type: ignore[index]
+    assert "Malformed working hours" in caplog.text
+
+
+def test_office_clean_validates_hours(office_type: OfficeType, district: District) -> None:
+    """Office.clean() rejects malformed hours and normalizes valid ones."""
+    from django.core.exceptions import ValidationError  # noqa: PLC0415
+
+    office = make_office(office_type, district)
+    office.working_hours = [{"days": ["mon"], "open": "09:00", "close": "18:00"}]
+    office.clean()
+    assert office.working_hours == [
+        {"days": ["mon"], "open": "09:00", "close": "18:00", "break": None}
+    ]
+    office.working_hours = [{"days": ["mon"], "open": "9am", "close": "18:00"}]
+    with pytest.raises(ValidationError, match="working_hours"):
+        office.clean()

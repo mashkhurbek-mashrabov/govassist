@@ -21,8 +21,16 @@ class OfficeTypeAdmin(BaseAdmin):
 class OfficeAdmin(BaseAdmin):
     """Offices awaiting or past review, with map and source links."""
 
-    list_display = ("name", "office_type", "district", "status", "is_active", "data_as_of")
-    list_filter = ("status", "office_type", "region", "is_active")
+    list_display = (
+        "name",
+        "office_type",
+        "district",
+        "status",
+        "needs_review",
+        "is_active",
+        "data_as_of",
+    )
+    list_filter = ("status", "needs_review", "office_type", "region", "is_active")
     search_fields = ("name", "address")
     autocomplete_fields = ("district", "region")
     readonly_fields = ("map_link", "source_link", "created_at", "updated_at")

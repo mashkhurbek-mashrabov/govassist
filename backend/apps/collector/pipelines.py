@@ -170,6 +170,7 @@ class OfficePipeline:
             if self._is_duplicate(office_type, candidate, match.district.id):
                 continue
             Office.objects.create(
+                needs_review=match.needs_review,
                 office_type=office_type,
                 name=candidate.name,
                 address=candidate.address,

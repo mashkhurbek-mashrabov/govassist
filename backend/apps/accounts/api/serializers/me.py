@@ -98,7 +98,7 @@ class MeUpdateSerializer(serializers.Serializer[Any]):
                 {"district_id": ["District does not belong to the region."]}
             )
         region_changed = "region" in attrs and attrs["region"].id != user.region_id
-        if region_changed and district is None and user.district_id is not None:
+        if region_changed and district is None:
             raise serializers.ValidationError(
                 {"district_id": ["Choose a district in the new region."]}
             )

@@ -70,6 +70,14 @@ class CsrfFailed(Problem):
     default_detail = "CSRF check failed. Reload the page and try again."
 
 
+class MethodNotAllowedProblem(Problem):
+    """HTTP method not supported by the endpoint (for views outside DRF)."""
+
+    status_code = status.HTTP_405_METHOD_NOT_ALLOWED
+    default_code = "method_not_allowed"
+    default_detail = "Method not allowed."
+
+
 class EmailNotVerified(Problem):
     """The user has not verified the email address yet."""
 

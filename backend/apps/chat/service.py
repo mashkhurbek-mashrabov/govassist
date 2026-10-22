@@ -12,6 +12,7 @@ from uuid import UUID
 from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.db import transaction
+from django.utils import timezone
 from pydantic import ValidationError
 
 from apps.accounts.models import User
@@ -33,6 +34,7 @@ from apps.corpus.constants import HEADING_SEPARATOR
 from apps.corpus.embeddings import Embedder
 from apps.corpus.models import Chunk
 from apps.offices.locator import locate
+from apps.offices.models import OfficeType
 from apps.retrieval.search import Hit, search
 
 logger = logging.getLogger(__name__)
@@ -193,9 +195,9 @@ def save_answer(
     )
     conversation = assistant.conversation
     earlier_answers = conversation.messages.filter(
-        role=Message.Role.ASSISTANT, status=Message.Status.COMPLETE
+        role=Message.Role.ASSISTANT, status=Message.Status.COMPLETE, refused=False
     ).exclude(id=assistant.id)
-    if not earlier_answers.exists():
+    if not answer.refused and not earlier_answers.exists():
         conversation.title = answer.title
     conversation.save(update_fields=["title", "updated_at"])
     return assistant
@@ -254,6 +256,9 @@ class AnswerService:
         if conversation is None:
             title = text[:TITLE_FROM_QUESTION_CHARS].strip()
             conversation = await Conversation.objects.acreate(user=user, language=lang, title=title)
+        else:
+            conversation.updated_at = timezone.now()
+            await conversation.asave(update_fields=["updated_at"])
         question = await Message.objects.acreate(
             conversation=conversation, role=Message.Role.USER, text=text, language=lang
         )
@@ -362,8 +367,17 @@ class AnswerService:
             question=question.text,
             context=context.blocks,
             history=history,
-            office_type_label=office["office_type"]["label"] if office else None,
+            office_type_label=await self._office_label(office, question.language),
         )
+
+    async def _office_label(self, office: dict[str, Any] | None, language: str) -> str | None:
+        """The office type label in the question's language (the card keeps ``ui_language``)."""
+        if office is None:
+            return None
+        office_type = await OfficeType.objects.filter(code=office["office_type"]["code"]).afirst()
+        if office_type is None:
+            return str(office["office_type"]["label"])
+        return office_type.name_for(language)
 
     async def _finish(
         self,

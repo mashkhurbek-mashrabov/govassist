@@ -138,3 +138,13 @@ def test_google_only_user_has_no_password(api: APIClient) -> None:
     social.save()
     api.force_authenticate(social)
     assert api.get("/api/v1/me").json()["has_password"] is False
+
+
+def test_patch_region_without_district_is_rejected_on_onboarding(
+    api: APIClient, district: District
+) -> None:
+    """Even with no district yet, a region alone is not a complete change."""
+    api.force_authenticate(make_user("fresh@example.com"))
+    response = api.patch("/api/v1/me", {"region_id": district.region_id})
+    assert response.status_code == 400
+    assert "district_id" in response.json()["errors"]

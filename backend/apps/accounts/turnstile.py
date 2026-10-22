@@ -26,7 +26,7 @@ def verify_turnstile(token: str, remote_ip: str | None = None) -> bool:
             settings.TURNSTILE_VERIFY_URL, data=payload, timeout=settings.TURNSTILE_TIMEOUT_S
         )
         response.raise_for_status()
-    except httpx.HTTPError:
-        logger.warning("Turnstile verification request failed", exc_info=True)
+        return bool(response.json().get("success"))
+    except httpx.HTTPError, ValueError, AttributeError:
+        logger.warning("Turnstile verification failed or returned a bad body", exc_info=True)
         return False
-    return bool(response.json().get("success"))

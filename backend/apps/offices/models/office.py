@@ -1,7 +1,10 @@
+from django.core.exceptions import ValidationError
 from django.db import models
+from pydantic import ValidationError as SchemaError
 
 from apps.common.constants import ReviewStatus
 from apps.common.models import BaseModel
+from apps.offices.hours import validate_working_hours
 from apps.offices.models.office_type import OfficeType
 
 
@@ -24,6 +27,9 @@ class Office(BaseModel):
     data_as_of = models.DateField()
     status = models.CharField(max_length=10, choices=ReviewStatus, default=ReviewStatus.PENDING)
     is_active = models.BooleanField(default=True)
+    needs_review = models.BooleanField(
+        default=False, help_text="District matched by fuzzy name only: check it before approving."
+    )
 
     class Meta:
         ordering = ["name"]
@@ -31,3 +37,14 @@ class Office(BaseModel):
 
     def __str__(self) -> str:
         return self.name
+
+    def clean(self) -> None:
+        """Working hours must follow contract §5 (the admin form enforces this).
+
+        Raises:
+            ValidationError: On malformed working hours.
+        """
+        try:
+            self.working_hours = validate_working_hours(self.working_hours)
+        except SchemaError as exc:
+            raise ValidationError({"working_hours": str(exc)}) from exc

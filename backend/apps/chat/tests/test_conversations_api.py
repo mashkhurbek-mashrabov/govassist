@@ -113,3 +113,13 @@ def test_preview_is_the_last_question_truncated(auth_api: APIClient, user: User)
     Message.objects.create(conversation=conversation, role="user", text="x" * 300)
     item = auth_api.get("/api/v1/conversations").json()["results"][0]
     assert item["last_message_preview"] == "x" * 120
+
+
+def test_feedback_comment_is_scrubbed(auth_api: APIClient, user: User) -> None:
+    """PII in a feedback comment is replaced before storage."""
+    _, answer = _conversation(user)
+    auth_api.post(
+        f"/api/v1/messages/{answer.id}/feedback",
+        {"rating": -1, "comment": "Call me +998 90 123 45 67 or a.b@mail.uz"},
+    )
+    assert Feedback.objects.get().comment == "Call me [PHONE] or [EMAIL]"

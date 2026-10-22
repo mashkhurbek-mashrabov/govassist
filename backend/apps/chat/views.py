@@ -2,7 +2,6 @@
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponseBase, StreamingHttpResponse
-from django.views.decorators.http import require_POST
 from pydantic import ValidationError
 
 from apps.accounts.models import User
@@ -16,6 +15,7 @@ from apps.chat.sse import sse_stream
 from apps.common.problems import (
     EmailNotVerified,
     InvalidInput,
+    MethodNotAllowedProblem,
     NotSignedIn,
     Problem,
     ProfileIncomplete,
@@ -69,7 +69,6 @@ async def _signed_in_user(request: HttpRequest) -> User:
     return user
 
 
-@require_POST
 async def chat_stream(request: HttpRequest) -> HttpResponseBase:
     """``POST /api/v1/chat``: stream an answer as SSE (contract §4).
 
@@ -79,6 +78,10 @@ async def chat_stream(request: HttpRequest) -> HttpResponseBase:
     Args:
         request: The incoming request.
     """
+    if request.method != "POST":
+        not_allowed = problem_response(MethodNotAllowedProblem())
+        not_allowed["Allow"] = "POST"
+        return not_allowed
     try:
         user = await _signed_in_user(request)
         body = _parse(request.body)

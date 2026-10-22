@@ -359,3 +359,13 @@ def test_order_is_consecutive_across_multi_chunk_sections() -> None:
     chunks = chunk_document(text, lang=Lang.UZ_LATN)
     assert len(chunks) > 4
     assert [chunk.order for chunk in chunks] == list(range(len(chunks)))
+
+
+def test_tokens_longer_than_two_chunks_are_kept_whole() -> None:
+    """A 4000-char token is sliced into ≤1800 parts; nothing is dropped, no empty chunk."""
+    token = "x" * 4000
+    chunks = chunk_document(f"NAMUNA boshlanish {token} oxiri", lang=Lang.UZ_LATN)
+    joined = "".join(c.text for c in chunks)
+    assert joined.count("x") >= 4000
+    assert all(c.text.strip() for c in chunks)
+    assert all(c.char_count <= CHUNK_MAX_CHARS for c in chunks)

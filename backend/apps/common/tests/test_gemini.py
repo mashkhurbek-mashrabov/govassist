@@ -203,9 +203,11 @@ class TestServerRetryDelay:
         """honor_server_delay=False backs off briefly instead of waiting RetryInfo."""
         from unittest.mock import AsyncMock, patch  # noqa: PLC0415
 
-        from apps.common.gemini import BACKOFF_CAP_S, call_with_retries  # noqa: PLC0415
+        from apps.common.constants import BACKOFF_CAP_S  # noqa: PLC0415
+        from apps.common.gemini import call_with_retries  # noqa: PLC0415
 
         call = AsyncMock(side_effect=[self._error("60s"), "ok"])
         with patch("apps.common.gemini.asyncio.sleep", AsyncMock()) as sleep:
             assert await call_with_retries(call, max_tries=2, honor_server_delay=False) == "ok"
+        assert sleep.await_args is not None
         assert sleep.await_args.args[0] <= BACKOFF_CAP_S

@@ -84,8 +84,12 @@ def _split_words(sentence: str) -> list[str]:
         if len(candidate) <= CHUNK_MAX_CHARS:
             current = candidate
             continue
-        pieces.append(current)
-        current = word[:CHUNK_MAX_CHARS]
+        if current:
+            pieces.append(current)
+        # a single token longer than the limit is sliced, never dropped
+        parts = [word[i : i + CHUNK_MAX_CHARS] for i in range(0, len(word), CHUNK_MAX_CHARS)]
+        pieces.extend(parts[:-1])
+        current = parts[-1]
     return [*pieces, current] if current else pieces
 
 

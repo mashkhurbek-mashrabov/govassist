@@ -348,8 +348,12 @@ async def test_global_cap_is_429_with_scope(client: AsyncClient, recorder: _Reco
 
 
 async def test_get_is_not_allowed(client: AsyncClient) -> None:
-    """Only POST."""
-    assert (await client.get("/api/v1/chat")).status_code == 405
+    """Only POST; the 405 is problem+json with an Allow header."""
+    response = await client.get("/api/v1/chat")
+    assert response.status_code == 405
+    assert response["Content-Type"] == "application/problem+json"
+    assert response["Allow"] == "POST"
+    assert response.json()["code"] == "method_not_allowed"
 
 
 async def test_csrf_is_enforced(user: User, recorder: _Recorder) -> None:
@@ -464,3 +468,40 @@ def test_chat_embedder_is_latency_bound() -> None:
     with patch("apps.chat.views.GeminiEmbedder") as embedder, patch("apps.chat.views.QuotaService"):
         build_answer_service()
     assert embedder.call_args.kwargs == {"max_tries": 2, "honor_server_delay": False}
+
+
+async def test_refused_answers_never_title_and_questions_bump_updated_at(
+    client: AsyncClient, recorder: _Recorder, passport_doc: Document
+) -> None:
+    """A refused answer keeps the question title; every new question bumps updated_at."""
+    recorder.factory = lambda: _Failing("crash")
+    first = await _ask(client, text="Pasport savoli")
+    conversation = await Conversation.objects.aget(id=first[0][1]["conversation_id"])
+    before = conversation.updated_at
+
+    recorder.factory = lambda: FakeAnswerGenerator(
+        answer_json(answer_type="off_topic", title="Rad")
+    )
+    await _ask(client, conversation_id=str(conversation.id), text="Ob-havo?")
+    await conversation.arefresh_from_db()
+    assert conversation.title == "Pasport savoli"
+    assert conversation.updated_at > before
+
+    recorder.factory = lambda: _Failing("crash")
+    bumped = conversation.updated_at
+    await _ask(client, conversation_id=str(conversation.id), text="Yana")
+    await conversation.arefresh_from_db()
+    assert conversation.updated_at > bumped
+
+
+async def test_prompt_office_label_uses_the_question_language(
+    client: AsyncClient, recorder: _Recorder, user: User, passport_doc: Document
+) -> None:
+    """The prompt names the office in the question's language; the card follows ui_language."""
+    user.ui_language = "ru"
+    await user.asave(update_fields=["ui_language"])
+    events = await _ask(client)
+    office = dict(events)["office"]
+    assert office["office_type"]["label"] == "Центр госуслуг"
+    prompt = recorder.made[0].prompts[0]  # type: ignore[attr-defined]
+    assert "«Davlat xizmatlari markazi»" in prompt.system
