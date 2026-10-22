@@ -57,6 +57,7 @@ Routes match `03-frontend-plan.md`. Each screen gets mobile (375) and desktop (1
 
 | # | Screen / route | Must show | States |
 |---|---|---|---|
+| 0 | **Landing `/welcome`** (public, first visit) | What GovAssist does in one sentence, 3 steps (ask → get steps & documents → go to the right office), one sample answer card preview (NAMUNA), Sign up (primary), Log in, language switch, "Not an official government service", About/Privacy links | default (mobile + desktop) |
 | 1 | Sign up `/signup` | Email, password (with strength hint), Turnstile, "Continue with Google", link to log in, privacy note | default, field errors, submitting, server error |
 | 2 | Log in `/login` | Email, password, Google, forgot password, link to sign up | default, wrong credentials, social error, submitting |
 | 3 | Check your email | "We sent a link to <email>", resend, change email | sent, resent, rate-limited |
@@ -77,6 +78,21 @@ Routes match `03-frontend-plan.md`. Each screen gets mobile (375) and desktop (1
 Layout:
 - **Desktop:** left sidebar (history + new chat), centered chat column (max ~760 px), sticky input at the bottom.
 - **Mobile:** top bar (menu, title, new chat), full-width chat, sticky input; history opens in a drawer.
+
+### 4a. End-to-end journeys (required)
+
+The design must be **clickable from first visit to the last action**, not a gallery of separate screens. Every primary button or link goes to the next screen of its journey. Each journey has its own content: no reusing the passport answer everywhere. All facts stay NAMUNA/SAMPLE.
+
+| # | Journey | Path |
+|---|---|---|
+| J1 | **New user, service question** (uz-Latn) | Landing → Sign up → Check email → Verify (success) → Onboarding: language → region/district → Chat empty → tap the suggestion "Pasportimni qanday yangilayman?" → streaming: searching → found → office card early → summary → steps → documents → fee/time → final → 👍 feedback → tap a follow-up chip → **second turn in the same thread** (a short service answer) |
+| J2 | **Returning user, legal question** (uz-Cyrl question and answer) | Landing → Log in → Chat (desktop: sidebar with history) → New chat → type a factual labour-law question → streaming → **legal answer** (law points with quote + explanation, steps "what you can do", sources) → open a source |
+| J3 | **Russian question, region fallback** | Chat → Russian question → service answer in Russian → office card `match=region` with unknown hours → open Google Maps |
+| J4 | **Not found / off topic, then recovery** | Off-topic question → off_topic answer → tap a topic chip → a not_found answer → rephrase → service answer |
+| J5 | **Errors** | Streaming → **Stop** → "Answer stopped" → Retry → final answer. Plus: rate-limited (`retry_after`), quota reached (`scope` user vs global), offline banner → back online |
+| J6 | **Account** | History → open an old conversation → delete with confirm → Settings → switch the UI language to Russian (UI updates) → change password → Log out → Landing. Plus Login → Forgot password → email sent → Reset → success → Log in |
+
+Streaming in J1–J5 **plays by itself** (timed stages, with a reduced-motion variant that jumps between stages). The final state of every journey is a real screen, not a note.
 
 ## 5. Components
 
@@ -123,10 +139,14 @@ Define each with its anatomy, variants, states (default, hover, focus, active, d
 | `copy.md` | UI strings, uz-Latn + en |
 | `prototype/*.html` | Static, **no-build** HTML + CSS prototype using `tokens.css`. One file per screen and state group, with an `index.html` linking them. Must work by opening the files directly |
 | `screenshots/` | PNGs of every prototype screen at 375×812 and 1440×900 (for review and thesis figures) |
+| `prototype/journeys.html` | Start page listing J1–J6 (§4a), each with a "Start" link into a fully linked click-through |
+| `prototype/flow.js` | One small shared script (vanilla JS, no framework) for journey navigation, form submits, and timed streaming playback |
+| `screenshots/journeys/` | Every step of J1–J6 in order, at 375×812 (`J1-01-landing.png` …), for review and the thesis |
+| **Design canvas** (Claude Design artifact) | Mirrors the prototype. **Every screen** of §4 as artboards (phone 390 wide; desktop 1440 for chat, history and settings), arranged one row per journey with a title note each, and prototype links between artboards so a viewer can click through J1–J6. Not just a sample of three screens |
 
 Prototype rules:
 - semantic HTML, so it doubles as the markup reference for React;
-- no JavaScript frameworks; tiny inline JS only to toggle states;
+- no JavaScript frameworks; small inline JS for state toggles, plus the shared `flow.js` for journeys;
 - no external CDNs.
 
 ## 8. Review checklist (main session approves at G2)
@@ -141,6 +161,10 @@ Prototype rules:
 - [ ] No official-government imitation. The disclaimer and the "not official" note are present.
 - [ ] No invented real facts. Sample markers kept.
 - [ ] The prototype opens offline with no build step.
+- [ ] **J1–J6 are clickable end to end**, in both the prototype and the design canvas. No dead ends: every primary action leads somewhere.
+- [ ] The landing page exists. J1 includes a second turn in the same thread. J2 shows a full legal answer. J3 shows a Russian answer.
+- [ ] Streaming plays by itself in the journeys, with a reduced-motion variant.
+- [ ] `screenshots/journeys/` has every step of every journey.
 
 ---
 
@@ -161,19 +185,24 @@ Read first, fully:
 3. docs/contract.md (every field a screen can show; §6 example data)
 4. docs/plans/01-design-plan.md (your plan; follow §1–§8 exactly)
 
-Your job: produce the complete design system and all screens defined in 01-design-plan.md §4–§5,
-as the deliverables listed in §7:
+Your job: produce the complete design system, all screens defined in 01-design-plan.md §4–§5, and the clickable
+end-to-end journeys J1–J6 in §4a (prototype and design canvas), as the deliverables listed in §7:
 docs/design/{README.md, design-system.md, tokens.json, tokens.css, components.md, screens.md, copy.md,
-prototype/*.html, screenshots/*.png}.
+prototype/*.html, prototype/journeys.html, prototype/flow.js, screenshots/*.png, screenshots/journeys/*.png},
+plus the design canvas (every screen as artboards, one row per journey, prototype links between artboards).
 
 Hard rules:
+- You own this lane and do all of it yourself. Do NOT use Antigravity (`agy`) for any design work.
+- Check each screen when it is finished (open it at 375 and 1440 px, run the contrast check) before starting the next.
 - Phone-first (375 px), WCAG 2.2 AA, touch targets ≥ 44 px, body ≥ 16 px, reduced-motion support.
 - Must not look like an official government site: no emblem, no flag branding, no my.gov.uz look-alike.
   Include "Not an official government service" and the answer disclaimer.
 - tokens.css is the single source of design values; the prototype CSS uses only its variables (no raw hex).
-- The prototype is static HTML + CSS (tiny inline JS for state toggles only), no build step, no CDN, semantic markup.
+- The prototype is static HTML + CSS, no build step, no CDN, semantic markup. JS: small inline toggles plus one
+  shared vanilla `prototype/flow.js` for journey navigation and timed streaming playback.
 - The font must render Uzbek Latin oʻ gʻ (U+02BB) and Uzbek Cyrillic ў қ ғ ҳ; prove it in a screenshot.
-- Use only the illustrative data from docs/contract.md §6. Never invent real-looking fees, addresses or phone numbers.
+- Base content on docs/contract.md §6. Content the journeys need beyond it (legal, Russian, off-topic answers) is
+  written as NAMUNA/SAMPLE placeholders. Never invent real-looking fees, addresses, phone numbers or law articles.
 - Do not change docs/contract.md. If a screen needs data the contract lacks, list it under "Open questions"
   in docs/design/README.md instead of designing around it.
 - Make screenshots with a headless browser (Playwright) at 375×812 and 1440×900.

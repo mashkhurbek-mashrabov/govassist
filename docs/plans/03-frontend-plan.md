@@ -90,6 +90,7 @@ frontend/
 
 | Route | Page | Guard |
 |---|---|---|
+| `/welcome` | Public landing | Guest only; redirect to `/` when logged in |
 | `/signup`, `/login`, `/forgot-password` | Auth | Guest only; redirect to `/` when logged in |
 | `/check-email` | "Check your email" | Pending verification |
 | `/verify-email/:key`, `/reset-password/:key` | Key flows | Public |
@@ -104,7 +105,7 @@ Boot sequence:
 1. `GET /api/v1/csrf`.
 2. `GET /_allauth/browser/v1/auth/session`.
 3. If authenticated, `GET /api/v1/me`.
-4. Apply the guards. A missing district sends the user to `/onboarding`.
+4. Apply the guards. An unauthenticated visitor to any app route goes to `/welcome`. A missing district sends the user to `/onboarding`.
 
 The UI language comes from the profile (`ui_language`). Before login it is stored in `localStorage` (a convenience only). Update `<html lang>` on every change.
 
@@ -158,9 +159,12 @@ Supporting rules:
 - **Settings:**
   - language and region/district (PATCH `/me`);
   - quota usage from `/me.quota`;
-  - change password (allauth);
+  - change password: allauth `account/password/change`. Hide "current password" when `Me.has_password` is false (Google-only account setting a first password);
   - log out;
   - delete account (`DELETE /me` with a confirm dialog, then log out).
+- **Check email:** "Resend" calls `POST /api/v1/auth/resend-verification` and shows the `retry_after` wait on 429.
+- **About:** the source list comes from `GET /api/v1/sources`.
+- **Stop / failed answers:** after a reload, an assistant message with `error_code: "stopped"` shows "Answer stopped" + Retry. Other error codes show their error copy. `quota_exceeded` copy depends on `scope` (user vs global).
 - **Feedback:** 👍/👎 with an optional comment, upserted via `POST /messages/{id}/feedback`; shows the saved state.
 - **Errors:**
   - a global offline banner;
@@ -268,6 +272,12 @@ the only source of design values (sync script, no raw hex). Start F3 only when t
 Commit after each phase (Conventional Commits, e.g. "feat(chat): stream answer cards").
 
 Hard rules:
+- You own this lane. You may delegate simple, exactly specified tasks to Antigravity helpers (Gemini Flash) per
+  AGENTS.md → Delegation (e.g. locale files, tests for existing code, simple components from approved specs); keep
+  complex tasks yourself (streaming, auth flows, guards, API client); verify every helper result (checks + full diff
+  review) and merge it into your lane branch yourself.
+- Test every feature when it is finished (AGENTS.md → Testing): automated tests + lint/typecheck/test + a real browser
+  check, before starting the next feature. Put the test evidence in the commit body and the PR.
 - React 19, Vite 8, TypeScript 6.0 strict (not 7.x), React Router, TanStack Query, react-hook-form + zod,
   react-i18next (uz-Latn default, uz-Cyrl, ru, en), Tailwind CSS 4 themed from tokens.css,
   fetch + eventsource-parser + partial-json for streaming.
