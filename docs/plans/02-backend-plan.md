@@ -443,10 +443,22 @@ Document every view with `@extend_schema`. The SSE view's description links to c
 |---|---|
 | `base` | `python:3.14-slim-trixie`, `PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=1`, user `app` |
 | `builder` | `python -m venv /opt/venv`; `pip install --require-hashes --no-deps -r requirements/base.txt` with a pip cache mount; copy the source; `collectstatic` (with a dummy `SECRET_KEY`) |
-| `runtime` | Copy `/opt/venv` + `/app`; `USER app`; `HEALTHCHECK` via `python -c "urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"`; `CMD uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --workers 2 --proxy-headers` |
-| `crawler` | From `base`: install `requirements/crawler.txt` into the venv, `playwright install --with-deps chromium` (as root, `PLAYWRIGHT_BROWSERS_PATH=/ms-playwright`), then `USER app`; `CMD python manage.py db_worker` |
+| `runtime` | Copy `/opt/venv` + `/app`; `USER app`; `HEALTHCHECK` via `python -c "urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"`; `ENTRYPOINT ["entrypoint.sh"]`, `CMD ["web"]` |
+| `crawler` | From `base`: install `requirements/crawler.txt` into the venv, `playwright install --with-deps chromium` (as root, `PLAYWRIGHT_BROWSERS_PATH=/ms-playwright`), then `USER app`; same `ENTRYPOINT`, `CMD ["worker"]` |
 
 Size budget: `runtime` ≤ 300 MB uncompressed. Add a `.dockerignore` (tests caches, `.venv`, `__pycache__`, `.env`, `data/`).
+
+**`backend/docker/entrypoint.sh`:** the one script that starts every backend container. Rules:
+- POSIX `sh`, `set -eu`, shellcheck-clean, with a header comment explaining each role.
+- Copied with `COPY --chmod=0755 docker/entrypoint.sh /usr/local/bin/entrypoint.sh`. It writes nothing to disk, so it works with `read_only: true`.
+- Roles, given as the first argument:
+  - `web`: if `DJANGO_MIGRATE_ON_START=true`, run `migrate --noinput` first. Then `exec uvicorn config.asgi:application --host 0.0.0.0 --port ${PORT:-8000} --workers ${WEB_CONCURRENCY:-2} --proxy-headers`, adding `--reload` (one worker) when `DJANGO_RELOAD=true` in dev.
+  - `worker`: `exec python manage.py db_worker`.
+  - `migrate`: `exec python manage.py migrate --noinput`.
+  - `manage <args>`: `exec python manage.py <args>`.
+  - anything else: `exec "$@"`.
+- Always `exec`, so signals reach the process.
+- Compose uses `command: web` and `command: worker`; dev sets `DJANGO_RELOAD=true`. invoke tasks call the roles, e.g. `docker compose run --rm backend migrate`.
 
 **`compose.yaml`:**
 
