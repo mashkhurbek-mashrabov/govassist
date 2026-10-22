@@ -181,7 +181,7 @@ A keep-alive comment `: ping` is sent every 15 s.
 |---|---|---|
 | `meta` | `{"conversation_id": uuid, "user_message_id": uuid, "assistant_message_id": uuid}` | Always first. A new conversation is created when `conversation_id` was null |
 | `status` | `{"stage": "searching" \| "found" \| "writing", "source_count": int?}` | For the progress line. Can repeat |
-| `office` | `OfficeMatch` | At most once, before the first `delta`. Sent only when a retrieved service maps to an office type |
+| `office` | `OfficeMatch` | At most once, before the first `delta`. Sent only when a retrieved service maps to an office type. It is **provisional**: if the final answer is refused (`not_found` / `off_topic`), `final.message.office` is `null`, and the UI removes the early card. Stored history has no office for refused answers either |
 | `delta` | `{"text": "<raw JSON fragment>"}` | Concatenate all fragments to get a growing, partial `Answer` JSON. Parse it with a partial-JSON parser |
 | `final` | `{"message": Message (assistant)}` | Validated answer, resolved `sources`, `office`, `refused`. **Replaces** the live-parsed answer |
 | `error` | `{"code": "llm_unavailable" \| "llm_timeout" \| "invalid_answer" \| "quota_exceeded" \| "stream_in_progress" \| "internal_error", "message": str, "scope"?: "user" \| "global"}` | The assistant message is stored with `status: "failed"` and `error_code` = `code`. `scope` is present only for `quota_exceeded` |
@@ -392,3 +392,4 @@ The example values below are layout placeholders for design and mocks. Never pre
 - `SourceSummary.last_fetched_at` is nullable.*
 *Contract v1.5, 2026-10-22: office localization. Type, district and region labels follow `ui_language`; office name and address are shown as stored.*
 *Contract v1.6, 2026-10-22: SSE `error` code `stream_in_progress`. It can arrive as the only event, with no `meta`, when the lock race is lost.*
+*Contract v1.7, 2026-10-22: the early `office` event is provisional. On refused answers (`not_found` / `off_topic`), `final.message.office` is `null`, and stored history has no office.*
