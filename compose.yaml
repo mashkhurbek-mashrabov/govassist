@@ -1,0 +1,47 @@
+# Base stack. Dev additions: compose.override.yaml. Prod additions: compose.prod.yaml.
+name: govassist
+
+x-backend-env: &backend-env
+  env_file: .env
+  depends_on:
+    db: {condition: service_healthy}
+    redis: {condition: service_healthy}
+  init: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg18-trixie
+    env_file: .env
+    volumes: [pgdata:/var/lib/postgresql]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:8.8-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    <<: *backend-env
+    build: {context: ./backend, target: runtime}
+    image: govassist-backend:latest
+    read_only: true
+    tmpfs: [/tmp]
+
+  worker:
+    <<: *backend-env
+    build: {context: ./backend, target: crawler}
+    image: govassist-worker:latest
+    volumes: [./data:/data]
+
+volumes:
+  pgdata:

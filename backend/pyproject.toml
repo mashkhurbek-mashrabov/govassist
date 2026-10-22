@@ -1,0 +1,64 @@
+# Tool configuration only. Dependencies live in requirements*.in.
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+extend-exclude = ["staticfiles"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "DJ", "S", "PL", "RUF", "ANN", "D"]
+ignore = [
+    "D100",    # module docstrings optional
+    "D104",    # package docstrings optional
+    "D105",    # magic methods
+    "D106",    # Django `class Meta` options blocks
+    "D107",    # __init__ args are documented on the class
+    "PLR0913", # injected collaborators make long signatures
+    "ANN401",  # Django/DRF hooks take Any (*args, **options, serializer data)
+    "RUF001",  # Uzbek text uses ʻ and ʼ on purpose
+    "RUF002",
+    "RUF003",
+    "RUF012",  # Django/DRF class attributes (Meta, fields) are mutable by design
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"**/migrations/*" = ["D", "ANN", "E501", "RUF"]
+"**/tests/**" = ["S101", "S105", "S106", "PLR2004"]
+"conftest.py" = ["S105", "S106"]
+"config/settings/*" = ["F405", "F403"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["apps", "config"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+exclude = ["migrations/", "staticfiles/"]
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["environ.*", "allauth.*", "unfold.*", "pgvector.*", "factory.*", "pdfplumber.*", "django_tasks_db.*", "pythonjsonlogger.*"]
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings.test"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py"]
+addopts = "-p no:cacheprovider --strict-markers --cov --cov-report=term-missing:skip-covered"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+filterwarnings = ["ignore:No directory at:UserWarning"]
+
+[tool.coverage.run]
+source = ["apps"]
+omit = ["*/migrations/*", "*/tests/*"]
+
+[tool.coverage.report]
+fail_under = 80
+skip_empty = true

@@ -1,0 +1,19 @@
+# Runtime dependencies. Edit here, then run `invoke compile-deps`.
+Django~=6.1.2
+djangorestframework~=3.18.3
+drf-spectacular~=0.30.0
+django-allauth[socialaccount]~=65.20
+django-unfold~=0.110.0
+django-tasks-db~=0.13.0
+django-environ~=0.14.0
+psycopg[binary,pool]~=3.3
+pgvector~=0.5.1
+redis~=8.1
+google-genai~=2.32
+pydantic~=2.14
+httpx~=0.28.1
+selectolax~=1.0
+pdfplumber~=0.11.10
+whitenoise~=6.12
+python-json-logger~=4.2
+uvicorn[standard]~=0.54.0

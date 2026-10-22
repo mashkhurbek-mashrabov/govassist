@@ -1,0 +1,40 @@
+# Prod: `docker compose -f compose.yaml -f compose.prod.yaml up -d`. No host ports;
+# traffic arrives through the Cloudflare Tunnel.
+x-prod: &prod
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options: {max-size: "10m", max-file: "5"}
+
+services:
+  db:
+    <<: *prod
+    deploy: {resources: {limits: {cpus: "1.0", memory: 1g}}}
+
+  redis:
+    <<: *prod
+    deploy: {resources: {limits: {cpus: "0.5", memory: 256m}}}
+
+  backend:
+    <<: *prod
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+      DEBUG: "false"
+      ENVIRONMENT_NAME: PROD
+    deploy: {resources: {limits: {cpus: "1.0", memory: 768m}}}
+
+  worker:
+    <<: *prod
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+      DEBUG: "false"
+      ENVIRONMENT_NAME: PROD
+    deploy: {resources: {limits: {cpus: "1.0", memory: 1g}}}
+
+  cloudflared:
+    <<: *prod
+    image: cloudflare/cloudflared:2026.10.0
+    command: ["tunnel", "--no-autoupdate", "run"]
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?set TUNNEL_TOKEN in .env}
+    depends_on: [backend]
