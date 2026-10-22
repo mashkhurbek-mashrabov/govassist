@@ -49,7 +49,28 @@
   - Light theme required. Dark-theme tokens optional, but the token structure must support them.
 - **Spacing:** a 4 px base scale.
 - **Radius:** 3 steps. **Elevation:** 2 levels. **Motion:** durations and easing, plus a reduced-motion variant.
-- **Icons:** one outline set. Lucide is recommended because the frontend uses `lucide-react`. Every icon has a text label or an `aria-label`.
+- **Icons: exactly one package, Lucide.** Use the **real** Lucide icons: exact SVGs copied from the `lucide-static` package at one pinned version, recorded in `design-system.md`. No hand-drawn look-alikes, no mixing with other sets. Keep an icon inventory in `components.md` (icon name → where used), so the frontend uses the same names from `lucide-react` at the same version. The only non-Lucide mark is the Google "G" brand logo. Every icon has a text label or an `aria-label`.
+- **Glass surfaces (v1.1):** use a frosted-glass effect (translucent surface + `backdrop-filter: blur()` + a subtle border and highlight) on the floating chrome:
+  - top bar;
+  - sticky composer;
+  - desktop sidebar;
+  - mobile drawer, dialogs and toasts;
+  - optionally the office card header.
+
+  Content cards stay solid for readability. Rules:
+  - text on glass must still pass WCAG AA (check it against the worst-case background behind it);
+  - provide a solid fallback for `@supports not (backdrop-filter: blur(1px))` and for `prefers-reduced-transparency: reduce`;
+  - keep the blur radius modest and the glass layers to the few listed above, so low-end Android stays smooth;
+  - add a soft background (gradient or shapes) behind the glass so the effect is visible;
+  - all glass values (alpha, blur, border, shadow) are tokens.
+- **UX polish (v1.1):**
+  - clearer visual hierarchy: answer title and summary first, stronger section headers, more breathing room;
+  - refined spacing and type rhythm;
+  - polished empty, loading and error states;
+  - smooth micro-interactions (reduced-motion safe);
+  - obvious primary actions;
+  - a more modern, friendly feel, while staying calm and not looking like a government site.
+  - **Prettier and more professional:** v1 looked too plain. Aim for a polished, premium product look, like a well-funded modern SaaS app. Use **subtle gradients** (a brand gradient on the primary button, the landing hero, the app background behind the glass, active and selected states, the logo mark), with depth from soft layered shadows and refined borders. Keep the gradients restrained (2 close hues, low contrast), all as tokens, and keep AA contrast for any text on a gradient.
 
 ## 4. Screens
 
@@ -165,6 +186,9 @@ Prototype rules:
 - [ ] The landing page exists. J1 includes a second turn in the same thread. J2 shows a full legal answer. J3 shows a Russian answer.
 - [ ] Streaming plays by itself in the journeys, with a reduced-motion variant.
 - [ ] `screenshots/journeys/` has every step of every journey.
+- [ ] (v1.1) Every icon is a real Lucide icon from one pinned `lucide-static` version, and the inventory is in `components.md`.
+- [ ] (v1.1) Glass is on the listed chrome only, AA passes on glass, and the solid fallbacks for no-`backdrop-filter` and reduced transparency are designed and screenshotted.
+- [ ] (v1.1) A UX polish pass is done, with a before/after list in the README.
 
 ---
 

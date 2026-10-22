@@ -198,6 +198,7 @@ Run these from the repo root. Replace `<lane>` (`design` / `backend` / `frontend
    git worktree prune
    ```
 
+- **Keep `.env` before cleanup.** Before a worktree is removed (by you, or by the app when the session is archived), copy its `.env` to the main checkout's root `.env`. If the root has none, copy the whole file (`cp -n`). If the root already has one, append only the keys it lacks, and never overwrite existing values. Never print, log or commit the values. Do this at the end of your task, before reporting done.
 - If the app started your session in its own managed worktree (`.claude/worktrees/…`), work there and don't remove it yourself. The app removes it when the session is archived.
 - Never pass `--force` to `git worktree remove`. If git refuses, there are uncommitted changes: commit and push them, or ask the author.
 - The local branch can stay. The main session deletes merged branches.
