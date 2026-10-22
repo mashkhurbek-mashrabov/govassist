@@ -120,11 +120,11 @@ def test_robots_unreachable_allows() -> None:
     assert RobotsPolicy(_client(handler)).allowed("https://x.example/a")
 
 
-def test_http_fetcher_waits_out_429_then_succeeds() -> None:
+def test_http_fetcher_waits_out_503_then_succeeds() -> None:
     """Retry-After is honoured and the final response is wrapped."""
     replies = iter(
         [
-            httpx.Response(429, headers={"Retry-After": "2"}),
+            httpx.Response(503, headers={"Retry-After": "2"}),
             httpx.Response(200, headers={"content-type": "text/html; charset=utf-8"}, text="ok"),
         ]
     )
@@ -201,7 +201,7 @@ def test_http_fetcher_retries_transport_errors() -> None:
 
 
 def test_http_fetcher_does_not_retry_server_errors() -> None:
-    """Only 429/503 are waited out; a 500 is returned at once."""
+    """Only 503 is waited out; a 500 is returned at once."""
     calls: list[int] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -331,3 +331,18 @@ def test_browser_fetcher_checks_navigations_and_final_url() -> None:
     with pytest.raises(BlockedUrlError, match="host"):
         BrowserFetcher(guard, lambda: playwright).fetch("https://x.example/a")
     assert browser.close.called
+
+
+@pytest.mark.parametrize("status", [403, 429])
+def test_http_fetcher_never_retries_a_refusal(status: int) -> None:
+    """403/429 are returned after one request, even with Retry-After (the crawler stops)."""
+    calls: list[int] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        """Refuse."""
+        calls.append(1)
+        return httpx.Response(status, headers={"Retry-After": "1"})
+
+    fetcher = HttpFetcher(_guard(), _client(handler), sleep=lambda s: None)
+    assert fetcher.fetch("https://x.example/").status == status
+    assert calls == [1]

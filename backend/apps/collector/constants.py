@@ -40,7 +40,10 @@ RETRY_FALLBACK_S = 5.0
 
 RETRY_MAX_ATTEMPTS = 3
 
-CRAWLER_RETRY_STATUS = frozenset({429, 503})
+# 503 is waited out (Retry-After). 403/429 mean the host refuses automated access: the
+# job stops at once and is never retried (no other way round it is tried either).
+CRAWLER_RETRY_STATUS = frozenset({503})
+CRAWLER_BLOCKED_STATUS = frozenset({403, 429})
 CRAWLER_MAX_REDIRECTS = 5
 CRAWLER_MAX_BYTES = 10 * 1024 * 1024  # larger responses are skipped, never buffered
 ALLOWED_SCHEMES = frozenset({"http", "https"})

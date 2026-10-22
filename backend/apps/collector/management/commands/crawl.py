@@ -4,6 +4,7 @@ from uuid import UUID
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 
 from apps.collector import runner
+from apps.collector.fetchers import HostBlockedError, host_of
 from apps.collector.models import CrawlJob, CrawlSource
 
 
@@ -64,11 +65,19 @@ class Command(BaseCommand):
             else [find_source(options["source"])]
         )
         failed: list[str] = []
+        blocked: set[str] = set()
         for source in sources:
+            host = host_of(source.start_url)
+            if host in blocked:
+                failed.append(source.name)
+                self.stderr.write(f"{source.name}: not started: {host} blocked us in this run")
+                continue
             job = CrawlJob.objects.create(source=source)
             try:
                 runner.run_job(job, force=options["force"])
             except Exception as exc:
+                if isinstance(exc, HostBlockedError):
+                    blocked.add(host)
                 failed.append(source.name)
                 self.stderr.write(f"{source.name}: failed: {type(exc).__name__}: {exc}")
                 continue
