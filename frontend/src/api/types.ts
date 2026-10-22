@@ -1,7 +1,7 @@
 /**
  * API types, built on the ones generated from `docs/schema/` (`npm run gen:types`), under the names the app
- * uses. Where the generated schema is looser than `docs/contract.md` (the source of truth), the type is
- * narrowed here and marked "Schema gap"; those are reported as contract change requests.
+ * uses. If the generated schema is ever looser than `docs/contract.md` (the source of truth), narrow the type
+ * here, mark it "Schema gap" and report it as a contract change request.
  * The SSE events (contract §4) are not in OpenAPI, so they are written here from the contract.
  */
 import type { Answer as GeneratedAnswer } from "./generated/answer";
@@ -144,13 +144,8 @@ export interface ErrorEventData {
   scope?: QuotaScope;
 }
 
-/**
- * A corpus source listed on the About page (`GET /api/v1/sources` → `{items: SourceSummary[]}`).
- * Schema gap: `kind` is generated as a plain string; the contract fixes it to these four values.
- */
-export interface SourceSummary extends Omit<Schemas["SourceSummary"], "kind"> {
-  kind: "law" | "service_page" | "office" | "other";
-}
+/** A corpus source listed on the About page (`GET /api/v1/sources` → `{items: SourceSummary[]}`). */
+export type SourceSummary = Schemas["SourceSummary"];
 
 /** A typed SSE event from the chat stream. */
 export type ChatEvent =
