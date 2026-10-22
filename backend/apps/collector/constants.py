@@ -5,7 +5,17 @@ from pathlib import Path
 
 from django.db import models
 
+from apps.corpus.constants import DocumentKind
+
 OFFICE_KIND = "office"
+
+# SourceSummary.kind (contract §3): a document kind, or "office" for office sources.
+SOURCE_SUMMARY_KINDS = [
+    DocumentKind.LAW,
+    DocumentKind.SERVICE_PAGE,
+    OFFICE_KIND,
+    DocumentKind.OTHER,
+]
 
 MAX_PAGE_CHARS = 60_000
 

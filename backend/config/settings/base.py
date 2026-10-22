@@ -213,6 +213,8 @@ SPECTACULAR_SETTINGS = {
         "UserRoleEnum": "apps.chat.constants.USER_ROLE",
         "AssistantRoleEnum": "apps.chat.constants.ASSISTANT_ROLE",
         "MessageErrorCodeEnum": "apps.chat.constants.MessageErrorCode",
+        "SourceSummaryKindEnum": "apps.collector.constants.SOURCE_SUMMARY_KINDS",
+        "KindEnum": "apps.chat.constants.SOURCE_KINDS",
     },
     "POSTPROCESSING_HOOKS": [
         "drf_spectacular.hooks.postprocess_schema_enums",

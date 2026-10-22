@@ -1502,8 +1502,11 @@
                         "type": "string"
                     },
                     "kind": {
-                        "type": "string",
-                        "description": "``office`` for office sources, else the kind of the source's documents.\n\nArgs:\n    obj: An annotated source from ``public_sources``.",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/SourceSummaryKindEnum"
+                            }
+                        ],
                         "readOnly": true
                     },
                     "url": {
@@ -1531,6 +1534,16 @@
                     "publisher",
                     "url"
                 ]
+            },
+            "SourceSummaryKindEnum": {
+                "enum": [
+                    "law",
+                    "service_page",
+                    "office",
+                    "other"
+                ],
+                "type": "string",
+                "description": "* `law` - law\n* `service_page` - service_page\n* `office` - office\n* `other` - other"
             },
             "SourceSummaryList": {
                 "type": "object",

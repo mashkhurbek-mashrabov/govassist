@@ -1,8 +1,9 @@
 from typing import Any
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from apps.collector.constants import OFFICE_KIND
+from apps.collector.constants import OFFICE_KIND, SOURCE_SUMMARY_KINDS
 from apps.collector.models import CrawlSource
 
 
@@ -16,6 +17,7 @@ class SourceSummarySerializer(serializers.Serializer[Any]):
     documents = serializers.SerializerMethodField()
     last_fetched_at = serializers.DateTimeField(source="last_crawled_at", allow_null=True)
 
+    @extend_schema_field(serializers.ChoiceField(choices=SOURCE_SUMMARY_KINDS))
     def get_kind(self, obj: CrawlSource) -> str:
         """``office`` for office sources, else the kind of the source's documents.
 

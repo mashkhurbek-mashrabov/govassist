@@ -11,6 +11,7 @@ from typing import Any
 import pytest
 
 from apps.chat.constants import MessageErrorCode
+from apps.collector.constants import SOURCE_SUMMARY_KINDS
 
 OPENAPI = Path(__file__).resolve().parents[4] / "docs" / "schema" / "openapi.json"
 QUOTA_FIELDS = {"hour_limit", "hour_used", "day_limit", "day_used"}
@@ -89,3 +90,11 @@ def test_sources_list_has_its_own_component(schemas: dict[str, Any]) -> None:
     assert items["items"] == {"$ref": "#/components/schemas/SourceSummary"}
     assert schemas["SourceSummaryList"]["required"] == ["items"]
     assert schemas["SourceList"]["items"] == {"$ref": "#/components/schemas/Source"}
+
+
+def test_source_summary_kind_is_an_enum(schemas: dict[str, Any]) -> None:
+    """SourceSummary.kind is law | service_page | office | other, not a free string."""
+    kind = schemas["SourceSummary"]["properties"]["kind"]
+    assert _enum(schemas, kind["allOf"][0]) == ["law", "service_page", "office", "other"]
+    assert _enum(schemas, kind["allOf"][0]) == list(SOURCE_SUMMARY_KINDS)
+    assert schemas["KindEnum"]["enum"] == ["law", "service_page", "other"]  # messages' Source.kind
