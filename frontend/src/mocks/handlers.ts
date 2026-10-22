@@ -272,6 +272,7 @@ const authHandlers = [
       if (!email.includes("@")) return authError("invalid", "email");
       if ((body.password ?? "").length < MIN_PASSWORD_LENGTH)
         return authError("password_too_short", "password");
+      if (/^\d+$/.test(body.password ?? "")) return authError("password_entirely_numeric", "password");
       // Contract v1.3: enumeration prevention. An existing email answers exactly like a new signup;
       // the owner gets an "account already exists" email pointing to /forgot-password.
       if (db.users[email]) {

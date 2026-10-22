@@ -24,6 +24,7 @@ let scriptPromise: Promise<TurnstileApi> | null = null;
  * @returns The Turnstile API.
  */
 function loadTurnstile(): Promise<TurnstileApi> {
+  if (window.turnstile) return Promise.resolve(window.turnstile);
   scriptPromise ??= new Promise((resolve, reject) => {
     const script = document.createElement("script");
     script.src = TURNSTILE_SCRIPT;

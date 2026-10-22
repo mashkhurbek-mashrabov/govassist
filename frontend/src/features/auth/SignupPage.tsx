@@ -33,6 +33,9 @@ export function SignupPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [turnstileToken, setTurnstileToken] = useState("");
+  // Turnstile tokens are single-use and the backend spends one even when validation fails, so every
+  // failed submit remounts the widget (new key) for a fresh challenge.
+  const [turnstileRound, setTurnstileRound] = useState(0);
   const [turnstileError, setTurnstileError] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const mutation = useAuthMutation(signup);
@@ -55,6 +58,8 @@ export function SignupPage() {
             state: { email: values.email },
           }),
         onError: (error) => {
+          setTurnstileToken("");
+          setTurnstileRound((round) => round + 1);
           const info = authErrorInfo(error);
           if (info.field === "email" || info.field === "password")
             setError(info.field, { message: info.key });
@@ -102,6 +107,7 @@ export function SignupPage() {
           <CircleCheck className="icon" aria-hidden="true" />
           {TURNSTILE_SITE_KEY && (
             <TurnstileWidget
+              key={turnstileRound}
               siteKey={TURNSTILE_SITE_KEY}
               language={i18n.language}
               onToken={setTurnstileToken}
