@@ -127,7 +127,7 @@ HEADLESS_CLIENTS = ("browser",)
 HEADLESS_SERVE_SPECIFICATION = DEBUG
 HEADLESS_FRONTEND_URLS = {
     "account_confirm_email": f"{FRONTEND_URL}/verify-email/{{key}}",
-    "account_reset_password": f"{FRONTEND_URL}/reset-password",
+    "account_reset_password": f"{FRONTEND_URL}/forgot-password",
     "account_reset_password_from_key": f"{FRONTEND_URL}/reset-password/{{key}}",
     "account_signup": f"{FRONTEND_URL}/signup",
     "socialaccount_login_error": f"{FRONTEND_URL}/login?error=social",

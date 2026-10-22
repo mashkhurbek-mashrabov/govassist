@@ -62,7 +62,7 @@ def test_existing_email_is_not_revealed() -> None:
     with patch("apps.accounts.turnstile.verify_turnstile", return_value=True):
         response = Client().post(f"{AUTH}/signup", body, content_type="application/json")
     assert response.status_code == 401
-    assert "http://localhost:5173/reset-password" in str(mail.outbox[-1].body)
+    assert "http://localhost:5173/forgot-password" in str(mail.outbox[-1].body)
 
 
 @pytest.mark.parametrize(
