@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.accounts.models import User
-from apps.collector import services
+from apps.collector import runner, services
 from apps.collector.crawler import Crawler
 from apps.collector.fetchers import BrowserFetcher, HttpFetcher
 from apps.collector.models import CrawlJob, CrawlSource
@@ -41,7 +41,7 @@ def test_start_crawl_enqueues_on_commit(
     """A queued job is created and the task runs after commit (inline in tests)."""
     source = _source()
     with (
-        patch("apps.collector.services.run_job") as run_job,
+        patch("apps.collector.runner.run_job") as run_job,
         django_capture_on_commit_callbacks(execute=True),
     ):
         run_job.return_value = MagicMock(pages_fetched=3)
@@ -53,11 +53,11 @@ def test_start_crawl_enqueues_on_commit(
 def test_build_crawler_picks_fetcher_and_pipeline(office_type: OfficeType) -> None:
     """Browser/HTTP and document/office wiring follow the source settings."""
     with (
-        patch("apps.collector.services.GeminiOfficeTypeClassifier"),
-        patch("apps.collector.services.GeminiOfficeExtractor"),
+        patch("apps.collector.runner.GeminiOfficeTypeClassifier"),
+        patch("apps.collector.runner.GeminiOfficeExtractor"),
     ):
-        document_crawler = services.build_crawler(_source())
-        office_crawler = services.build_crawler(
+        document_crawler = runner.build_crawler(_source())
+        office_crawler = runner.build_crawler(
             _source(kind="office", office_type=office_type, use_browser=True)
         )
     assert isinstance(document_crawler._fetcher, HttpFetcher)
@@ -77,7 +77,7 @@ def test_crawl_command(capsys: pytest.CaptureFixture[str]) -> None:
 
     with (
         patch.object(Crawler, "run", side_effect=finish),
-        patch("apps.collector.services.GeminiOfficeTypeClassifier"),
+        patch("apps.collector.runner.GeminiOfficeTypeClassifier"),
     ):
         call_command("crawl", "--source", "NAMUNA")
         call_command("crawl", "--source", str(source.id))
@@ -173,7 +173,7 @@ def test_crawl_command_continues_after_a_failure(capsys: pytest.CaptureFixture[s
         return job
 
     with (
-        patch("apps.collector.services.run_job", side_effect=run),
+        patch("apps.collector.runner.run_job", side_effect=run),
         pytest.raises(CommandError, match="NAMUNA a"),
     ):
         call_command("crawl", "--all")

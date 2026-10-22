@@ -2,7 +2,6 @@
 
 from django.tasks import task
 
-from apps.collector import services
 from apps.collector.models import CrawlJob
 
 
@@ -16,5 +15,7 @@ def crawl_source(job_id: str) -> int:
     Returns:
         Pages fetched.
     """
+    from apps.collector import runner  # noqa: PLC0415 (crawler-only deps, worker image)
+
     job = CrawlJob.objects.select_related("source").get(id=job_id)
-    return services.run_job(job).pages_fetched
+    return runner.run_job(job).pages_fetched

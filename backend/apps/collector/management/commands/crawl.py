@@ -3,7 +3,7 @@ from uuid import UUID
 
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 
-from apps.collector import services
+from apps.collector import runner
 from apps.collector.models import CrawlJob, CrawlSource
 
 
@@ -29,7 +29,7 @@ def find_source(value: str) -> CrawlSource:
 
 
 class Command(BaseCommand):
-    """Crawl one source now, in this process (no worker needed)."""
+    """Crawl one source now, in this process (worker image: needs the crawler dependencies)."""
 
     help = "Crawl a source by id or exact name; use --all for every active source."
 
@@ -67,7 +67,7 @@ class Command(BaseCommand):
         for source in sources:
             job = CrawlJob.objects.create(source=source)
             try:
-                services.run_job(job, force=options["force"])
+                runner.run_job(job, force=options["force"])
             except Exception as exc:
                 failed.append(source.name)
                 self.stderr.write(f"{source.name}: failed: {type(exc).__name__}: {exc}")
