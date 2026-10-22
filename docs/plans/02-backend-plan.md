@@ -16,7 +16,7 @@
 
 ## 1. Stack
 
-Exact pins live in `requirements*.txt`, compiled by pip-tools with hashes.
+Exact pins live in `backend/requirements/*.txt`, compiled by pip-tools with hashes.
 
 | Concern | Choice |
 |---|---|
@@ -30,16 +30,18 @@ Exact pins live in `requirements*.txt`, compiled by pip-tools with hashes.
 | Background jobs | Django 6 `django.tasks` API + the database backend from **`django-tasks-db`** 0.13 (`db_worker`). On Django 6.1, `django-tasks` 0.12 no longer ships it. **Verify on Django 6.1 first.** If it fails, use management commands for crawl/index and record that in the PR |
 | LLM / embeddings | `google-genai` 2.x. Generation `GEMINI_MODEL=gemini-3.8-flash`; embeddings `GEMINI_EMBEDDING_MODEL=gemini-embedding-2`, `EMBEDDING_DIM=768`. At setup, confirm both IDs at https://ai.google.dev/gemini-api/docs/models |
 | Schemas | `pydantic` 2.x (LLM answer schema, office extraction schema, request bodies of the async view) |
-| Crawling | `httpx` 0.28, `selectolax` 1.0, `pdfplumber` 0.11. `playwright` 1.64 **only** in `requirements-crawler.txt` (worker image) |
+| Crawling | `httpx` 0.28, `selectolax` 1.0, `pdfplumber` 0.11. `playwright` 1.64 **only** in `requirements/crawler.txt` (worker image) |
 | Settings | `django-environ` 0.14 |
 | Static | `whitenoise` 6.x (admin/Unfold assets) |
 | Logging | `python-json-logger` 4.x |
 | Dev | `pytest`, `pytest-django`, `pytest-asyncio`, `pytest-cov`, `factory-boy`, `ruff` 0.17, `mypy` + `django-stubs` 6.1 + `djangorestframework-stubs`, `pip-tools` 7.6, `invoke` 3.x |
 
 Requirement files:
-- `backend/requirements.in` (runtime);
-- `requirements-crawler.in` (`-r requirements.in` + playwright);
-- `requirements-dev.in` (`-r requirements.in` + dev tools).
+- `backend/requirements/base.in` (web runtime);
+- `requirements/crawler.in` (`-r base.in` + playwright + the parsing libraries only the worker needs);
+- `requirements/dev.in` (`-r base.in` + dev tools).
+
+Each compiles to the `.txt` of the same name. No `requirements-` prefix.
 
 Compile with `pip-compile --generate-hashes`.
 
@@ -63,17 +65,18 @@ backend/
 │   ├── chat/        Conversation, Message, Retrieval, Feedback; schemas.py, prompts/ + prompts.py,
 │   │                generator.py, citations.py, limits.py, language.py, service.py, sse.py, views.py, api/
 │   └── evaluation/  (phase B6)
-├── manage.py   pyproject.toml   requirements*.in/txt   Dockerfile   .dockerignore
+├── manage.py   pyproject.toml   requirements/{base,crawler,dev}.{in,txt}   Dockerfile   .dockerignore
 ```
 
 Per-app pattern, using only the parts an app needs:
 
 | Part | Holds |
 |---|---|
-| `models.py` | Models, with invariants only |
+| `models.py`, or a `models/` package when the app has 2+ models | Models, with invariants only. One model per module, re-exported from `models/__init__.py` |
+| `constants.py` | **All** of the app's constants (limits, sizes, choices, regexes, magic strings). Nothing hard-coded elsewhere |
 | `services.py` | Write/business logic |
 | `selectors.py` | Reusable read queries (DRY) |
-| `api/` | DRF serializers, views, urls. Views are **thin**: validate → call a service or selector → serialize |
+| `api/` | DRF serializers, views, urls. Views are **thin**: validate → call a service or selector → serialize. With 2+ views, use `api/views/` (and `api/serializers/`) packages, one module per resource |
 | `admin.py` | Unfold admins |
 | `tasks.py` | Background jobs |
 | `tests/` | Tests |
@@ -439,9 +442,9 @@ Document every view with `@extend_schema`. The SSE view's description links to c
 | Stage | Contents |
 |---|---|
 | `base` | `python:3.14-slim-trixie`, `PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=1`, user `app` |
-| `builder` | `python -m venv /opt/venv`; `pip install --require-hashes --no-deps -r requirements.txt` with a pip cache mount; copy the source; `collectstatic` (with a dummy `SECRET_KEY`) |
+| `builder` | `python -m venv /opt/venv`; `pip install --require-hashes --no-deps -r requirements/base.txt` with a pip cache mount; copy the source; `collectstatic` (with a dummy `SECRET_KEY`) |
 | `runtime` | Copy `/opt/venv` + `/app`; `USER app`; `HEALTHCHECK` via `python -c "urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"`; `CMD uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --workers 2 --proxy-headers` |
-| `crawler` | From `base`: install `requirements-crawler.txt` into the venv, `playwright install --with-deps chromium` (as root, `PLAYWRIGHT_BROWSERS_PATH=/ms-playwright`), then `USER app`; `CMD python manage.py db_worker` |
+| `crawler` | From `base`: install `requirements/crawler.txt` into the venv, `playwright install --with-deps chromium` (as root, `PLAYWRIGHT_BROWSERS_PATH=/ms-playwright`), then `USER app`; `CMD python manage.py db_worker` |
 
 Size budget: `runtime` ≤ 300 MB uncompressed. Add a `.dockerignore` (tests caches, `.venv`, `__pycache__`, `.env`, `data/`).
 
