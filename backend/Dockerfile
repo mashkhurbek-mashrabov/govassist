@@ -11,10 +11,13 @@ RUN groupadd --system --gid 10001 app \
 WORKDIR /app
 
 FROM base AS builder
-RUN python -m venv /opt/venv
-COPY requirements.txt .
+# The venv gets no pip (installed with the base image's pip) and no .pyc files:
+# both only cost image size; the root filesystem is read-only at runtime anyway.
+RUN python -m venv --without-pip /opt/venv
+COPY requirements/base.txt requirements/base.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --require-hashes --no-deps -r requirements.txt
+    pip --python /opt/venv/bin/python install --no-compile --require-hashes --no-deps \
+      -r requirements/base.txt
 COPY . .
 RUN SECRET_KEY=collectstatic-only \
     DATABASE_URL=postgres://unused@localhost/unused \
@@ -34,9 +37,10 @@ CMD ["uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000"
 FROM base AS crawler
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 COPY --from=builder /opt/venv /opt/venv
-COPY requirements-crawler.txt .
+COPY requirements/crawler.txt requirements/crawler.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --require-hashes --no-deps -r requirements-crawler.txt \
+    pip --python /opt/venv/bin/python install --no-compile --require-hashes --no-deps \
+      -r requirements/crawler.txt \
  && playwright install --with-deps chromium \
  && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app /app

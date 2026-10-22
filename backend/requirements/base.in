@@ -1,4 +1,5 @@
-# Runtime dependencies. Edit here, then run `invoke compile-deps`.
+# Web runtime (API + admin). Edit here, then run `invoke compile-deps`.
+# Parsing libraries live in crawler.in: the web image never imports them.
 Django~=6.1.2
 djangorestframework~=3.18.3
 drf-spectacular~=0.30.0
@@ -12,8 +13,9 @@ redis~=8.1
 google-genai~=2.32
 pydantic~=2.14
 httpx~=0.28.1
-selectolax~=1.0
-pdfplumber~=0.11.10
 whitenoise~=6.12
 python-json-logger~=4.2
-uvicorn[standard]~=0.54.0
+# uvicorn without [standard]: no reloader (watchfiles) or websockets in production.
+uvicorn~=0.54.0
+uvloop~=0.23
+httptools~=0.9

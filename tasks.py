@@ -13,7 +13,7 @@ SCHEMA_DIR = ROOT / "docs" / "schema"
 PYTHON = sys.executable
 PYTHON_IMAGE = "python:3.14-slim-trixie"
 PIP_TOOLS_VERSION = "7.6.2"
-REQUIREMENT_SETS = ("requirements", "requirements-crawler", "requirements-dev")
+REQUIREMENT_SETS = ("base", "crawler", "dev")
 
 
 def _ensure_env() -> None:
@@ -212,10 +212,10 @@ def check(c: Context) -> None:
 
 @task(name="compile-deps")
 def compile_deps(c: Context) -> None:
-    """Recompile hashed requirements*.txt from requirements*.in (Linux resolution)."""
+    """Recompile hashed requirements/{base,crawler,dev}.txt from the .in files (Linux)."""
     commands = " && ".join(
         f"pip-compile -q --generate-hashes --allow-unsafe --strip-extras "
-        f"--no-emit-index-url {name}.in -o {name}.txt"
+        f"--no-emit-index-url requirements/{name}.in -o requirements/{name}.txt"
         for name in REQUIREMENT_SETS
     )
     c.run(

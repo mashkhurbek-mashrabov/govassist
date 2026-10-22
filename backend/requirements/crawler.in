@@ -1,0 +1,5 @@
+# Worker image: web runtime + crawling and parsing.
+-r base.in
+selectolax~=1.0
+pdfplumber~=0.11.10
+playwright~=1.64.0

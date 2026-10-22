@@ -1,3 +1,0 @@
-# Worker image: runtime + headless browser fetcher.
--r requirements.in
-playwright~=1.64.0

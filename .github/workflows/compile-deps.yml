@@ -1,0 +1,36 @@
+# TEMPORARY: compiles the hashed requirements on GitHub's network (Linux, Python 3.14).
+# Removed in the same PR once the .txt files are committed.
+name: compile-deps
+
+on:
+  push:
+    branches: [feat/backend-mvp]
+    paths: [".github/workflows/compile-deps.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - run: pip install pip-tools==7.6.2
+      - name: pip-compile --generate-hashes
+        env:
+          CUSTOM_COMPILE_COMMAND: invoke compile-deps
+        run: |
+          for name in base crawler dev; do
+            pip-compile --generate-hashes --allow-unsafe --strip-extras --no-emit-index-url \
+              "requirements/$name.in" -o "requirements/$name.txt"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: requirements
+          path: backend/requirements/*.txt
