@@ -12,7 +12,6 @@ import { TurnstileWidget } from "./TurnstileWidget";
 /** allauth codes → i18n keys. */
 describe("authErrorKey", () => {
   it.each([
-    [new AuthError(400, [{ code: "email_taken", message: "" }]), "auth.errors.emailTaken"],
     [
       new AuthError(400, [{ code: "turnstile_failed", param: "turnstile_token", message: "" }]),
       "auth.errors.turnstile",

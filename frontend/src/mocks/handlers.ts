@@ -143,10 +143,19 @@ function logEmail(label: string, path: string): void {
  * @param email Address.
  */
 function sendVerification(email: string): void {
-  const key = crypto.randomUUID();
+  const key = emailKey();
   db.verificationKeys[key] = email;
   db.pendingEmail = email;
-  logEmail("Verify email", `/verify-email/${key}`);
+  logEmail("Verify email", `/verify-email/${encodeURIComponent(key)}`);
+}
+
+/**
+ * A key shaped like allauth's (`MQ:…`), which contains `:` and is URL-encoded in links (contract v1.3).
+ *
+ * @returns A new key.
+ */
+function emailKey(): string {
+  return `MQ:${crypto.randomUUID()}`;
 }
 
 /**
@@ -241,7 +250,14 @@ const authHandlers = [
       if (!email.includes("@")) return authError("invalid", "email");
       if ((body.password ?? "").length < MIN_PASSWORD_LENGTH)
         return authError("password_too_short", "password");
-      if (db.users[email]) return authError("email_taken", "email");
+      // Contract v1.3: enumeration prevention. An existing email answers exactly like a new signup;
+      // the owner gets an "account already exists" email pointing to /forgot-password.
+      if (db.users[email]) {
+        db.pendingEmail = email;
+        saveDb();
+        logEmail("Account already exists", "/forgot-password");
+        return unauthenticated(true);
+      }
       db.users[email] = newUser(email, false);
       sendVerification(email);
       saveDb();
@@ -285,10 +301,10 @@ const authHandlers = [
     csrf(async ({ request }) => {
       const { email = "" } = (await request.json()) as { email?: string };
       if (db.users[email.toLowerCase()]) {
-        const key = crypto.randomUUID();
+        const key = emailKey();
         db.resetKeys[key] = email.toLowerCase();
         saveDb();
-        logEmail("Reset password", `/reset-password/${key}`);
+        logEmail("Reset password", `/reset-password/${encodeURIComponent(key)}`);
       }
       return HttpResponse.json({ status: 200 });
     }),

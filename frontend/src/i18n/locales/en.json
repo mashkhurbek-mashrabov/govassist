@@ -87,7 +87,6 @@
       "passwordTooShort": "Use at least {{count}} characters.",
       "passwordsDiffer": "The passwords do not match.",
       "invalidCredentials": "The email or password is wrong.",
-      "emailTaken": "An account with this email already exists.",
       "tooManyAttempts": "Too many attempts. Please wait and try again.",
       "weakPassword": "This password is too weak. Choose a longer, less common one.",
       "incorrectPassword": "The current password is wrong.",

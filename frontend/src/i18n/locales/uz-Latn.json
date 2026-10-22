@@ -87,7 +87,6 @@
       "passwordTooShort": "Kamida {{count}} ta belgidan foydalaning.",
       "passwordsDiffer": "Parollar mos kelmadi.",
       "invalidCredentials": "Elektron pochta yoki parol notoʻgʻri.",
-      "emailTaken": "Bu pochta bilan akkaunt allaqachon mavjud.",
       "tooManyAttempts": "Urinishlar juda koʻp. Biroz kutib, qayta urinib koʻring.",
       "weakPassword": "Bu parol juda oddiy. Uzunroq va kamroq tarqalgan parol tanlang.",
       "incorrectPassword": "Joriy parol notoʻgʻri.",

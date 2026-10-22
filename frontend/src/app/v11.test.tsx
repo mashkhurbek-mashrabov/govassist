@@ -2,7 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type { AssistantMessage } from "../api/types";
-import { db, GOOGLE_ONLY_EMAIL, SEED_EMAIL } from "../mocks/db";
+import { db, GOOGLE_ONLY_EMAIL, newUser, SEED_EMAIL } from "../mocks/db";
 import { renderApp, signInSeedUser } from "../test/render";
 
 /** Seeded conversation id (mocks/db.ts). */
@@ -95,5 +95,41 @@ describe("contract v1.1 features", () => {
     signInSeedUser();
     const { router } = renderApp("/welcome");
     await waitFor(() => expect(router.state.location.pathname).toBe("/"));
+  });
+});
+
+/** Contract v1.3: enumeration-safe signup and URL-encoded keys in email links. */
+describe("contract v1.3 auth changes", () => {
+  it("answers signup with an existing email like a new signup", async () => {
+    const log = vi.spyOn(console, "info").mockImplementation(() => undefined);
+    const user = userEvent.setup();
+    renderApp("/signup");
+    await user.type(await screen.findByLabelText("Elektron pochta"), SEED_EMAIL);
+    await user.type(screen.getByLabelText("Parol"), "uzun-parol-123");
+    await user.click(screen.getByRole("button", { name: "Roʻyxatdan oʻtish" }));
+    await screen.findByRole("heading", { name: "Pochtangizni tekshiring" });
+    expect(String(log.mock.calls.at(-1)?.[0])).toContain("/forgot-password");
+    vi.restoreAllMocks();
+  });
+
+  it("POSTs the decoded verification key from an encoded link", async () => {
+    db.users["kalit@example.com"] = newUser("kalit@example.com", false);
+    db.verificationKeys["MQ:abc/1"] = "kalit@example.com";
+    const user = userEvent.setup();
+    renderApp("/verify-email/MQ%3Aabc%2F1");
+    await user.click(await screen.findByRole("button", { name: "Tasdiqlash" }));
+    await screen.findByRole("heading", { name: "Qayerda yashaysiz?" });
+    expect(db.users["kalit@example.com"].email_verified).toBe(true);
+  });
+
+  it("POSTs the decoded reset key from an encoded link", async () => {
+    db.resetKeys["MQ:xyz"] = SEED_EMAIL;
+    const user = userEvent.setup();
+    renderApp("/reset-password/MQ%3Axyz");
+    await user.type(await screen.findByLabelText("Yangi parol"), "yangi-parol-123");
+    await user.type(screen.getByLabelText("Yangi parolni takrorlang"), "yangi-parol-123");
+    await user.click(screen.getByRole("button", { name: "Parolni saqlash" }));
+    await screen.findByText("Parolingiz oʻzgartirildi. Iltimos, tizimga kiring.");
+    expect(db.resetKeys["MQ:xyz"]).toBeUndefined();
   });
 });
