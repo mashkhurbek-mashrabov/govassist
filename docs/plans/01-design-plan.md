@@ -167,6 +167,10 @@ docs/design/{README.md, design-system.md, tokens.json, tokens.css, components.md
 prototype/*.html, screenshots/*.png}.
 
 Hard rules:
+- You own this lane. You may delegate simple, exactly specified tasks (e.g. screenshots, copy tables, prototype pages
+  that repeat an approved pattern) to Antigravity helpers per AGENTS.md → Delegation. Keep design decisions yourself;
+  verify every helper result and merge it into your branch yourself.
+- Check each screen when it is finished (open it at 375 and 1440 px, run the contrast check) before starting the next.
 - Phone-first (375 px), WCAG 2.2 AA, touch targets ≥ 44 px, body ≥ 16 px, reduced-motion support.
 - Must not look like an official government site: no emblem, no flag branding, no my.gov.uz look-alike.
   Include "Not an official government service" and the answer disclaimer.

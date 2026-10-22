@@ -540,6 +540,11 @@ Build phases B0–B5 from 02-backend-plan.md §16, in order, committing after ea
 (Conventional Commits, e.g. "feat(chat): stream answers over SSE").
 
 Hard rules:
+- You own this lane. You may delegate simple, exactly specified tasks to Antigravity helpers (Gemini Flash) per
+  AGENTS.md → Delegation; keep complex tasks yourself (RAG, streaming, auth/security/PII, crawler pipelines, data model);
+  verify every helper result (checks + full diff review) and merge it into your lane branch yourself.
+- Test every feature when it is finished (AGENTS.md → Testing): automated tests + `invoke check` + a real call against
+  the running stack, before starting the next feature. Put the test evidence in the commit body and the PR.
 - Python 3.14, Django 6.1 (fall back to 6.0.x only if a dependency breaks; say so in the PR), DRF, drf-spectacular,
   django-allauth headless, django-unfold for the admin, pip + pip-tools with hashed requirements (no uv),
   Docker multi-stage non-root images, invoke tasks.py (no Makefile).

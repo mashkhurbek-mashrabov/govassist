@@ -268,6 +268,12 @@ the only source of design values (sync script, no raw hex). Start F3 only when t
 Commit after each phase (Conventional Commits, e.g. "feat(chat): stream answer cards").
 
 Hard rules:
+- You own this lane. You may delegate simple, exactly specified tasks to Antigravity helpers (Gemini Flash) per
+  AGENTS.md → Delegation (e.g. locale files, tests for existing code, simple components from approved specs); keep
+  complex tasks yourself (streaming, auth flows, guards, API client); verify every helper result (checks + full diff
+  review) and merge it into your lane branch yourself.
+- Test every feature when it is finished (AGENTS.md → Testing): automated tests + lint/typecheck/test + a real browser
+  check, before starting the next feature. Put the test evidence in the commit body and the PR.
 - React 19, Vite 8, TypeScript 6.0 strict (not 7.x), React Router, TanStack Query, react-hook-form + zod,
   react-i18next (uz-Latn default, uz-Cyrl, ru, en), Tailwind CSS 4 themed from tokens.css,
   fetch + eventsource-parser + partial-json for streaming.
