@@ -24,7 +24,30 @@ One page each, no link following (`max_pages=1`).
 | VM 129-son, 06.03.2020: ID-kartalarini rasmiylashtirish va berish tizimini joriy etish chora-tadbirlari toʻgʻrisida | https://lex.uz/uz/docs/-4756929 | lex.uz (National Database of Legislation) | law | No robots.txt (404) | No terms page found; public official legal texts | 2026-10-22 |
 | Oʻzbekiston Respublikasining Oila kodeksi, 30.04.1998 | https://lex.uz/uz/docs/-104720 | lex.uz | law | No robots.txt (404) | as above | 2026-10-22 |
 
-## Offices
+## Offices (seed: `backend/apps/collector/fixtures/directory_sources.json`)
 
-None yet. Office rows come only from a real public directory page (office pipeline + admin
-review) or from links the author provides. Until then the office card shows `match: "none"`.
+Both sites are **third-party commercial business directories, not official sources**. Every
+office they yield lands as `pending` (and `needs_review` on a fuzzy district match), and the
+author approves it in the admin. Scraped pages stay on the worker's data volume and in the
+database; none are committed to this repository.
+
+| Site | Publisher | robots.txt (checked 2026-10-22) | Terms of use | What is stored |
+|---|---|---|---|---|
+| https://www.goldenpages.uz/uz/ | GoldenPages (goldenpages.uz) | Present. `*` group disallows among others `*.html`, `*/search/*`, `*/maps/*`, `*/rubplaces/*`, `*/mapcompany/*`, `*&region=*`, `*?Print`, `*&tab=*`, `*/sm/*`, `*/person/*`. `/uz/rubrics/?Id=N`, `&Page=N` and `/uz/company/?Id=N` are allowed. Wildcard rules are matched per RFC 9309 (`apps/collector/robots.py`) | No terms-of-use page found on the homepage | From the page's schema.org `LocalBusiness` JSON-LD: name, street address (region and district parsed from it, or the district from the name), coordinates; working hours and lunch from the schedule table; the page's "Yangilangan" date as `data_as_of`. **Phone: not stored** (masked on the page behind "Show phone number"; no reveal endpoint is called, and the unmasked FAQ JSON-LD is not used) |
+| https://www.yellowpages.uz/uz/ | Yellow Pages Uzbekistan (yellowpages.uz) | Present. Disallows `*?key=`, `*pagesize=`, `/user/`, `/account/`, `/norma/`, `/content/`, `/data/`; sitemap at `/sitemap.xml`. `/uz/rubrika/…` and `/uz/korxona/…` are allowed | No terms-of-use page found on the homepage (a privacy policy exists at `/uz/privacy/privacy-policy-2`) | Second source / cross-check: name, address, coordinates from `LocalBusiness` JSON-LD. No hours (not structured), **no phone** (same rule). Its addresses sometimes label Tashkent city "Toshkent viloyati"; the district settles the region. Duplicates of goldenpages offices (same type and district, and the same address, name or a spot within 150 m) are skipped. Only the first page of each listing (15 entries) is read: further pages load through a JavaScript API, which is not called |
+
+Rubrics crawled (scope: Tashkent city + Samarqand viloyati):
+
+| Office type | goldenpages rubric (`/uz/rubrics/?Id=`) | Region scope | Name filter | yellowpages (`/uz/rubrika/…`) |
+|---|---|---|---|---|
+| public_service_center | 106916 (Toshkent), 106925 (Samarqand) | per rubric | — | `davlat-xizmatlari-markazlari/toshkent` (`DAVLAT XIZMAT`) |
+| tax | 108884 (Toshkent), 108891 (Samarqand) | per rubric | `SOLIQ` | `soliq-inspeksiyasi/toshkent` |
+| civil_registry | 3689 (Toshkent), 3691 (Samarqand): FHDYo offices, not wedding venues | per rubric | `F[HX]DYO\|ZAGS` | — |
+| khokimiyat | 3654 (Toshkent), 108844 (Samarqand viloyati) | per rubric | `HOKIMIYAT` | `hokimiyatlar/toshkent` |
+| migration | 1063 (OVIR / migratsiya, nationwide) | Toshkent shahri, Samarqand viloyati | `MIGRATSIYA\|PASPORT` | `pasport-bolimlari/toshkent` |
+| cadastre | 1893 (nationwide; also lists private firms) | Toshkent shahri, Samarqand viloyati | `KADASTR` | `kadastr/toshkent` |
+| notary | not found on robots-allowed rubric pages (`/search/` is disallowed) | — | — | — |
+
+Fetched first on 2026-10-22 (rubric and company pages sampled by hand at 1 request/1.5 s to
+design the parsers); each crawl's fetch time is stored per page (`RawPage.fetched_at`) and per
+office (`data_as_of` = the page's own date, else the fetch date).

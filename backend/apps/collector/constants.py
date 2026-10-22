@@ -114,3 +114,77 @@ class CrawlJobStatus(models.TextChoices):
     RUNNING = "running", "Running"
     DONE = "done", "Done"
     FAILED = "failed", "Failed"
+
+
+# robots.txt field names (RFC 9309), lower-cased.
+ROBOTS_USER_AGENT = "user-agent"
+ROBOTS_ALLOW = "allow"
+ROBOTS_DISALLOW = "disallow"
+
+# --- Directory sites (goldenpages.uz, yellowpages.uz) --------------------------------
+GOLDENPAGES_HOST = "goldenpages.uz"
+YELLOWPAGES_HOST = "yellowpages.uz"
+DIRECTORY_SOURCES_FIXTURE = Path(__file__).parent / "fixtures" / "directory_sources.json"
+DIRECTORY_TERMS_NOTE = (
+    "Third-party commercial directory, not an official source. robots.txt respected; no "
+    "terms-of-use page found. Phones not stored from masked fields. See "
+    "docs/corpus-sources.md."
+)
+# Links the crawler may follow from a directory source (the parsers already narrow them).
+DIRECTORY_FOLLOW = {
+    GOLDENPAGES_HOST: r"^https://www\.goldenpages\.uz/uz/(?:company/\?Id=\d+|rubrics/\?Id=\d+&Page=\d+)$",
+    YELLOWPAGES_HOST: r"^https://www\.yellowpages\.uz/uz/(?:korxona/[\w-]+|rubrika/[\w/-]+\?page=\d+)$",
+}
+LD_JSON_SELECTOR = 'script[type="application/ld+json"]'
+LOCAL_BUSINESS = "LocalBusiness"
+# goldenpages: company and listing pages, pagination of the same rubric.
+GOLDENPAGES_COMPANY = re.compile(r"^/(?:uz|en|ru)/company/$")
+GOLDENPAGES_RUBRIC = re.compile(r"^/(?:uz|en|ru)/rubrics/$")
+GOLDENPAGES_HOURS_ROW = ".gp_work_time .gp_work_wrap"
+SCHEDULE_CELL_SELECTOR = "div[class^='col-lg']"
+SCHEDULE_DAY_CELL, SCHEDULE_HOURS_CELL, SCHEDULE_LUNCH_CELL = 0, 1, 2
+GOLDENPAGES_RENEWED = re.compile(r"(?:Yangilangan|Renewed|Обновлено):\s*(\d{2})\.(\d{2})\.(\d{4})")
+# yellowpages: company pages and rubric listings (with ?page=N).
+YELLOWPAGES_COMPANY = re.compile(r"^/(?:uz|en)/(?:korxona|company)/[\w-]+$|^/kompaniya/[\w-]+$")
+YELLOWPAGES_RUBRIC = re.compile(r"^/(?:uz|en)?/?(?:rubrika|rubric)/[\w/-]+$")
+PAGE_PARAMS = frozenset({"Page", "page"})
+# Day labels in the goldenpages schedule (uz Latin, en, ru) → contract day codes.
+DAY_LABELS = {
+    "du": "mon",
+    "se": "tue",
+    "ch": "wed",
+    "pa": "thu",
+    "ju": "fri",
+    "sh": "sat",
+    "ya": "sun",
+    "mo": "mon",
+    "tu": "tue",
+    "we": "wed",
+    "th": "thu",
+    "fr": "fri",
+    "sa": "sat",
+    "su": "sun",
+    "пн": "mon",
+    "вт": "tue",
+    "ср": "wed",
+    "чт": "thu",
+    "пт": "fri",
+    "сб": "sat",
+    "вс": "sun",
+}
+TIME_RANGE = re.compile(r"(\d{1,2})[.:](\d{2})\s*[-–]\s*(\d{1,2})[.:](\d{2})")
+POSTAL_CODE = re.compile(r"^\d{5,6}$")
+COUNTRY_NAMES = frozenset({"o'zbekiston", "o‘zbekiston", "uzbekistan", "uz", "узбекистан"})
+# An address part naming a district or city ("Chilonzor tumani", "Samarqand shahri").
+DISTRICT_PART = re.compile(r"\b(tumani|tuman|shahri|shahar|district|район|тумани)\b", re.I)
+# "SAMARQAND TUMANI ...", "ANDIJON VILOYATI ASAKA TUMAN IIB ..." → district from the name
+# (one token before the district word; searched, not anchored).
+NAME_DISTRICT = re.compile(
+    r"(?P<place>[^\s(),]+)\s+(?P<kind>TUMANI(?:NING|NI)?|TUMAN|SHAHRI(?:NING)?|SHAHAR)\b", re.I
+)
+CITY_KINDS = frozenset({"shahri", "shahrining", "shahar"})
+DISTRICT_LABEL = "tumani"
+CITY_LABEL = "shahri"
+# Two listings of the same type and district this close (metres) are the same office.
+OFFICE_DUPLICATE_METRES = 150
+EARTH_RADIUS_M = 6_371_000

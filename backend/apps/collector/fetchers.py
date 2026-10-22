@@ -6,7 +6,6 @@ import logging
 import socket
 import time
 import urllib.parse
-import urllib.robotparser
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -28,6 +27,7 @@ from apps.collector.constants import (
     RETRY_FALLBACK_S,
     RETRY_MAX_ATTEMPTS,
 )
+from apps.collector.robots import RobotsRules
 from apps.common.constants import MS_PER_S
 
 logger = logging.getLogger(__name__)
@@ -193,16 +193,16 @@ class HostRateLimiter:
 
 
 class RobotsPolicy:
-    """robots.txt per host, fetched once with the crawler's User-Agent.
+    """robots.txt per host, fetched once with the crawler's User-Agent (RFC 9309 matching).
 
     Missing robots.txt (4xx) or an unreachable host allow crawling; a 5xx disallows it.
     """
 
     def __init__(self, client: httpx.Client | None = None) -> None:
         self._client = client or build_client()
-        self._rules: dict[str, urllib.robotparser.RobotFileParser | bool] = {}
+        self._rules: dict[str, RobotsRules | bool] = {}
 
-    def _load(self, url: str) -> urllib.robotparser.RobotFileParser | bool:
+    def _load(self, url: str) -> RobotsRules | bool:
         """Fetch and parse the robots.txt for ``url``'s host."""
         parts = urllib.parse.urlsplit(url)
         try:
@@ -214,9 +214,7 @@ class RobotsPolicy:
             return False
         if response.status_code >= HTTP_CLIENT_ERROR or response.status_code in REDIRECT_STATUS:
             return True  # missing (or redirected) robots.txt: crawling allowed
-        parser = urllib.robotparser.RobotFileParser()
-        parser.parse(response.text.splitlines())
-        return parser
+        return RobotsRules(response.text, settings.CRAWLER_USER_AGENT)
 
     def allowed(self, url: str) -> bool:
         """True when robots.txt lets the crawler fetch ``url``.
@@ -230,7 +228,7 @@ class RobotsPolicy:
         rules = self._rules[host]
         if isinstance(rules, bool):
             return rules
-        return rules.can_fetch(settings.CRAWLER_USER_AGENT, url)
+        return rules.allowed(url)
 
 
 def _read_capped(response: httpx.Response, url: str) -> bytes:

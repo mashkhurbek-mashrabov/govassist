@@ -20,14 +20,19 @@ CONTRACT_OFFICE_TYPES = {
 
 
 def test_seed_is_idempotent(capsys: pytest.CaptureFixture[str]) -> None:
-    """Two runs give the same rows: 8 contract office types and 7 one-page sources."""
+    """Two runs give the same rows: 8 office types, 7 one-page sources, 15 directory sources."""
     call_command("seed")
     call_command("seed")
     assert set(OfficeType.objects.values_list("code", flat=True)) == CONTRACT_OFFICE_TYPES
-    assert CrawlSource.objects.count() == 7
-    assert set(CrawlSource.objects.values_list("max_pages", flat=True)) == {1}
+    documents = CrawlSource.objects.filter(kind=CrawlSource.Kind.DOCUMENT)
+    assert documents.count() == 7
+    assert set(documents.values_list("max_pages", flat=True)) == {1}
     assert all(
         url.startswith(("https://my.gov.uz/uz/service/", "https://lex.uz/uz/docs/"))
-        for url in CrawlSource.objects.values_list("start_url", flat=True)
+        for url in documents.values_list("start_url", flat=True)
     )
-    assert "7 sample sources" in capsys.readouterr().out
+    offices = CrawlSource.objects.filter(kind=CrawlSource.Kind.OFFICE)
+    assert offices.count() == 15
+    assert all(source.office_type_id and source.office_regions.exists() for source in offices)
+    assert set(offices.values_list("publisher", flat=True)) == {"goldenpages.uz", "yellowpages.uz"}
+    assert "7 sample sources, 15 directory sources" in capsys.readouterr().out
