@@ -28,6 +28,15 @@ Every motion uses `--motion-*` tokens and stops under `prefers-reduced-motion`.
 - **Tokens:** `--color-primary*`, `--color-on-primary`, `--color-danger*`, `--color-border-strong`, `--radius-md`, `--space-2/4/5`, `--font-weight-semibold`.
 - **A11y:** native `<button>`; a navigating button is an `<a>`. Loading keeps the width (no layout jump) and announces the new label.
 
+#### "Continue with Google" variant `.btn--google`
+Used on Sign up and Log in (screens 1 and 2, journeys J1, J2, J6). It posts the allauth provider-redirect form (contract §2).
+- **Anatomy:** Google "G" mark · label "Google orqali davom etish" / "Continue with Google" (`auth.google`). The mark sits left of the label, vertically centred.
+- **Size and spacing:** the same as every button: 48 px high (`--size-control`), full width in auth forms (`--block`), `--space-5` side padding, `--radius-md`. The mark is 20 × 20 px (`--size-icon`) with `--space-2` (8 px) between mark and label. The mark is never scaled below 20 px or above 24 px.
+- **Colours:** surface background (`--color-surface`), `--size-border` border in `--color-border-strong`, label in `--color-text`; hover `--color-surface-sunken`. The mark keeps **Google's four brand colours, unaltered** (Google sign-in branding rules): `--color-google-blue`, `-green`, `-yellow`, `-red`. It is never tinted, outlined, put on a coloured fill or recoloured for the dark theme.
+- **Brand-colour exception:** these four are the only tokens that are not part of the GovAssist palette. Their hex values live once in `tokens.css` (`--palette-google-*`) and the prototype uses them only through the `.g-blue` / `.g-green` / `.g-yellow` / `.g-red` classes on the SVG paths, so `tokens.mjs --check` passes with no whitelist. No other component may use them.
+- **Markup:** inline SVG (24 px viewBox, `stroke: none`, four `<path>`s), `aria-hidden="true"`; the visible label is the accessible name. See `prototype/signup.html`.
+- **States:** default, hover, focus (standard ring), loading (spinner replaces the mark, label kept), disabled (shared disabled style; the mark stays in colour).
+
 ### IconButton `.icon-btn`
 - 44 × 44 px, icon 20 px. Variants: default (transparent), `--primary` (send), toggle (`aria-pressed="true"` → subtle primary fill: feedback 👍/👎).
 - **A11y:** always an `aria-label`; toggles use `aria-pressed`.
