@@ -78,6 +78,10 @@ Request and response shapes follow **allauth's own spec**. In dev it is served a
 | `email_password_mismatch` | — | Wrong email or password at login |
 | `too_many_login_attempts` | — | allauth login rate limit |
 | `password_too_short`, `password_too_common`, `password_entirely_numeric` | `password` | Django password validators (confirmed on allauth 65.20) |
+| `invalid_password_reset` | `key` | Password-reset key invalid, used or expired. Show the "link invalid, request a new one" state |
+| `enter_current_password` | `current_password` | Wrong current password on change-password. Show it as a field error |
+
+**allauth rate limit:** `429 {"status": 429}` with **no** `errors` array. The SPA shows the rate-limit copy, not a server error. For any other auth endpoint, the backend PR lists the exact codes allauth 65.20 returns, e.g. for an invalid email-verification key, and they are added here.
 
 **Account enumeration prevention is on.** Signing up with an email that already exists answers exactly like a new signup: `401` with a pending `verify_email` flow, so the SPA shows "Check your email". The address's owner gets an "account already exists" email with a password-reset link. There is no `email_taken` error.
 
@@ -393,3 +397,4 @@ The example values below are layout placeholders for design and mocks. Never pre
 *Contract v1.5, 2026-10-22: office localization. Type, district and region labels follow `ui_language`; office name and address are shown as stored.*
 *Contract v1.6, 2026-10-22: SSE `error` code `stream_in_progress`. It can arrive as the only event, with no `meta`, when the lock race is lost.*
 *Contract v1.7, 2026-10-22: the early `office` event is provisional. On refused answers (`not_found` / `off_topic`), `final.message.office` is `null`, and stored history has no office.*
+*Contract v1.8, 2026-10-22: auth codes `invalid_password_reset` and `enter_current_password`; the allauth 429 has no `errors` array (from the frontend review).*
