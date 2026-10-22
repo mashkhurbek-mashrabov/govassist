@@ -1,0 +1,10 @@
+[
+ {"code": "public_service_center", "name_uz_latn": "Davlat xizmatlari markazi", "name_uz_cyrl": "Давлат хизматлари маркази", "name_ru": "Центр государственных услуг", "name_en": "Public Services Center"},
+ {"code": "migration", "name_uz_latn": "Migratsiya va fuqarolikni rasmiylashtirish boʻlimi", "name_uz_cyrl": "Миграция ва фуқароликни расмийлаштириш бўлими", "name_ru": "Отдел миграции и оформления гражданства", "name_en": "Migration and citizenship office"},
+ {"code": "civil_registry", "name_uz_latn": "FHDYo organi", "name_uz_cyrl": "ФҲДЁ органи", "name_ru": "Орган ЗАГС", "name_en": "Civil registry office"},
+ {"code": "notary", "name_uz_latn": "Notarial idora", "name_uz_cyrl": "Нотариал идора", "name_ru": "Нотариальная контора", "name_en": "Notary office"},
+ {"code": "tax", "name_uz_latn": "Davlat soliq inspeksiyasi", "name_uz_cyrl": "Давлат солиқ инспекцияси", "name_ru": "Государственная налоговая инспекция", "name_en": "Tax office"},
+ {"code": "cadastre", "name_uz_latn": "Kadastr boʻlimi", "name_uz_cyrl": "Кадастр бўлими", "name_ru": "Отдел кадастра", "name_en": "Cadastre office"},
+ {"code": "khokimiyat", "name_uz_latn": "Hokimiyat", "name_uz_cyrl": "Ҳокимият", "name_ru": "Хокимият", "name_en": "Khokimiyat (local administration)"},
+ {"code": "other", "name_uz_latn": "Boshqa idora", "name_uz_cyrl": "Бошқа идора", "name_ru": "Другое учреждение", "name_en": "Other office"}
+]
