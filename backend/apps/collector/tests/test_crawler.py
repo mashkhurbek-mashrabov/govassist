@@ -67,13 +67,16 @@ def _source(**extra: object) -> CrawlSource:
     return CrawlSource.objects.create(**(defaults | extra))
 
 
-def _crawl(source: CrawlSource, fetcher: FakeFetcher, pipeline: RecordingPipeline) -> CrawlJob:
+def _crawl(
+    source: CrawlSource, fetcher: FakeFetcher, pipeline: RecordingPipeline, *, force: bool = False
+) -> CrawlJob:
     """Run one job with fakes and no sleeping."""
     crawler = Crawler(
         fetcher=fetcher,
         pipeline=pipeline,
         robots=FakeRobots(),  # type: ignore[arg-type]
         limiter=HostRateLimiter(1000, sleep=lambda s: None),
+        force=force,
     )
     return crawler.run(CrawlJob.objects.create(source=source))
 
@@ -120,6 +123,9 @@ def test_unchanged_pages_skip_the_pipeline() -> None:
     job = _crawl(source, FakeFetcher(SITE), second)
     assert second.urls == []
     assert job.pages_skipped == 1
+    forced = RecordingPipeline()
+    _crawl(source, FakeFetcher(SITE), forced, force=True)
+    assert forced.urls == [START]
 
 
 def test_failure_marks_job_failed_and_reraises() -> None:

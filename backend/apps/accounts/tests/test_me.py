@@ -75,13 +75,24 @@ def test_patch_rejects_district_outside_current_region(
     assert response.status_code == 400
 
 
-def test_patch_region_clears_foreign_district(
+def test_patch_region_without_district_is_rejected(
     auth_api: APIClient, other_district: District
 ) -> None:
-    """Changing only the region drops a district from the old region."""
-    body = auth_api.patch("/api/v1/me", {"region_id": other_district.region_id}).json()
-    assert body["district"] is None
-    assert body["profile_complete"] is False
+    """Changing only the region would leave a district from another region: 400."""
+    response = auth_api.patch("/api/v1/me", {"region_id": other_district.region_id})
+    assert response.status_code == 400
+    assert "district_id" in response.json()["errors"]
+
+
+def test_patch_same_region_without_district_is_fine(auth_api: APIClient, user: User) -> None:
+    """Re-sending the current region alone is accepted."""
+    assert auth_api.patch("/api/v1/me", {"region_id": user.region_id}).status_code == 200
+
+
+def test_patch_region_and_district_together(auth_api: APIClient, other_district: District) -> None:
+    """Moving to another region works when the district comes along."""
+    body = {"region_id": other_district.region_id, "district_id": other_district.id}
+    assert auth_api.patch("/api/v1/me", body).json()["district"]["id"] == other_district.id
 
 
 def test_patch_unknown_ids(auth_api: APIClient) -> None:

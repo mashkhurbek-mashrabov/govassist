@@ -25,7 +25,7 @@ from apps.chat.schemas import Answer
 from apps.chat.sse import Event
 from apps.common.i18n import Lang
 from apps.common.pii import scrub
-from apps.common.problems import ResourceNotFound
+from apps.common.problems import ResourceNotFound, StreamInProgress
 from apps.common.text import detect_language
 from apps.common.time import isoformat_utc
 from apps.corpus.embeddings import Embedder
@@ -37,6 +37,7 @@ logger = logging.getLogger(__name__)
 
 MS_PER_S = 1000
 STOPPED = "stopped"
+TITLE_FROM_QUESTION_CHARS = 60
 HEADING_SEPARATOR = " › "
 
 type Locator = Callable[..., dict[str, Any] | None]
@@ -193,7 +194,10 @@ def save_answer(
         for position, hit in enumerate(context.hits, start=1)
     )
     conversation = assistant.conversation
-    if not conversation.title:
+    earlier_answers = conversation.messages.filter(
+        role=Message.Role.ASSISTANT, status=Message.Status.COMPLETE
+    ).exclude(id=assistant.id)
+    if not earlier_answers.exists():
         conversation.title = answer.title
     conversation.save(update_fields=["title", "updated_at"])
     return assistant
@@ -218,7 +222,10 @@ class AnswerService:
         self._locate = locator
 
     async def prepare(self, user: User, conversation_id: UUID | None) -> Conversation | None:
-        """Pre-stream checks that answer with problem+json: ownership, quotas, lock.
+        """Pre-stream checks that answer with problem+json: ownership, quotas, busy stream.
+
+        Nothing is acquired here: the stream lock is taken inside :meth:`answer`, so a client
+        that drops before the stream starts leaves no lock behind.
 
         Args:
             user: The signed-in, verified user with a complete profile.
@@ -238,7 +245,8 @@ class AnswerService:
             if conversation is None:
                 raise ResourceNotFound
         await self._quota.acheck(user.id)
-        await self._quota.aacquire_stream(user.id)
+        if await self._quota.astream_active(user.id):
+            raise StreamInProgress
         return conversation
 
     async def _open_turn(
@@ -246,7 +254,8 @@ class AnswerService:
     ) -> tuple[Conversation, Message, Message]:
         """Create the conversation (if new), the user message and the streaming answer."""
         if conversation is None:
-            conversation = await Conversation.objects.acreate(user=user, language=lang)
+            title = text[:TITLE_FROM_QUESTION_CHARS].strip()
+            conversation = await Conversation.objects.acreate(user=user, language=lang, title=title)
         question = await Message.objects.acreate(
             conversation=conversation, role=Message.Role.USER, text=text, language=lang
         )
@@ -433,13 +442,20 @@ class AnswerService:
 
         Any failure after ``meta`` becomes one ``error`` event and a failed message. A client
         disconnect stores the message as failed with ``error_code="stopped"`` and no answer.
-        The stream lock is always released.
+        The stream lock is taken first and always released. Losing the race for it (another
+        answer started after :meth:`prepare`) ends the stream with one ``stream_in_progress``
+        error event.
 
         Args:
-            user: The signed-in user (lock taken by :meth:`prepare`).
+            user: The signed-in user who passed :meth:`prepare`.
             conversation: The conversation to continue, or None.
             text: The raw question (scrubbed before anything else).
         """
+        try:
+            await self._quota.aacquire_stream(user.id)
+        except StreamInProgress as exc:
+            yield Event("error", {"code": exc.default_code, "message": str(exc.detail)})
+            return
         run = _Run(started=time.perf_counter())
         events = self._events(user, conversation, text, run)
         try:

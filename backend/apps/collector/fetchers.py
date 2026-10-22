@@ -182,13 +182,29 @@ class HttpFetcher:
         self._sleep = sleep
         self._max_attempts = max_attempts
 
+    def _get(self, url: str) -> httpx.Response:
+        """GET with bounded retries on transport errors (some hosts have flaky TLS nodes).
+
+        Raises:
+            httpx.TransportError: When every attempt fails.
+        """
+        for attempt in range(1, self._max_attempts + 1):
+            try:
+                return self._client.get(url)
+            except httpx.TransportError:
+                if attempt == self._max_attempts:
+                    raise
+                logger.warning("Transport error, retrying", extra={"url": url, "try": attempt})
+                self._sleep(RETRY_FALLBACK_S)
+        raise AssertionError  # unreachable: the loop returns or raises
+
     def fetch(self, url: str) -> FetchResult:
         """GET ``url``; the last response is returned even when it is an error.
 
         Args:
             url: The URL.
         """
-        response = self._client.get(url)
+        response = self._get(url)
         for attempt in range(1, self._max_attempts):
             if response.status_code not in RETRYABLE_STATUS:
                 break
@@ -198,7 +214,7 @@ class HttpFetcher:
                 extra={"url": url, "status": response.status_code, "wait_s": wait, "try": attempt},
             )
             self._sleep(wait)
-            response = self._client.get(url)
+            response = self._get(url)
         return _result(url, response)
 
 

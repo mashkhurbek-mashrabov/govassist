@@ -164,7 +164,7 @@ def test_crawl_command_continues_after_a_failure(capsys: pytest.CaptureFixture[s
     _source(name="NAMUNA b")
     calls: list[str] = []
 
-    def run(job: CrawlJob) -> CrawlJob:
+    def run(job: CrawlJob, **kwargs: object) -> CrawlJob:
         """Fail for source a."""
         calls.append(job.source.name)
         if job.source.name == "NAMUNA a":

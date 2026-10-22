@@ -81,7 +81,7 @@ def test_mygov_service_page() -> None:
     page = parse(_result("https://my.gov.uz/uz/service/1", body))
     assert page.title == "NAMUNA ID karta olish"
     assert page.text == (
-        "## Xizmat narxi\n\n- NAMUNA boj miqdori\n\n## Kerakli hujjatlar\n\n"
+        "Xizmat narxi:\n\n- NAMUNA boj miqdori\n\nKerakli hujjatlar:\n\n"
         "NAMUNA pasport;\n\nNAMUNA ariza."
     )
 

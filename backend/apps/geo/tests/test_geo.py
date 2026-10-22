@@ -38,3 +38,10 @@ def test_name_for_falls_back_to_latin(region: Region) -> None:
     region.name_ru = ""
     assert region.name_for("ru") == "Test viloyati"
     assert str(region) == "Test viloyati"
+
+
+def test_districts_of_unknown_region_is_404(api: APIClient) -> None:
+    """An unknown region is not_found, not an empty list."""
+    response = api.get("/api/v1/geo/regions/1/districts")
+    assert response.status_code == 404
+    assert response.json()["code"] == "not_found"

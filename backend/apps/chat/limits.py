@@ -150,6 +150,14 @@ class QuotaService:
         """Sync variant of :meth:`atokens_today` for the admin dashboard."""
         return int(self._store.get(self._token_key(), 0))
 
+    async def astream_active(self, user_id: object) -> bool:
+        """True while the user has an answer streaming (pre-check, takes nothing).
+
+        Args:
+            user_id: The user's id.
+        """
+        return await self._store.aget(f"stream:{user_id}") is not None
+
     async def aacquire_stream(self, user_id: object) -> None:
         """Take the user's single stream lock.
 

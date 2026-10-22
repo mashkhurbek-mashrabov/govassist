@@ -20,10 +20,7 @@ class ProfileUpdate:
 
 
 def update_profile(user: User, change: ProfileUpdate) -> User:
-    """Apply a profile change and keep region/district consistent.
-
-    When only the region changes and the old district belongs elsewhere, the district is
-    cleared so the user must pick one again.
+    """Apply a validated profile change (the serializer keeps region and district consistent).
 
     Args:
         user: The user to update.
@@ -38,8 +35,6 @@ def update_profile(user: User, change: ProfileUpdate) -> User:
         user.display_name = change.display_name or None
     if change.region is not None:
         user.region = change.region
-        if change.district is None and user.district and user.district.region_id != user.region_id:
-            user.district = None
     if change.district is not None:
         user.district = change.district
         user.region = change.district.region

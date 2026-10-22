@@ -23,11 +23,12 @@ def start_crawl(source: CrawlSource) -> CrawlJob:
     return job
 
 
-def build_crawler(source: CrawlSource) -> Crawler:
+def build_crawler(source: CrawlSource, *, force: bool = False) -> Crawler:
     """Wire the production crawler for a source (browser or HTTP; document or office).
 
     Args:
         source: The source to crawl.
+        force: Re-process unchanged pages.
     """
     fetcher: Fetcher = BrowserFetcher() if source.use_browser else HttpFetcher()
     pipeline: Pipeline = (
@@ -35,13 +36,14 @@ def build_crawler(source: CrawlSource) -> Crawler:
         if source.kind == CrawlSource.Kind.OFFICE
         else DocumentPipeline(GeminiOfficeTypeClassifier())
     )
-    return Crawler(fetcher=fetcher, pipeline=pipeline)
+    return Crawler(fetcher=fetcher, pipeline=pipeline, force=force)
 
 
-def run_job(job: CrawlJob) -> CrawlJob:
+def run_job(job: CrawlJob, *, force: bool = False) -> CrawlJob:
     """Run one crawl job with the production wiring.
 
     Args:
         job: A queued job.
+        force: Re-process unchanged pages.
     """
-    return build_crawler(job.source).run(job)
+    return build_crawler(job.source, force=force).run(job)

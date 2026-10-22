@@ -63,7 +63,10 @@ class MeSerializer(serializers.Serializer[User]):
 
 
 class MeUpdateSerializer(serializers.Serializer[Any]):
-    """PATCH ``/me`` body: all fields optional; ``district_id`` must be in ``region_id``."""
+    """PATCH ``/me`` body: all fields optional; ``district_id`` must be in ``region_id``.
+
+    Changing ``region_id`` needs a ``district_id`` in the new region (contract v1.4).
+    """
 
     ui_language = serializers.ChoiceField(choices=Lang.choices, required=False)
     region_id = serializers.PrimaryKeyRelatedField(
@@ -94,6 +97,11 @@ class MeUpdateSerializer(serializers.Serializer[Any]):
         if district is not None and region_id is not None and district.region_id != region_id:
             raise serializers.ValidationError(
                 {"district_id": ["District does not belong to the region."]}
+            )
+        region_changed = "region" in attrs and attrs["region"].id != user.region_id
+        if region_changed and district is None and user.district_id is not None:
+            raise serializers.ValidationError(
+                {"district_id": ["Choose a district in the new region."]}
             )
         return attrs
 

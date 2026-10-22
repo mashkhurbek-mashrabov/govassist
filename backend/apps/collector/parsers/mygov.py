@@ -8,18 +8,20 @@ from apps.collector.parsers.html import clean, links_of, page_title, render, tid
 
 SERVICE_SELECTOR = ".serviceBox"
 SECTION_SELECTOR = ".item, .accordionContent"
-SECTION_LEVEL = 2
 NOISE_SELECTOR = "button, svg, img"
 
 
 def _section(node: LexborNode) -> str:
-    """An accordion title becomes a heading marker; its content is rendered as text."""
+    """An accordion title becomes a ``Title:`` line; its content is rendered as text.
+
+    Titles are not heading markers, so a whole service page stays one coherent chunk.
+    """
     classes = (node.attributes.get("class") or "").split()
     if "accordionContent" in classes:
         return render(node)
     title = node.css_first("span")
     text = clean(title.text() if title is not None else node.text())
-    return f"\n\n{'#' * SECTION_LEVEL} {text}\n\n" if text else ""
+    return f"\n\n{text}:\n\n" if text else ""
 
 
 def parse_mygov(result: FetchResult) -> ParsedPage:

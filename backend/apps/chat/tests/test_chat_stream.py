@@ -353,3 +353,65 @@ async def test_csrf_is_enforced(user: User, recorder: _Recorder) -> None:
     client = AsyncClient(enforce_csrf_checks=True)
     await client.aforce_login(user)
     assert (await _post(client)).status_code == 403
+
+
+async def test_client_drop_before_iteration_leaves_no_lock(
+    client: AsyncClient, recorder: _Recorder, user: User
+) -> None:
+    """The lock is taken inside the stream: a response never iterated holds nothing."""
+    response: Any = await client.post("/api/v1/chat", {"text": QUESTION}, "application/json")
+    assert response.streaming
+    del response
+    assert await cache.aget(f"stream:{user.id}") is None
+
+
+async def test_lost_lock_race_is_one_error_event(
+    client: AsyncClient, recorder: _Recorder, user: User, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Another stream grabbing the lock after the pre-check ends this one, keeping its lock."""
+    response: Any = await client.post("/api/v1/chat", {"text": QUESTION}, "application/json")
+    await cache.aset(f"stream:{user.id}", "other", 60)
+    chunks = [chunk async for chunk in response.streaming_content]
+    events = _parse(b"".join(chunks).decode())
+    assert [name for name, _ in events] == ["error"]
+    assert events[0][1]["code"] == "stream_in_progress"
+    assert await cache.aget(f"stream:{user.id}") == "other"
+    assert not await Conversation.objects.aexists()
+
+
+def test_lock_ttl_default_follows_llm_timeout() -> None:
+    """The lock outlives the longest answer: LLM_TIMEOUT_S + 30 s by default."""
+    from config.settings import base  # noqa: PLC0415
+
+    assert base.STREAM_LOCK_TTL_S == base.LLM_TIMEOUT_S + 30
+
+
+async def test_title_from_question_then_first_answer(
+    client: AsyncClient, recorder: _Recorder, passport_doc: Document
+) -> None:
+    """A failed first question titles the conversation; the first answer replaces it once."""
+    recorder.factory = lambda: _Failing("broken")
+    long_question = "Pasport " + "uzun savol " * 10 + "+998 90 123 45 67"
+    first = await _ask(client, text=long_question)
+    conversation_id = first[0][1]["conversation_id"]
+    conversation = await Conversation.objects.aget(id=conversation_id)
+    assert conversation.title == long_question[:60].strip()
+    assert len(conversation.title) <= 60
+
+    recorder.factory = lambda: FakeAnswerGenerator(answer_json())
+    await _ask(client, conversation_id=conversation_id)
+    await conversation.arefresh_from_db()
+    assert conversation.title == "NAMUNA pasport"
+
+    recorder.factory = lambda: FakeAnswerGenerator(answer_json(title="NAMUNA boshqa"))
+    await _ask(client, conversation_id=conversation_id)
+    await conversation.arefresh_from_db()
+    assert conversation.title == "NAMUNA pasport"
+
+
+async def test_title_is_scrubbed(client: AsyncClient, recorder: _Recorder) -> None:
+    """The question-based title never contains PII."""
+    recorder.factory = lambda: _Failing("crash")
+    events = await _ask(client, text="AA1234567 pasportim yoʻqoldi")
+    conversation = await Conversation.objects.aget(id=events[0][1]["conversation_id"])
+    assert conversation.title.startswith("[PASSPORT]")

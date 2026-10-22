@@ -62,6 +62,14 @@ class ResourceNotFound(Problem):
     default_detail = "Not found."
 
 
+class CsrfFailed(Problem):
+    """The CSRF token is missing or wrong."""
+
+    status_code = status.HTTP_403_FORBIDDEN
+    default_code = "csrf_failed"
+    default_detail = "CSRF check failed. Reload the page and try again."
+
+
 class EmailNotVerified(Problem):
     """The user has not verified the email address yet."""
 

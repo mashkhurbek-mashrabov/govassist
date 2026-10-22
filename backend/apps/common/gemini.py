@@ -7,7 +7,6 @@ may use the client.
 import asyncio
 import random
 from collections.abc import Awaitable, Callable
-from functools import cache
 
 import httpx
 from django.conf import settings
@@ -18,12 +17,17 @@ from google.genai import errors, types
 RETRYABLE_STATUS = frozenset({408, 429, 500, 502, 503, 504})
 BACKOFF_BASE_S = 0.5
 BACKOFF_CAP_S = 20.0
+RETRY_INFO_CAP_S = 90.0
+RETRY_INFO_TYPE = "type.googleapis.com/google.rpc.RetryInfo"
 MS_PER_S = 1000
 
 
-@cache
 def get_client() -> genai.Client:
-    """Return the shared Gemini client (sync + ``.aio`` async).
+    """Build a Gemini client (sync + ``.aio`` async).
+
+    Not cached on purpose: the async client pools connections on the event loop that first
+    used it, and workers run each task in a new loop (``async_to_sync``), so a shared client
+    fails with "Event loop is closed". Callers keep one client per embedder/generator.
 
     Raises:
         ImproperlyConfigured: When ``GEMINI_API_KEY`` is not set.
@@ -60,6 +64,25 @@ def backoff_delay(attempt: int) -> float:
     return random.uniform(0, min(BACKOFF_CAP_S, BACKOFF_BASE_S * 2**attempt))  # noqa: S311
 
 
+def server_retry_delay(exc: BaseException) -> float | None:
+    """Seconds Gemini asks us to wait (``RetryInfo.retryDelay`` on a 429), or None.
+
+    Args:
+        exc: The error raised by a Gemini call.
+    """
+    details = getattr(exc, "details", None)
+    if not isinstance(details, dict):
+        return None
+    for item in details.get("error", {}).get("details", []):
+        delay = str(item.get("retryDelay", "")) if item.get("@type") == RETRY_INFO_TYPE else ""
+        if delay.endswith("s"):
+            try:
+                return float(delay[:-1])
+            except ValueError:
+                return None
+    return None
+
+
 async def call_with_retries[T](call: Callable[[], Awaitable[T]], *, max_tries: int) -> T:
     """Run an async Gemini call, retrying retryable failures with backoff.
 
@@ -70,6 +93,9 @@ async def call_with_retries[T](call: Callable[[], Awaitable[T]], *, max_tries: i
     Returns:
         The call's result.
 
+    Rate limits wait what Gemini asks for (``RetryInfo``); a wait longer than
+    ``RETRY_INFO_CAP_S`` (a daily quota) fails at once instead of retrying.
+
     Raises:
         Exception: The last error, when it is not retryable or tries run out.
     """
@@ -77,7 +103,9 @@ async def call_with_retries[T](call: Callable[[], Awaitable[T]], *, max_tries: i
         try:
             return await call()
         except Exception as exc:
-            if attempt == max_tries or not is_retryable(exc):
+            server_delay = server_retry_delay(exc)
+            too_long = server_delay is not None and server_delay > RETRY_INFO_CAP_S
+            if attempt == max_tries or not is_retryable(exc) or too_long:
                 raise
-            await asyncio.sleep(backoff_delay(attempt))
+            await asyncio.sleep(server_delay or backoff_delay(attempt))
     raise AssertionError  # unreachable: the loop returns or raises

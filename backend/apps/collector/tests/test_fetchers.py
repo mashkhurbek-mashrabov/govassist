@@ -153,3 +153,26 @@ def test_browser_fetcher_renders_with_playwright() -> None:
     )
     assert browser.close.called
     assert browser.new_page.call_args.kwargs["user_agent"].startswith("GovAssist-research")
+
+
+def test_http_fetcher_retries_transport_errors() -> None:
+    """A flaky TLS node is retried; persistent failure raises."""
+    attempts: list[int] = []
+
+    def flaky(request: httpx.Request) -> httpx.Response:
+        """Fail once, then answer."""
+        attempts.append(1)
+        if len(attempts) == 1:
+            raise httpx.ConnectError("self-signed certificate")
+        return httpx.Response(200, text="ok")
+
+    assert (
+        HttpFetcher(_client(flaky), sleep=lambda s: None).fetch("https://x.example/").status == 200
+    )
+
+    def down(request: httpx.Request) -> httpx.Response:
+        """Always fail."""
+        raise httpx.ConnectError("down")
+
+    with pytest.raises(httpx.ConnectError):
+        HttpFetcher(_client(down), sleep=lambda s: None).fetch("https://x.example/")

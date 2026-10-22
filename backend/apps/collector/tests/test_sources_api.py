@@ -78,3 +78,11 @@ def test_lists_only_sources_with_approved_content(api: APIClient, district: Dist
     assert items[0]["url"] == "https://example.org/laws"
     assert items[0]["publisher"] == "example.org"
     assert items[0]["last_fetched_at"]
+
+
+def test_never_crawled_source_has_null_last_fetched_at(api: APIClient) -> None:
+    """last_fetched_at is nullable (contract SourceSummary)."""
+    source = _source("seeded", document_kind="law")
+    CrawlSource.objects.filter(id=source.id).update(last_crawled_at=None)
+    _document(source, ReviewStatus.APPROVED, "z")
+    assert api.get("/api/v1/sources").json()["items"][0]["last_fetched_at"] is None

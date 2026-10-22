@@ -150,6 +150,7 @@ TURNSTILE_SECRET_KEY = env.str("TURNSTILE_SECRET_KEY", default="")
 TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
 TURNSTILE_TIMEOUT_S = 5
 
+CSRF_FAILURE_VIEW = "apps.common.views.csrf_failure"
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
 
@@ -177,7 +178,9 @@ DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL", default="GovAssist <no-reply@
 
 # --- API --------------------------------------------------------------------------
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework.authentication.SessionAuthentication"],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "apps.common.authentication.CsrfProblemSessionAuthentication"
+    ],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
     "DEFAULT_PARSER_CLASSES": ["rest_framework.parsers.JSONParser"],
@@ -242,7 +245,7 @@ HISTORY_TURNS = env.int("HISTORY_TURNS", default=4)
 CHAT_LIMIT_HOUR = env.int("CHAT_LIMIT_HOUR", default=20)
 CHAT_LIMIT_DAY = env.int("CHAT_LIMIT_DAY", default=100)
 GLOBAL_DAILY_TOKEN_CAP = env.int("GLOBAL_DAILY_TOKEN_CAP", default=2_000_000)
-STREAM_LOCK_TTL_S = env.int("STREAM_LOCK_TTL_S", default=120)
+STREAM_LOCK_TTL_S = env.int("STREAM_LOCK_TTL_S", default=LLM_TIMEOUT_S + 30)
 SSE_KEEPALIVE_S = env.int("SSE_KEEPALIVE_S", default=15)
 
 # --- Collector ----------------------------------------------------------------------

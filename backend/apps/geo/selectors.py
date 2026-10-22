@@ -15,3 +15,12 @@ def districts_of(region_id: int) -> QuerySet[District]:
         region_id: The region's SOATO code.
     """
     return District.objects.filter(region_id=region_id)
+
+
+def region_exists(region_id: int) -> bool:
+    """True when ``region_id`` is a known SOATO region.
+
+    Args:
+        region_id: The region's SOATO code.
+    """
+    return Region.objects.filter(id=region_id).exists()

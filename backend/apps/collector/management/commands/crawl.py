@@ -42,6 +42,11 @@ class Command(BaseCommand):
         group = parser.add_mutually_exclusive_group(required=True)
         group.add_argument("--source", help="Source UUID or exact name.")
         group.add_argument("--all", action="store_true", help="Every active source.")
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Re-process unchanged pages (after a parser change).",
+        )
 
     def handle(self, *args: Any, **options: Any) -> None:
         """Run the crawl(s), report each job, and fail at the end if any source failed.
@@ -62,7 +67,7 @@ class Command(BaseCommand):
         for source in sources:
             job = CrawlJob.objects.create(source=source)
             try:
-                services.run_job(job)
+                services.run_job(job, force=options["force"])
             except Exception as exc:
                 failed.append(source.name)
                 self.stderr.write(f"{source.name}: failed: {type(exc).__name__}: {exc}")

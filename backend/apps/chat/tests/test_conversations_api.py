@@ -105,3 +105,11 @@ def test_chat_endpoints_need_login(api: APIClient) -> None:
     """Every chat read endpoint is 401 for anonymous users."""
     for url in ("/api/v1/conversations", "/api/v1/suggestions"):
         assert api.get(url).status_code == 401
+
+
+def test_preview_is_the_last_question_truncated(auth_api: APIClient, user: User) -> None:
+    """last_message_preview is the latest user text, at most 120 characters."""
+    conversation, _ = _conversation(user)
+    Message.objects.create(conversation=conversation, role="user", text="x" * 300)
+    item = auth_api.get("/api/v1/conversations").json()["results"][0]
+    assert item["last_message_preview"] == "x" * 120

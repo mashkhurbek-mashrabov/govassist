@@ -146,7 +146,6 @@ class TestGetClient:
 
     def test_raises_when_api_key_empty(self) -> None:
         """Raises ``ImproperlyConfigured`` when ``GEMINI_API_KEY`` is empty."""
-        get_client.cache_clear()
         with (
             override_settings(GEMINI_API_KEY=""),
             pytest.raises(ImproperlyConfigured, match="GEMINI_API_KEY"),
@@ -155,8 +154,53 @@ class TestGetClient:
 
     def test_returns_client_when_key_set(self) -> None:
         """Returns a Gemini client when the API key is set."""
-        get_client.cache_clear()
         with override_settings(GEMINI_API_KEY="test-fake-key-SAMPLE"):
             client = get_client()
             assert client is not None
-        get_client.cache_clear()
+
+
+class TestServerRetryDelay:
+    """Tests for honouring Gemini's RetryInfo on 429s."""
+
+    def _error(self, delay: str) -> errors.APIError:
+        """A 429 carrying a RetryInfo detail."""
+        details = {
+            "error": {
+                "code": 429,
+                "details": [
+                    {"@type": "type.googleapis.com/google.rpc.QuotaFailure"},
+                    {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": delay},
+                ],
+            }
+        }
+        return errors.APIError(code=429, response_json=details, response=None)
+
+    def test_delay_is_read_and_capped(self) -> None:
+        """'37s' is 37 seconds; junk is ignored."""
+        from apps.common.gemini import server_retry_delay  # noqa: PLC0415
+
+        assert server_retry_delay(self._error("37s")) == 37.0
+        assert server_retry_delay(self._error("soon")) is None
+        assert server_retry_delay(ValueError()) is None
+
+    async def test_call_with_retries_sleeps_the_server_delay(self) -> None:
+        """The retry waits what the server asked for."""
+        from unittest.mock import AsyncMock, patch  # noqa: PLC0415
+
+        from apps.common.gemini import call_with_retries  # noqa: PLC0415
+
+        call = AsyncMock(side_effect=[self._error("12s"), "ok"])
+        with patch("apps.common.gemini.asyncio.sleep", AsyncMock()) as sleep:
+            assert await call_with_retries(call, max_tries=2) == "ok"
+        sleep.assert_awaited_once_with(12.0)
+
+    async def test_daily_quota_is_not_retried(self) -> None:
+        """A wait beyond the cap (daily quota) raises immediately."""
+        from unittest.mock import AsyncMock  # noqa: PLC0415
+
+        from apps.common.gemini import call_with_retries  # noqa: PLC0415
+
+        call = AsyncMock(side_effect=self._error("73610s"))
+        with pytest.raises(errors.APIError):
+            await call_with_retries(call, max_tries=5)
+        assert call.await_count == 1

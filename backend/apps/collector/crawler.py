@@ -58,7 +58,10 @@ def _store_raw(source: CrawlSource, job: CrawlJob, page: FetchResult) -> None:
 
 
 class Crawler:
-    """Runs one crawl job; every collaborator is injected so tests use fakes."""
+    """Runs one crawl job; every collaborator is injected so tests use fakes.
+
+    ``force`` re-runs the pipeline on unchanged pages (after a parser change).
+    """
 
     def __init__(
         self,
@@ -67,11 +70,13 @@ class Crawler:
         pipeline: Pipeline,
         robots: RobotsPolicy | None = None,
         limiter: HostRateLimiter | None = None,
+        force: bool = False,
     ) -> None:
         self._fetcher = fetcher
         self._pipeline = pipeline
         self._robots = robots or RobotsPolicy()
         self._limiter = limiter or HostRateLimiter()
+        self._force = force
 
     def _skip(self, job: CrawlJob, url: str, reason: str) -> None:
         """Count and log a page that was not processed."""
@@ -109,7 +114,7 @@ class Crawler:
             return []
         job.pages_fetched += 1
         parsed = parse(page)
-        if _is_unchanged(page):
+        if not self._force and _is_unchanged(page):
             self._skip(job, url, "unchanged")
         else:
             self._pipeline.process(source, parsed, url=page.final_url, fetched_at=fetched_at)
