@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="uz-Latn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verify email · GovAssist prototype</title>
+  <link rel="stylesheet" href="../fonts/inter.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<nav class="proto-bar" aria-label="Prototype states" data-default="verifying"><a href="index.html">← Index</a><span>States:</span><button type="button" data-state="verifying" aria-pressed="false">verifying</button><button type="button" data-state="success" aria-pressed="false">success</button><button type="button" data-state="invalid" aria-pressed="false">invalid / expired + resend</button></nav>
+<div class="auth">
+  <header class="auth__header"><a class="wordmark" href="login.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><div class="lang-switch"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg><label class="sr-only" for="lang">Til</label><select class="select" id="lang"><option selected>Oʻzbekcha (lotin)</option><option>Ўзбекча (кирилл)</option><option>Русский</option><option>English</option></select></div></header>
+  <main class="auth__main" id="main">
+<div data-when="verifying"><div class="center-state" role="status"><div class="center-state__icon"><span class="spinner" aria-hidden="true"></span></div><h1>Elektron pochtangiz tasdiqlanmoqda…</h1></div></div><div data-when="success"><div class="center-state" role="status"><div class="center-state__icon center-state__icon--success"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div><h1>Elektron pochta tasdiqlandi</h1><p class="t-body-lg">Endi hududingizni tanlang, shunda kerakli idorani koʻrsata olamiz.</p></div><a class="btn btn--primary btn--block" href="onboarding.html"><span>Davom etish</span></a></div><div data-when="invalid"><div class="center-state" role="alert"><div class="center-state__icon center-state__icon--danger"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.7 18-8-14a2 2 0 0 0-3.5 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div><h1>Havola yaroqsiz yoki muddati oʻtgan</h1><p class="t-body-lg">Elektron pochtangizni kiriting, yangi havola yuboramiz.</p></div><form class="form" novalidate><div class="field"><label class="field__label" for="v-email">Elektron pochta</label><input class="input" id="v-email" name="v-email" type="email" placeholder="siz@example.com" autocomplete="email"></div><div class="form__actions"><a class="btn btn--primary btn--block" href="check-email.html#resent"><span>Yangi havola yuborish</span></a><a class="btn btn--ghost btn--block" href="login.html"><span>Kirish</span></a></div></form></div>
+  </main>
+  <footer class="auth__footer"><p class="footer-note">Rasmiy davlat xizmati emas</p><nav class="footer-links" aria-label="Footer"><a href="about.html">Loyiha haqida</a><a href="about.html#privacy">Maxfiylik haqida</a></nav></footer>
+</div>
+<script>
+  /* Prototype only: show the elements whose data-when lists the current state (#state in the URL). */
+  (function () {
+    var bar = document.querySelector(".proto-bar");
+    function show(state) {
+      document.querySelectorAll("[data-when]").forEach(function (el) {
+        el.hidden = el.getAttribute("data-when").split(" ").indexOf(state) < 0;
+      });
+      bar.querySelectorAll("[data-state]").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.getAttribute("data-state") === state));
+      });
+      document.body.classList.toggle("drawer-open", state.indexOf("drawer") === 0);
+    }
+    function current() { return location.hash.slice(1) || bar.getAttribute("data-default"); }
+    document.addEventListener("click", function (e) {
+      var t = e.target.closest("[data-state], [data-goto], [data-drawer]");
+      if (!t) return;
+      e.preventDefault();
+      if (t.hasAttribute("data-drawer")) {
+        document.body.classList.toggle("drawer-open", t.getAttribute("data-drawer") === "open");
+        return;
+      }
+      location.hash = t.getAttribute("data-state") || t.getAttribute("data-goto");
+    });
+    window.addEventListener("hashchange", function () { show(current()); });
+    show(current());
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Journeys · GovAssist prototype</title>
+  <link rel="stylesheet" href="../fonts/inter.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<main class="page" id="main">
+<h1>GovAssist journeys J1–J6</h1>
+<p>Click-through prototypes from first visit to the last action (<code>01-design-plan.md</code> §4a). Every primary button leads to the next step; the bar at the top shows the step and has Back, Pause and Next.
+Streaming steps advance on a timer. With reduced motion on, text appears at once and steps jump between stages.</p>
+<p class="disclaimer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>All answer content is NAMUNA / SAMPLE. Rasmiy davlat xizmati emas.</span></p>
+<ol class="journey-list"><li class="card"><h2 class="t-h3">J1 · New user, service question</h2><p class="t-muted">Landing → sign up → verify → onboarding → passport question streams → 👍 → follow-up, second turn in the same thread.</p>
+  <p class="t-small t-muted">23 steps · streaming plays by itself (Pause in the bar)</p>
+  <div class="row-actions"><a class="btn btn--primary" href="j1.html"><span>Start J1</span></a></div></li><li class="card"><h2 class="t-h3">J2 · Returning user, legal question (uz-Cyrl)</h2><p class="t-muted">Landing → log in → chat with history → new chat → Cyrillic labour-law question → legal answer with quotes → open a source. Best viewed on desktop.</p>
+  <p class="t-small t-muted">11 steps · streaming plays by itself (Pause in the bar)</p>
+  <div class="row-actions"><a class="btn btn--primary" href="j2.html"><span>Start J2</span></a></div></li><li class="card"><h2 class="t-h3">J3 · Russian question, region fallback</h2><p class="t-muted">Russian question → Russian service answer → office card match=region with unknown hours → Google Maps.</p>
+  <p class="t-small t-muted">9 steps · streaming plays by itself (Pause in the bar)</p>
+  <div class="row-actions"><a class="btn btn--primary" href="j3.html"><span>Start J3</span></a></div></li><li class="card"><h2 class="t-h3">J4 · Off topic and not found, then recovery</h2><p class="t-muted">Off-topic question → topic chip → not_found → rephrase → service answer with the office card.</p>
+  <p class="t-small t-muted">14 steps · streaming plays by itself (Pause in the bar)</p>
+  <div class="row-actions"><a class="btn btn--primary" href="j4.html"><span>Start J4</span></a></div></li><li class="card"><h2 class="t-h3">J5 · Errors: stop, retry, limits, offline</h2><p class="t-muted">Streaming → Stop → answer stopped → reload → Retry → final. Then rate_limited, quota (user and global), offline → back online.</p>
+  <p class="t-small t-muted">18 steps · streaming plays by itself (Pause in the bar)</p>
+  <div class="row-actions"><a class="btn btn--primary" href="j5.html"><span>Start J5</span></a></div></li><li class="card"><h2 class="t-h3">J6 · Account: history, settings, password</h2><p class="t-muted">History → open an old chat → delete with confirm → Settings → Russian UI → change password → log out → landing. Then log in → forgot password → reset → log in.</p>
+  <p class="t-small t-muted">16 steps · streaming plays by itself (Pause in the bar)</p>
+  <div class="row-actions"><a class="btn btn--primary" href="j6.html"><span>Start J6</span></a></div></li></ol>
+<p><a href="index.html">All screens and states →</a></p>
+</main>
+</body>
+</html>

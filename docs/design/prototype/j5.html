@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="uz-Latn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>J5 Errors: stop, retry, limits, offline · GovAssist prototype</title>
+  <link rel="stylesheet" href="../fonts/inter.css">
+  <link rel="stylesheet" href="../tokens.css">
+  <link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<nav class="proto-bar journey-bar" aria-label="Journey controls">
+  <a href="journeys.html">← Journeys</a>
+  <span class="t-strong">J5 · Errors: stop, retry, limits, offline</span>
+  <span class="journey-bar__pos" data-flow-pos aria-live="polite"></span>
+  <button type="button" data-flow-prev>Back</button>
+  <button type="button" data-flow-pause aria-pressed="false">Pause</button>
+  <button type="button" data-flow-next>Next</button>
+</nav>
+<section class="flow-step" id="compose" data-title="Question typed" data-shot="J5-01-compose" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">Yangi suhbat</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<section class="greeting" aria-labelledby="hello"><h1 class="t-display" id="hello">Salom! Qaysi davlat xizmati boʻyicha yordam kerak?</h1>
+  <p class="t-body-lg t-muted">Savolingizni oddiy soʻzlar bilan yozing. Koʻrib chiqilgan rasmiy manbalardan javob beraman va qaysi idoraga borishni aytaman.</p></section>
+<section class="section" aria-labelledby="sugg"><h2 class="t-h3" id="sugg">Masalan, soʻrang:</h2><ul class="chips"><li><button class="chip" type="button">Pasportimni qanday yangilayman?</button></li><li><button class="chip" type="button">Pasportni onlayn almashtirsa boʻladimi?</button></li><li><button class="chip" type="button">NAMUNA savol: tugʻilganlik haqida guvohnoma</button></li><li><button class="chip" type="button">NAMUNA savol: haydovchilik guvohnomasini almashtirish</button></li></ul></section>
+<section class="card" aria-labelledby="can"><h2 class="t-h3" id="can">Nimalarda yordam beraman</h2><ul class="help-list"><li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg><span>Hujjat olish yoki almashtirish tartibi, qadamma-qadam</span></li><li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg><span>Kerakli hujjatlar, toʻlov va muddat</span></li><li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg><span>Tumaningizdagi idora: manzil, ish vaqti, telefon</span></li><li><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 16 3-8 3 8c-.9.7-1.9 1-3 1s-2.1-.3-3-1Z"/><path d="m2 16 3-8 3 8c-.9.7-1.9 1-3 1s-2.1-.3-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg><span>Qonunda nima deyilgani, manbasi bilan</span></li></ul></section>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate data-go="e-searching">
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note">NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+
+</section>
+<section class="flow-step" id="e-searching" data-title="Streaming: searching" data-shot="J5-02-e-searching" data-auto="1600" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span>Hujjatlar qidirilmoqda…</span></p></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button" data-go="stopped"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+
+</section>
+<section class="flow-step" id="e-found" data-title="Streaming: found" data-shot="J5-03-e-found" data-auto="1100" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span class="progress__found"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>4 ta manba topildi</span><span></span></p></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button" data-go="stopped"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+
+</section>
+<section class="flow-step" id="e-summary" data-title="Streaming: summary (press Stop)" data-shot="J5-04-e-summary" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span class="progress__found"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>4 ta manba topildi</span><span>· Javob yozilmoqda…</span></p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>NAMUNA: Haydovchilik guvohnomasini almashtirish</h2><p class="t-body-lg"><span class="typing" data-type>NAMUNA: almashtirish tartibi bir-ikki gapda.</span></p></header><section class="card" aria-hidden="true"><span class="skeleton skeleton--title"></span><span class="skeleton"></span><span class="skeleton skeleton--w60"></span></section></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button" data-go="stopped"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+
+</section>
+<section class="flow-step" id="stopped" data-title="Answer stopped (this view)" data-shot="J5-05-stopped" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant" aria-busy="false"><p class="sr-only">GovAssist javobi:</p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>NAMUNA: Haydovchilik guvohnomasini almashtirish</h2><p class="t-body-lg"><span >NAMUNA: almashtirish tartibi bir-ikki gapda.</span></p></header><p class="progress progress--done" role="status"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Javob toʻxtatildi. Savolni qayta yuborishingiz mumkin.</span></p></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+<p class="proto-note"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.8 9.8 0 0 1 6.7 2.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.8 9.8 0 0 1-6.7-2.7L3 16"/><path d="M8 16H3v5"/></svg><span>Prototype: reload the page</span> <a href="#reloaded">Open →</a></p>
+</section>
+<section class="flow-step" id="reloaded" data-title="After reload: stopped + Retry" data-shot="J5-06-reloaded" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p><div class="alert__actions"><button class="btn btn--secondary btn--sm" type="button" data-go="t-searching"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.8 9.8 0 0 1 6.7 2.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.8 9.8 0 0 1-6.7-2.7L3 16"/><path d="M8 16H3v5"/></svg><span>Qayta urinish</span></button></div></div></div></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+
+</section>
+<section class="flow-step" id="t-searching" data-title="Streaming: searching" data-shot="J5-07-t-searching" data-auto="1600" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p></div></div></li><li class="msg-user" data-flow-scroll><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span>Hujjatlar qidirilmoqda…</span></p></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+
+</section>
+<section class="flow-step" id="t-found" data-title="Streaming: found" data-shot="J5-08-t-found" data-auto="1100" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p></div></div></li><li class="msg-user" data-flow-scroll><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span class="progress__found"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>4 ta manba topildi</span><span></span></p></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+
+</section>
+<section class="flow-step" id="t-summary" data-title="Streaming: summary" data-shot="J5-09-t-summary" data-auto="2200" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p></div></div></li><li class="msg-user" data-flow-scroll><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span class="progress__found"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>4 ta manba topildi</span><span>· Javob yozilmoqda…</span></p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>NAMUNA: Haydovchilik guvohnomasini almashtirish</h2><p class="t-body-lg"><span class="typing" data-type>NAMUNA: almashtirish tartibi bir-ikki gapda.</span></p></header><section class="card" aria-hidden="true"><span class="skeleton skeleton--title"></span><span class="skeleton"></span><span class="skeleton skeleton--w60"></span></section></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+
+</section>
+<section class="flow-step" id="t-steps" data-title="Streaming: steps" data-shot="J5-10-t-steps" data-auto="2400" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p></div></div></li><li class="msg-user" data-flow-scroll><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span class="progress__found"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>4 ta manba topildi</span><span>· Javob yozilmoqda…</span></p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>NAMUNA: Haydovchilik guvohnomasini almashtirish</h2><p class="t-body-lg"><span>NAMUNA: almashtirish tartibi bir-ikki gapda.</span></p></header><section class="card" aria-labelledby="h-steps"><h3 class="card__head" id="h-steps"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Nima qilish kerak</h3><ol class="steps"><li><p><span>NAMUNA: arizani topshirish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span class="typing" data-type>NAMUNA: tayyor guvohnomani olish.</span></p></li></ol></section><section class="card" aria-hidden="true"><span class="skeleton skeleton--title"></span><span class="skeleton"></span><span class="skeleton skeleton--w60"></span></section></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+
+</section>
+<section class="flow-step" id="t-documents" data-title="Streaming: documents" data-shot="J5-11-t-documents" data-auto="1800" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p></div></div></li><li class="msg-user" data-flow-scroll><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span class="progress__found"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>4 ta manba topildi</span><span>· Javob yozilmoqda…</span></p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>NAMUNA: Haydovchilik guvohnomasini almashtirish</h2><p class="t-body-lg"><span>NAMUNA: almashtirish tartibi bir-ikki gapda.</span></p></header><section class="card" aria-labelledby="h-steps"><h3 class="card__head" id="h-steps"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Nima qilish kerak</h3><ol class="steps"><li><p><span>NAMUNA: arizani topshirish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span>NAMUNA: tayyor guvohnomani olish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li></ol></section><section class="card" aria-labelledby="h-docs"><h3 class="card__head" id="h-docs"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Oʻzingiz bilan oling</h3><p class="field__hint">Tayyorlaganingizni belgilang. Belgilar saqlanmaydi.</p><ul class="doc-list"><li><label class="check"><input type="checkbox"><span><span class="typing" data-type>NAMUNA: eski guvohnoma</span></span></label></li></ul></section><div class="facts" aria-hidden="true"><div class="card"><span class="skeleton skeleton--w40"></span><span class="skeleton"></span></div><div class="card"><span class="skeleton skeleton--w40"></span><span class="skeleton"></span></div></div></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+
+</section>
+<section class="flow-step" id="t-facts" data-title="Streaming: facts" data-shot="J5-12-t-facts" data-auto="1600" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p></div></div></li><li class="msg-user" data-flow-scroll><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant" aria-busy="true"><p class="sr-only">GovAssist javobi:</p><p class="progress" role="status" aria-live="polite"><span class="progress__dots" aria-hidden="true"><span></span><span></span><span></span></span><span class="progress__found"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>4 ta manba topildi</span><span>· Javob yozilmoqda…</span></p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>NAMUNA: Haydovchilik guvohnomasini almashtirish</h2><p class="t-body-lg"><span>NAMUNA: almashtirish tartibi bir-ikki gapda.</span></p></header><section class="card" aria-labelledby="h-steps"><h3 class="card__head" id="h-steps"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Nima qilish kerak</h3><ol class="steps"><li><p><span>NAMUNA: arizani topshirish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span>NAMUNA: tayyor guvohnomani olish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li></ol></section><section class="card" aria-labelledby="h-docs"><h3 class="card__head" id="h-docs"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Oʻzingiz bilan oling</h3><p class="field__hint">Tayyorlaganingizni belgilang. Belgilar saqlanmaydi.</p><ul class="doc-list"><li><label class="check"><input type="checkbox"><span><span>NAMUNA: eski guvohnoma</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></span></label></li></ul></section><div class="facts"><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Toʻlov</h3><p class="t-muted">Manbalarda koʻrsatilmagan</p></div><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22"/><path d="M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4a2 2 0 0 0 .6-1.4V2"/></svg>Muddat</h3><p>NAMUNA: N ish kuni<span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></div></div></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="btn btn--secondary btn-stop" type="button"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><span>Toʻxtatish</span></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+
+</section>
+<section class="flow-step" id="t-final" data-title="Retry: final answer (both attempts kept)" data-shot="J5-13-t-final" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p></div></div></li><li class="msg-user" data-flow-scroll><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><p class="sr-only">GovAssist javobi:</p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>NAMUNA: Haydovchilik guvohnomasini almashtirish</h2><p class="t-body-lg"><span>NAMUNA: almashtirish tartibi bir-ikki gapda.</span></p></header><section class="card" aria-labelledby="h-steps"><h3 class="card__head" id="h-steps"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Nima qilish kerak</h3><ol class="steps"><li><p><span>NAMUNA: arizani topshirish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span>NAMUNA: tayyor guvohnomani olish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li></ol></section><section class="card" aria-labelledby="h-docs"><h3 class="card__head" id="h-docs"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Oʻzingiz bilan oling</h3><p class="field__hint">Tayyorlaganingizni belgilang. Belgilar saqlanmaydi.</p><ul class="doc-list"><li><label class="check"><input type="checkbox"><span><span>NAMUNA: eski guvohnoma</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></span></label></li></ul></section><div class="facts"><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Toʻlov</h3><p class="t-muted">Manbalarda koʻrsatilmagan</p></div><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22"/><path d="M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4a2 2 0 0 0 .6-1.4V2"/></svg>Muddat</h3><p>NAMUNA: N ish kuni<span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></div></div><section class="card" aria-labelledby="h-src"><h3 class="card__head" id="h-src"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>Manbalar</h3><ol class="sources"><li class="source" id="src-1"><span class="source__num" aria-hidden="true">1</span><div><p class="source__title"><a class="link-ext" href="https://my.gov.uz/" target="_blank" rel="noopener noreferrer">NAMUNA xizmat sahifasi <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="sr-only"> (yangi oynada ochiladi)</span></a></p><p class="source__meta">my.gov.uz · Xizmat sahifasi · 20.10.2026 holatiga olingan</p></div></li></ol></section><p class="disclaimer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Bu umumiy maʼlumot, yuridik maslahat emas. Rasmiy manbani tekshiring.</span></p><section class="feedback" aria-labelledby="fb-q"><div class="feedback__row"><p class="feedback__q" id="fb-q">Javob foydali boʻldimi?</p><button class="icon-btn" type="button" aria-label="Ha, foydali" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 8a2 2 0 0 1-1.9 1.4H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9Z"/></svg></button><button class="icon-btn" type="button" aria-label="Yoʻq, foydali emas" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 14V2"/><path d="M9 18.1 10 14H4.2a2 2 0 0 1-1.9-2.6l2.3-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.8a2 2 0 0 0-1.8 1.1L12 22a3.1 3.1 0 0 1-3-3.9Z"/></svg></button></div></section></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate data-go="rate">
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note">NAMUNA: yana bir savol</textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+
+</section>
+<section class="flow-step" id="rate" data-title="rate_limited (retry_after)" data-shot="J5-14-rate" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p></div></div></li><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><p class="sr-only">GovAssist javobi:</p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>NAMUNA: Haydovchilik guvohnomasini almashtirish</h2><p class="t-body-lg"><span>NAMUNA: almashtirish tartibi bir-ikki gapda.</span></p></header><section class="card" aria-labelledby="h-steps"><h3 class="card__head" id="h-steps"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Nima qilish kerak</h3><ol class="steps"><li><p><span>NAMUNA: arizani topshirish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span>NAMUNA: tayyor guvohnomani olish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li></ol></section><section class="card" aria-labelledby="h-docs"><h3 class="card__head" id="h-docs"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Oʻzingiz bilan oling</h3><p class="field__hint">Tayyorlaganingizni belgilang. Belgilar saqlanmaydi.</p><ul class="doc-list"><li><label class="check"><input type="checkbox"><span><span>NAMUNA: eski guvohnoma</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></span></label></li></ul></section><div class="facts"><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Toʻlov</h3><p class="t-muted">Manbalarda koʻrsatilmagan</p></div><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22"/><path d="M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4a2 2 0 0 0 .6-1.4V2"/></svg>Muddat</h3><p>NAMUNA: N ish kuni<span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></div></div><section class="card" aria-labelledby="h-src"><h3 class="card__head" id="h-src"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>Manbalar</h3><ol class="sources"><li class="source" id="src-1"><span class="source__num" aria-hidden="true">1</span><div><p class="source__title"><a class="link-ext" href="https://my.gov.uz/" target="_blank" rel="noopener noreferrer">NAMUNA xizmat sahifasi <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="sr-only"> (yangi oynada ochiladi)</span></a></p><p class="source__meta">my.gov.uz · Xizmat sahifasi · 20.10.2026 holatiga olingan</p></div></li></ol></section><p class="disclaimer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Bu umumiy maʼlumot, yuridik maslahat emas. Rasmiy manbani tekshiring.</span></p><section class="feedback" aria-labelledby="fb-q"><div class="feedback__row"><p class="feedback__q" id="fb-q">Javob foydali boʻldimi?</p><button class="icon-btn" type="button" aria-label="Ha, foydali" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 8a2 2 0 0 1-1.9 1.4H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9Z"/></svg></button><button class="icon-btn" type="button" aria-label="Yoʻq, foydali emas" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 14V2"/><path d="M9 18.1 10 14H4.2a2 2 0 0 1-1.9-2.6l2.3-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.8a2 2 0 0 0-1.8 1.1L12 22a3.1 3.1 0 0 1-3-3.9Z"/></svg></button></div></section></li><li class="msg-user" data-flow-scroll><p class="sr-only">Siz:</p><p>NAMUNA: yana bir savol</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><div class="alert__body"><p class="alert__title">Javob olinmadi</p><p>Bir soatda 20 tagacha savol berish mumkin. 21 daqiqadan soʻng yana soʻrang.</p></div></div></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note" disabled></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+<p class="proto-note"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Prototype: next limit state</span> <a href="#quota-user">Open →</a></p>
+</section>
+<section class="flow-step" id="quota-user" data-title="quota_exceeded, scope=user" data-shot="J5-15-quota-user" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p></div></div></li><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><p class="sr-only">GovAssist javobi:</p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>NAMUNA: Haydovchilik guvohnomasini almashtirish</h2><p class="t-body-lg"><span>NAMUNA: almashtirish tartibi bir-ikki gapda.</span></p></header><section class="card" aria-labelledby="h-steps"><h3 class="card__head" id="h-steps"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Nima qilish kerak</h3><ol class="steps"><li><p><span>NAMUNA: arizani topshirish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span>NAMUNA: tayyor guvohnomani olish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li></ol></section><section class="card" aria-labelledby="h-docs"><h3 class="card__head" id="h-docs"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Oʻzingiz bilan oling</h3><p class="field__hint">Tayyorlaganingizni belgilang. Belgilar saqlanmaydi.</p><ul class="doc-list"><li><label class="check"><input type="checkbox"><span><span>NAMUNA: eski guvohnoma</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></span></label></li></ul></section><div class="facts"><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Toʻlov</h3><p class="t-muted">Manbalarda koʻrsatilmagan</p></div><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22"/><path d="M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4a2 2 0 0 0 .6-1.4V2"/></svg>Muddat</h3><p>NAMUNA: N ish kuni<span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></div></div><section class="card" aria-labelledby="h-src"><h3 class="card__head" id="h-src"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>Manbalar</h3><ol class="sources"><li class="source" id="src-1"><span class="source__num" aria-hidden="true">1</span><div><p class="source__title"><a class="link-ext" href="https://my.gov.uz/" target="_blank" rel="noopener noreferrer">NAMUNA xizmat sahifasi <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="sr-only"> (yangi oynada ochiladi)</span></a></p><p class="source__meta">my.gov.uz · Xizmat sahifasi · 20.10.2026 holatiga olingan</p></div></li></ol></section><p class="disclaimer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Bu umumiy maʼlumot, yuridik maslahat emas. Rasmiy manbani tekshiring.</span></p><section class="feedback" aria-labelledby="fb-q"><div class="feedback__row"><p class="feedback__q" id="fb-q">Javob foydali boʻldimi?</p><button class="icon-btn" type="button" aria-label="Ha, foydali" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 8a2 2 0 0 1-1.9 1.4H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9Z"/></svg></button><button class="icon-btn" type="button" aria-label="Yoʻq, foydali emas" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 14V2"/><path d="M9 18.1 10 14H4.2a2 2 0 0 1-1.9-2.6l2.3-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.8a2 2 0 0 0-1.8 1.1L12 22a3.1 3.1 0 0 1-3-3.9Z"/></svg></button></div></section></li><li class="msg-user" data-flow-scroll><p class="sr-only">Siz:</p><p>NAMUNA: yana bir savol</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><div class="alert__body"><p class="alert__title">Javob olinmadi</p><p>Bugungi savollar chegarasiga yetdingiz. Ertaga yana soʻrang.</p></div></div></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note" disabled></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+<p class="proto-note"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>Prototype: next limit state</span> <a href="#quota-global">Open →</a></p>
+</section>
+<section class="flow-step" id="quota-global" data-title="quota_exceeded, scope=global" data-shot="J5-16-quota-global" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p></div></div></li><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><p class="sr-only">GovAssist javobi:</p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>NAMUNA: Haydovchilik guvohnomasini almashtirish</h2><p class="t-body-lg"><span>NAMUNA: almashtirish tartibi bir-ikki gapda.</span></p></header><section class="card" aria-labelledby="h-steps"><h3 class="card__head" id="h-steps"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Nima qilish kerak</h3><ol class="steps"><li><p><span>NAMUNA: arizani topshirish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span>NAMUNA: tayyor guvohnomani olish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li></ol></section><section class="card" aria-labelledby="h-docs"><h3 class="card__head" id="h-docs"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Oʻzingiz bilan oling</h3><p class="field__hint">Tayyorlaganingizni belgilang. Belgilar saqlanmaydi.</p><ul class="doc-list"><li><label class="check"><input type="checkbox"><span><span>NAMUNA: eski guvohnoma</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></span></label></li></ul></section><div class="facts"><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Toʻlov</h3><p class="t-muted">Manbalarda koʻrsatilmagan</p></div><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22"/><path d="M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4a2 2 0 0 0 .6-1.4V2"/></svg>Muddat</h3><p>NAMUNA: N ish kuni<span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></div></div><section class="card" aria-labelledby="h-src"><h3 class="card__head" id="h-src"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>Manbalar</h3><ol class="sources"><li class="source" id="src-1"><span class="source__num" aria-hidden="true">1</span><div><p class="source__title"><a class="link-ext" href="https://my.gov.uz/" target="_blank" rel="noopener noreferrer">NAMUNA xizmat sahifasi <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="sr-only"> (yangi oynada ochiladi)</span></a></p><p class="source__meta">my.gov.uz · Xizmat sahifasi · 20.10.2026 holatiga olingan</p></div></li></ol></section><p class="disclaimer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Bu umumiy maʼlumot, yuridik maslahat emas. Rasmiy manbani tekshiring.</span></p><section class="feedback" aria-labelledby="fb-q"><div class="feedback__row"><p class="feedback__q" id="fb-q">Javob foydali boʻldimi?</p><button class="icon-btn" type="button" aria-label="Ha, foydali" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 8a2 2 0 0 1-1.9 1.4H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9Z"/></svg></button><button class="icon-btn" type="button" aria-label="Yoʻq, foydali emas" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 14V2"/><path d="M9 18.1 10 14H4.2a2 2 0 0 1-1.9-2.6l2.3-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.8a2 2 0 0 0-1.8 1.1L12 22a3.1 3.1 0 0 1-3-3.9Z"/></svg></button></div></section></li><li class="msg-user" data-flow-scroll><p class="sr-only">Siz:</p><p>NAMUNA: yana bir savol</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><div class="alert__body"><p class="alert__title">Javob olinmadi</p><p>Bugun xizmatning umumiy chegarasiga yetildi. Ertaga qayta urinib koʻring.</p></div></div></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note" disabled></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+<p class="proto-note"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01"/><path d="M8.5 16.4a5 5 0 0 1 7 0"/><path d="M5 12.9a10 10 0 0 1 5.2-2.7"/><path d="M19 12.9a10 10 0 0 0-2-1.5"/><path d="M2 8.8a15 15 0 0 1 4.2-2.6"/><path d="M22 8.8a15 15 0 0 0-11.3-3.8"/><path d="m2 2 20 20"/></svg><span>Prototype: go offline</span> <a href="#offline">Open →</a></p>
+</section>
+<section class="flow-step" id="offline" data-title="Offline banner" data-shot="J5-17-offline" data-auto="3500" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+<p class="banner" role="status"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01"/><path d="M8.5 16.4a5 5 0 0 1 7 0"/><path d="M5 12.9a10 10 0 0 1 5.2-2.7"/><path d="M19 12.9a10 10 0 0 0-2-1.5"/><path d="M2 8.8a15 15 0 0 1 4.2-2.6"/><path d="M22 8.8a15 15 0 0 0-11.3-3.8"/><path d="m2 2 20 20"/></svg><span>Internet aloqasi yoʻq. Ulanganingizdan soʻng qayta urinib koʻring.</span></p>
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p></div></div></li><li class="msg-user" data-flow-scroll><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><p class="sr-only">GovAssist javobi:</p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>NAMUNA: Haydovchilik guvohnomasini almashtirish</h2><p class="t-body-lg"><span>NAMUNA: almashtirish tartibi bir-ikki gapda.</span></p></header><section class="card" aria-labelledby="h-steps"><h3 class="card__head" id="h-steps"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Nima qilish kerak</h3><ol class="steps"><li><p><span>NAMUNA: arizani topshirish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span>NAMUNA: tayyor guvohnomani olish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li></ol></section><section class="card" aria-labelledby="h-docs"><h3 class="card__head" id="h-docs"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Oʻzingiz bilan oling</h3><p class="field__hint">Tayyorlaganingizni belgilang. Belgilar saqlanmaydi.</p><ul class="doc-list"><li><label class="check"><input type="checkbox"><span><span>NAMUNA: eski guvohnoma</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></span></label></li></ul></section><div class="facts"><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Toʻlov</h3><p class="t-muted">Manbalarda koʻrsatilmagan</p></div><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22"/><path d="M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4a2 2 0 0 0 .6-1.4V2"/></svg>Muddat</h3><p>NAMUNA: N ish kuni<span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></div></div><section class="card" aria-labelledby="h-src"><h3 class="card__head" id="h-src"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>Manbalar</h3><ol class="sources"><li class="source" id="src-1"><span class="source__num" aria-hidden="true">1</span><div><p class="source__title"><a class="link-ext" href="https://my.gov.uz/" target="_blank" rel="noopener noreferrer">NAMUNA xizmat sahifasi <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="sr-only"> (yangi oynada ochiladi)</span></a></p><p class="source__meta">my.gov.uz · Xizmat sahifasi · 20.10.2026 holatiga olingan</p></div></li></ol></section><p class="disclaimer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Bu umumiy maʼlumot, yuridik maslahat emas. Rasmiy manbani tekshiring.</span></p><section class="feedback" aria-labelledby="fb-q"><div class="feedback__row"><p class="feedback__q" id="fb-q">Javob foydali boʻldimi?</p><button class="icon-btn" type="button" aria-label="Ha, foydali" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 8a2 2 0 0 1-1.9 1.4H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9Z"/></svg></button><button class="icon-btn" type="button" aria-label="Yoʻq, foydali emas" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 14V2"/><path d="M9 18.1 10 14H4.2a2 2 0 0 1-1.9-2.6l2.3-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.8a2 2 0 0 0-1.8 1.1L12 22a3.1 3.1 0 0 1-3-3.9Z"/></svg></button></div></section></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note" disabled></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+
+</section>
+<section class="flow-step" id="online" data-title="Back online" data-shot="J5-18-online" hidden>
+<a class="skip-link" href="#main">Asosiy qismga oʻtish</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Suhbatlar">
+  <div class="sidebar__top"><a class="wordmark" href="chat-empty.html"><span class="wordmark__mark"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>GovAssist</a><button class="icon-btn js-close-drawer" type="button" aria-label="Yopish" data-drawer="close"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+  <a class="btn btn--secondary btn--block" href="#compose"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span>Yangi suhbat</span></a>
+  <section class="sidebar__section"><h2 class="sidebar__heading t-small t-muted">Suhbatlar</h2><ul class="history"><li class="history__item"><a class="history__link" href="answer-service.html" aria-current="page"><span class="history__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</span></a><button class="icon-btn" type="button" aria-label="“NAMUNA: Haydovchilik guvohnomasini almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li><li class="history__item"><a class="history__link" href="answer-service.html"><span class="history__title">Pasportni almashtirish</span><span class="history__preview"><span class="history__date">Bugun</span> · Pasportimni qanday yangilayman?</span></a><button class="icon-btn" type="button" aria-label="“Pasportni almashtirish” suhbatini oʻchirish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></li></ul>
+    <a class="nav-link t-small" href="history.html">Yana koʻrsatish</a></section>
+  <nav class="sidebar__nav" aria-label="Menyu">
+    <a class="nav-link" href="settings.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Sozlamalar</span></a>
+    <a class="nav-link" href="about.html"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Loyiha haqida</span></a>
+    <p class="footer-note" style="padding: var(--space-2) var(--space-3)">Rasmiy davlat xizmati emas</p>
+  </nav>
+</aside>
+<div class="scrim scrim--drawer" data-drawer="close"></div>
+<div class="main-col">
+<header class="topbar">
+  <button class="icon-btn js-open-drawer" type="button" aria-label="Menyu" aria-controls="sidebar" aria-expanded="false" data-drawer="open"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
+  <p class="topbar__title">NAMUNA: Haydovchilik guvohnomasini almashtirish</p>
+  <a class="icon-btn js-new-chat" href="#compose" aria-label="Yangi suhbat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+</header>
+
+<main class="page page--chat" id="main">
+<ol class="thread"><li class="msg-user"><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><div class="alert alert--warning" role="alert"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="12" height="12" x="6" y="6" rx="2"/></svg><div class="alert__body"><p class="alert__title">Javob toʻxtatildi</p><p>Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing.</p></div></div></li><li class="msg-user" data-flow-scroll><p class="sr-only">Siz:</p><p>NAMUNA: Haydovchilik guvohnomasini qanday almashtiraman?</p></li><li class="assistant"><p class="sr-only">GovAssist javobi:</p><header class="answer-head"><p class="answer-head__kind t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 6.4-6.4 2 2-6.4z"/></svg>Davlat xizmati</p><h2>NAMUNA: Haydovchilik guvohnomasini almashtirish</h2><p class="t-body-lg"><span>NAMUNA: almashtirish tartibi bir-ikki gapda.</span></p></header><section class="card" aria-labelledby="h-steps"><h3 class="card__head" id="h-steps"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Nima qilish kerak</h3><ol class="steps"><li><p><span>NAMUNA: arizani topshirish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li><li><p><span>NAMUNA: tayyor guvohnomani olish.</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></li></ol></section><section class="card" aria-labelledby="h-docs"><h3 class="card__head" id="h-docs"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>Oʻzingiz bilan oling</h3><p class="field__hint">Tayyorlaganingizni belgilang. Belgilar saqlanmaydi.</p><ul class="doc-list"><li><label class="check"><input type="checkbox"><span><span>NAMUNA: eski guvohnoma</span><span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></span></label></li></ul></section><div class="facts"><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>Toʻlov</h3><p class="t-muted">Manbalarda koʻrsatilmagan</p></div><div class="card fact"><h3 class="fact__label t-small"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22"/><path d="M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4a2 2 0 0 0 .6-1.4V2"/></svg>Muddat</h3><p>NAMUNA: N ish kuni<span class="cites"><a class="cite" href="#src-1" aria-label="1-manba">1</a></span></p></div></div><section class="card" aria-labelledby="h-src"><h3 class="card__head" id="h-src"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>Manbalar</h3><ol class="sources"><li class="source" id="src-1"><span class="source__num" aria-hidden="true">1</span><div><p class="source__title"><a class="link-ext" href="https://my.gov.uz/" target="_blank" rel="noopener noreferrer">NAMUNA xizmat sahifasi <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg><span class="sr-only"> (yangi oynada ochiladi)</span></a></p><p class="source__meta">my.gov.uz · Xizmat sahifasi · 20.10.2026 holatiga olingan</p></div></li></ol></section><p class="disclaimer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Bu umumiy maʼlumot, yuridik maslahat emas. Rasmiy manbani tekshiring.</span></p><section class="feedback" aria-labelledby="fb-q"><div class="feedback__row"><p class="feedback__q" id="fb-q">Javob foydali boʻldimi?</p><button class="icon-btn" type="button" aria-label="Ha, foydali" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 8a2 2 0 0 1-1.9 1.4H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9Z"/></svg></button><button class="icon-btn" type="button" aria-label="Yoʻq, foydali emas" aria-pressed="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 14V2"/><path d="M9 18.1 10 14H4.2a2 2 0 0 1-1.9-2.6l2.3-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.8a2 2 0 0 0-1.8 1.1L12 22a3.1 3.1 0 0 1-3-3.9Z"/></svg></button></div></section></li></ol>
+</main>
+<div class="composer">
+  <form class="composer__inner" novalidate>
+    <div class="inputbar">
+      <label class="sr-only" for="q">Savolingiz</label>
+      <textarea id="q" rows="1" maxlength="1100" placeholder="Savolingizni yozing…" aria-describedby="composer-note"></textarea>
+      <button class="icon-btn icon-btn--primary" type="submit" aria-label="Yuborish"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button>
+    </div>
+    
+    <div class="composer__meta"><p class="footer-note" id="composer-note">Rasmiy davlat xizmati emas. Javoblarda xato boʻlishi mumkin.</p></div>
+  </form>
+</div>
+</div>
+</div>
+<div class="toast" role="status"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Aloqa tiklandi.</span></div>
+</section>
+<script src="flow.js"></script>
+</body>
+</html>
