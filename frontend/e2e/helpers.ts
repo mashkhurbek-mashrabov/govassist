@@ -15,11 +15,25 @@ export const STREAM_TIMEOUT_MS = 20_000;
  * @param page The page under test.
  */
 export async function expectAccessible(page: Page): Promise<void> {
+  // Let entry animations finish, so contrast is not measured mid-fade (looping ones never finish).
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity)
+        .map((animation) => animation.finished.catch(() => undefined)),
+    ),
+  );
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
     .analyze();
   const blocking = results.violations.filter((violation) => BLOCKING_IMPACTS.has(violation.impact ?? ""));
-  expect(blocking.map((violation) => `${violation.id}: ${violation.help}`)).toEqual([]);
+  expect(
+    blocking.map(
+      (violation) =>
+        `${violation.id}: ${violation.help} at ${violation.nodes.map((node) => node.target.join(" ")).join(", ")}`,
+    ),
+  ).toEqual([]);
 }
 
 /**

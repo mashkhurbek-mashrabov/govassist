@@ -1,4 +1,4 @@
-import { Check, KeyRound, LogOut, Trash2 } from "lucide-react";
+import { Check, Lock, LogOut, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeleteAccount, useLogout, useUpdateMe } from "../../api/queries";
@@ -198,7 +198,7 @@ function AccountCard() {
       <div className="row-actions">
         {!passwordOpen && (
           <Button
-            icon={<KeyRound className="icon" aria-hidden="true" />}
+            icon={<Lock className="icon" aria-hidden="true" />}
             onClick={() => {
               setPasswordSaved(false);
               setPasswordOpen(true);

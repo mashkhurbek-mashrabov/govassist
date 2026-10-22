@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { requestPasswordReset } from "../../api/auth";
+import { Mail } from "lucide-react";
 import { Alert } from "../../components/ui/Alert";
 import { Button } from "../../components/ui/Button";
 import { TextField } from "../../components/ui/TextField";
@@ -32,7 +33,9 @@ export function ForgotPasswordPage() {
         {!mutation.isSuccess && <p className="t-muted">{t("forgot.lead")}</p>}
       </div>
       {mutation.isSuccess ? (
-        <Alert tone="success">{t("forgot.sent")}</Alert>
+        <Alert tone="success" icon={Mail}>
+          {t("forgot.sent")}
+        </Alert>
       ) : (
         <form className="form" noValidate onSubmit={(event) => void onSubmit(event)}>
           {mutation.isError && <Alert tone="danger">{t("error.server")}</Alert>}

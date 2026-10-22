@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { CircleAlert, CircleCheck } from "lucide-react";
+import { CircleCheck, Clock, TriangleAlert } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -94,7 +94,7 @@ function InvalidLink({ onResent }: InvalidLinkProps) {
   return (
     <>
       <CenterState
-        icon={<CircleAlert className="icon" aria-hidden="true" />}
+        icon={<TriangleAlert className="icon" aria-hidden="true" />}
         tone="danger"
         title={t("verify.invalid_title")}
         role="alert"
@@ -102,7 +102,12 @@ function InvalidLink({ onResent }: InvalidLinkProps) {
         <p className="t-body-lg">{t("verify.invalid_lead")}</p>
       </CenterState>
       {failure && (
-        <Alert tone={failure.rateLimited ? "warning" : "danger"}>{t(failure.key, failure.values)}</Alert>
+        <Alert
+          tone={failure.rateLimited ? "warning" : "danger"}
+          icon={failure.rateLimited ? Clock : undefined}
+        >
+          {t(failure.key, failure.values)}
+        </Alert>
       )}
       <form className="form" noValidate onSubmit={(event) => void onSubmit(event)}>
         <TextField

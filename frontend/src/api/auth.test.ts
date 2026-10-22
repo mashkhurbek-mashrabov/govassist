@@ -45,7 +45,9 @@ describe("auth", () => {
   });
 
   it("reads providers and builds the redirect form with the CSRF token", async () => {
-    await expect(getProviders()).resolves.toEqual([]);
+    await expect(getProviders()).resolves.toEqual([
+      { id: "google", name: "Google", flows: ["provider_redirect"] },
+    ]);
     expect(providerRedirectFields("google", "http://localhost/")).toEqual({
       provider: "google",
       callback_url: "http://localhost/",

@@ -22,15 +22,21 @@ describe("failureMessage", () => {
     ],
     [
       { kind: "stream", code: "quota_exceeded", scope: "global" },
-      { key: "chat_error.quota_global", tone: "warning", retry: false },
+      { key: "chat_error.quota_global", tone: "warning", retry: false, icon: "clock" },
     ],
     [
       { kind: "request", code: "quota_exceeded", retryAfter: 3600, scope: "user" },
-      { key: "chat_error.quota_user", tone: "warning", retry: false },
+      { key: "chat_error.quota_user", tone: "warning", retry: false, icon: "clock" },
     ],
     [
       { kind: "request", code: "rate_limited", retryAfter: 1260, scope: null },
-      { key: "chat_error.rate_limited", values: { limit: 20, minutes: 21 }, tone: "warning", retry: false },
+      {
+        key: "chat_error.rate_limited",
+        values: { limit: 20, minutes: 21 },
+        tone: "warning",
+        retry: false,
+        icon: "clock",
+      },
     ],
     [
       { kind: "request", code: "validation_error", retryAfter: null, scope: null },
@@ -49,6 +55,7 @@ describe("storedFailureMessage", () => {
       key: "chat_error.stopped",
       tone: "warning",
       retry: true,
+      icon: "square",
     });
   });
 

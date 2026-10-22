@@ -1,4 +1,4 @@
-import { SearchX } from "lucide-react";
+import { Compass, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useSuggestions } from "../../api/queries";
 import type { PartialAnswer } from "./answerTypes";
@@ -21,11 +21,12 @@ export function NotFoundCard({ answer, onAsk }: NotFoundCardProps) {
   const { t } = useTranslation();
   const suggestions = useSuggestions();
   const followUps = answer.follow_up_questions?.filter(Boolean) ?? [];
+  const Icon = answer.answer_type === "off_topic" ? Compass : Search;
   const topics = followUps.length > 0 ? followUps : (suggestions.data?.map((item) => item.text) ?? []);
   return (
     <div className="card">
       <h2 className="card__head t-h2">
-        <SearchX className="icon" aria-hidden="true" />
+        <Icon className="icon" aria-hidden="true" />
         {answer.title ?? ""}
       </h2>
       <p className="t-body-lg">{answer.summary ?? ""}</p>

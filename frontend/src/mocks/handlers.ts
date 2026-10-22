@@ -241,7 +241,13 @@ function requestLang(request: Request): Lang {
 
 const authHandlers = [
   http.get(`${AUTH_BASE}/config`, () =>
-    HttpResponse.json({ status: 200, data: { account: {}, socialaccount: { providers: [] } } }),
+    HttpResponse.json({
+      status: 200,
+      data: {
+        account: {},
+        socialaccount: { providers: [{ id: "google", name: "Google", flows: ["provider_redirect"] }] },
+      },
+    }),
   ),
   http.get(`${AUTH_BASE}/auth/session`, () => {
     const me = currentUser();

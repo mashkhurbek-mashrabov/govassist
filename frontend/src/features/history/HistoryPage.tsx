@@ -1,4 +1,4 @@
-import { SquarePen } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LinkButton } from "../../components/ui/LinkButton";
 import { HistoryList } from "./HistoryList";
@@ -14,7 +14,7 @@ export function HistoryPage() {
     <main className="page" id="main">
       <div className="section">
         <h1>{t("history.title")}</h1>
-        <LinkButton to="/" icon={<SquarePen className="icon" aria-hidden="true" />}>
+        <LinkButton to="/" icon={<Plus className="icon" aria-hidden="true" />}>
           {t("chat.new")}
         </LinkButton>
       </div>

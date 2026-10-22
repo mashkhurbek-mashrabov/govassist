@@ -1,19 +1,10 @@
-import { BookOpen, Building2, FileText, Scale, type LucideIcon } from "lucide-react";
+import { BookOpen, Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useSources } from "../../api/queries";
-import type { SourceSummary } from "../../api/types";
 import { Alert } from "../../components/ui/Alert";
 import { ExternalLink } from "../../components/ui/ExternalLink";
 import { formatDate } from "../../lib/format";
 import { Disclaimer } from "../answer/Disclaimer";
-
-/** Icon per source kind. */
-const KIND_ICONS: Record<SourceSummary["kind"], LucideIcon> = {
-  law: Scale,
-  service_page: FileText,
-  office: Building2,
-  other: BookOpen,
-};
 
 /** The four "How answers are made" and "Privacy" points. */
 const POINTS = [1, 2, 3, 4] as const;
@@ -30,7 +21,7 @@ export function AboutPage() {
   return (
     <main className="page" id="main">
       <h1>{t("about.title")}</h1>
-      <Alert tone="warning" title={t("about.not_official_title")} role="note">
+      <Alert tone="warning" icon={Info} title={t("about.not_official_title")} role="note">
         {t("app.not_official_long")}
       </Alert>
       <section className="prose" aria-labelledby="about-what">
@@ -60,7 +51,6 @@ export function AboutPage() {
         {sources.isError && <Alert tone="danger">{t("error.server")}</Alert>}
         <ol className="sources">
           {sources.data?.map((source) => {
-            const Icon = KIND_ICONS[source.kind];
             const meta = [
               source.publisher,
               t(`answer.source_kind_${source.kind}`),
@@ -71,7 +61,7 @@ export function AboutPage() {
             return (
               <li key={source.url} className="source">
                 <span className="source__num" aria-hidden="true">
-                  <Icon className="icon" />
+                  <BookOpen className="icon" />
                 </span>
                 <div>
                   <p className="source__title">

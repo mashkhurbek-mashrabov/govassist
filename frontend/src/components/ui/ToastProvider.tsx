@@ -1,4 +1,4 @@
-import { CircleCheck } from "lucide-react";
+import { Check } from "lucide-react";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { ToastContext } from "./toastContext";
 
@@ -31,7 +31,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
       {children}
       {toast && (
         <div key={toast.id} className="toast" role="status">
-          <CircleCheck className="icon" aria-hidden="true" />
+          <Check className="icon" aria-hidden="true" />
           <span>{toast.text}</span>
         </div>
       )}

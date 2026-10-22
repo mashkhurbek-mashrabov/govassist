@@ -95,7 +95,7 @@ export function appRoutes(client: QueryClient): RouteObject[] {
           children: [
             {
               path: "/about",
-              handle: titled("app.about"),
+              handle: titled("about.title"),
               lazy: async () => ({ Component: (await import("../features/about/AboutPage")).AboutPage }),
             },
           ],

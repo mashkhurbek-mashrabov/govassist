@@ -1,4 +1,4 @@
-import { CircleAlert, CircleCheck, Info, TriangleAlert } from "lucide-react";
+import { CircleAlert, CircleCheck, Info, TriangleAlert, type LucideIcon } from "lucide-react";
 import type { AriaRole, ReactNode } from "react";
 
 /** Alert colour and icon. */
@@ -13,6 +13,8 @@ interface AlertProps {
   title?: string | undefined;
   /** Buttons under the text (e.g. Retry). */
   actions?: ReactNode;
+  /** Overrides the tone's icon (e.g. a clock on limit alerts, components.md → Icon inventory). */
+  icon?: LucideIcon;
   /** Defaults: `alert` for danger, `status` otherwise. */
   role?: AriaRole;
   children?: ReactNode;
@@ -21,11 +23,11 @@ interface AlertProps {
 /**
  * Inline message box (components.md → Alert).
  *
- * @param props Tone, title, actions, role and text.
+ * @param props Tone, title, actions, icon, role and text.
  * @returns The alert.
  */
-export function Alert({ tone = "info", title, actions, role, children }: AlertProps) {
-  const Icon = ICONS[tone];
+export function Alert({ tone = "info", title, actions, icon, role, children }: AlertProps) {
+  const Icon = icon ?? ICONS[tone];
   return (
     <div
       className={tone === "info" ? "alert" : `alert alert--${tone}`}

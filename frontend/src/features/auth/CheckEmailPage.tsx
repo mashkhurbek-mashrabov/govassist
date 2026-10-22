@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Mail, RefreshCw } from "lucide-react";
+import { Clock, Mail, RefreshCw } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router";
@@ -61,7 +61,12 @@ export function CheckEmailPage() {
         <Alert tone="success">{t("check_email.resent")}</Alert>
       )}
       {failure && (
-        <Alert tone={failure.rateLimited ? "warning" : "danger"}>{t(failure.key, failure.values)}</Alert>
+        <Alert
+          tone={failure.rateLimited ? "warning" : "danger"}
+          icon={failure.rateLimited ? Clock : undefined}
+        >
+          {t(failure.key, failure.values)}
+        </Alert>
       )}
       <form className="form" noValidate onSubmit={(event) => void onSubmit(event)}>
         {!knownEmail && (

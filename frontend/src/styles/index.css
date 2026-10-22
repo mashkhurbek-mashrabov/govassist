@@ -1,8 +1,8 @@
 /*
- * GovAssist styles. Tailwind provides preflight only; its default theme is reset so nothing but
+ * GovAssist styles (design v1.1). Tailwind provides preflight only; its default theme is reset so nothing but
  * docs/design/tokens.css (synced to ./tokens.css) defines design values.
- * The component layer is ported from docs/design/prototype/proto.css (approved at G2) with the same
- * class names, so the React markup stays 1:1 with the prototype. Never use raw hex or px here.
+ * The component layer is ported from docs/design/prototype/proto.css (approved) with the same class names,
+ * so the React markup stays 1:1 with the prototype. Never use raw hex or px here.
  */
 @import "tailwindcss";
 @import "./tokens.css";
@@ -29,13 +29,25 @@
 
   body {
     margin: 0;
-    background: var(--color-bg);
+    min-height: 100dvh;
+    background-color: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-sans);
     font-size: var(--text-body-size);
     line-height: var(--text-body-line);
     font-weight: var(--font-weight-regular);
     overflow-wrap: anywhere;
+  }
+
+  /* The page wash sits on its own fixed layer: it stays behind the glass while content scrolls,
+   and is composited once (cheaper than background-attachment: fixed on low-end phones). */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: var(--gradient-page);
+    pointer-events: none;
   }
 
   h1,
@@ -180,8 +192,9 @@
     width: var(--size-icon-lg);
     height: var(--size-icon-lg);
     border-radius: var(--radius-sm);
-    background: var(--color-primary);
+    background: var(--gradient-brand);
     color: var(--color-on-primary);
+    box-shadow: var(--shadow-primary);
     display: inline-grid;
     place-items: center;
   }
@@ -212,7 +225,14 @@
     cursor: pointer;
     transition:
       background-color var(--motion-duration-fast) var(--motion-ease-standard),
-      border-color var(--motion-duration-fast) var(--motion-ease-standard);
+      border-color var(--motion-duration-fast) var(--motion-ease-standard),
+      box-shadow var(--motion-duration-fast) var(--motion-ease-standard),
+      transform var(--motion-duration-fast) var(--motion-ease-standard);
+  }
+  .btn:active:not(:disabled),
+  .chip:active,
+  .icon-btn:active:not(:disabled) {
+    transform: scale(var(--motion-press-scale));
   }
   .btn--sm {
     min-height: var(--size-touch-min);
@@ -222,11 +242,12 @@
     width: 100%;
   }
   .btn--primary {
-    background: var(--color-primary);
+    background: var(--gradient-brand);
     color: var(--color-on-primary);
+    box-shadow: var(--shadow-primary);
   }
   .btn--primary:hover {
-    background: var(--color-primary-hover);
+    background: var(--gradient-brand-hover);
     color: var(--color-on-primary);
   }
   .btn--primary:active {
@@ -315,11 +336,12 @@
     background: var(--color-surface-sunken);
   }
   .icon-btn--primary {
-    background: var(--color-primary);
+    background: var(--gradient-brand);
     color: var(--color-on-primary);
+    box-shadow: var(--shadow-primary);
   }
   .icon-btn--primary:hover {
-    background: var(--color-primary-hover);
+    background: var(--gradient-brand-hover);
   }
   .icon-btn[aria-pressed="true"] {
     background: var(--color-primary-subtle);
@@ -486,7 +508,7 @@
   }
   .radio-card:has(input:checked) {
     border: var(--size-border-strong) solid var(--color-primary);
-    background: var(--color-primary-subtle);
+    background: var(--gradient-subtle);
   }
 
   /* Combobox ------------------------------------------------------------------ */
@@ -548,10 +570,15 @@
     text-align: left;
     cursor: pointer;
     text-decoration: none;
+    box-shadow: var(--shadow-1);
+    transition:
+      transform var(--motion-duration-fast) var(--motion-ease-standard),
+      background-color var(--motion-duration-fast) var(--motion-ease-standard);
   }
   .chip:hover {
-    background: var(--color-primary-subtle);
+    background: var(--gradient-subtle);
     color: var(--color-on-primary-subtle);
+    transform: translateY(calc(-1 * var(--space-half)));
   }
 
   .badge {
@@ -710,10 +737,7 @@
     align-items: center;
     max-width: calc(100% - var(--space-8));
     padding: var(--space-3) var(--space-4);
-    background: var(--color-surface-raised);
-    border: var(--size-border) solid var(--color-border);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-2);
     animation: rise var(--motion-duration-base) var(--motion-ease-standard);
   }
   .toast .icon {
@@ -740,11 +764,8 @@
     margin: 0;
     max-width: var(--size-dialog);
     padding: var(--space-6);
-    border: 0;
     border-radius: var(--radius-lg);
-    background: var(--color-surface-raised);
     color: var(--color-text);
-    box-shadow: var(--shadow-2);
     display: grid;
     gap: var(--space-4);
   }
@@ -767,25 +788,30 @@
 
   /* Cards ----------------------------------------------------------------------- */
   .card {
-    background: var(--color-surface);
-    border: var(--size-border) solid var(--color-border);
+    background: var(--gradient-card);
+    border: var(--size-border) solid var(--color-border-subtle);
     border-radius: var(--radius-lg);
-    padding: var(--space-4);
+    padding: var(--space-5);
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-4);
+    box-shadow: var(--shadow-1);
   }
   @media (min-width: 768px) {
     .card {
-      padding: var(--space-5) var(--space-6);
+      padding: var(--space-6);
     }
   }
   .card__head {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-3);
   }
   .card__head .icon {
+    box-sizing: content-box;
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
     color: var(--color-primary);
+    background: var(--color-primary-subtle);
   }
   .card--raised {
     box-shadow: var(--shadow-1);
@@ -956,6 +982,9 @@
     place-items: center;
     background: var(--color-primary-subtle);
     color: var(--color-primary);
+    box-shadow:
+      0 0 0 var(--space-2) var(--color-surface),
+      0 0 0 calc(var(--space-2) + var(--size-border)) var(--color-primary-subtle-border);
   }
   .center-state__icon .icon {
     width: var(--space-8);
@@ -1004,8 +1033,7 @@
     width: var(--layout-sidebar);
     flex: none;
     padding: var(--space-3) var(--space-3) var(--space-4);
-    background: var(--color-surface);
-    border-right: var(--size-border) solid var(--color-border);
+    border-right: var(--size-border) solid var(--color-glass-border);
     position: sticky;
     top: 0;
     height: 100dvh;
@@ -1046,7 +1074,7 @@
     color: var(--color-text);
   }
   .nav-link[aria-current="page"] {
-    background: var(--color-primary-subtle);
+    background: var(--gradient-subtle);
     color: var(--color-on-primary-subtle);
     font-weight: var(--font-weight-semibold);
   }
@@ -1106,8 +1134,7 @@
     gap: var(--space-2);
     min-height: var(--layout-topbar);
     padding: var(--space-1) var(--space-2);
-    background: var(--color-surface);
-    border-bottom: var(--size-border) solid var(--color-border);
+    border-bottom: var(--size-border) solid var(--color-glass-border);
   }
   .topbar__title {
     flex: 1;
@@ -1128,6 +1155,12 @@
     display: grid;
     gap: var(--space-6);
     align-content: start;
+  }
+  @media (min-width: 768px) {
+    .page {
+      padding-top: var(--space-10);
+      gap: var(--space-8);
+    }
   }
   .page--chat {
     max-width: var(--layout-chat-max);
@@ -1152,7 +1185,7 @@
   /* Chat ------------------------------------------------------------------------ */
   .thread {
     display: grid;
-    gap: var(--space-6);
+    gap: var(--space-8);
     list-style: none;
   }
   .msg-user {
@@ -1161,29 +1194,58 @@
     padding: var(--space-3) var(--space-4);
     border-radius: var(--radius-lg);
     border-bottom-right-radius: var(--radius-sm);
-    background: var(--color-user-bubble);
+    background: var(--gradient-subtle);
     color: var(--color-on-user-bubble);
+    border: var(--size-border) solid var(--color-primary-subtle-border);
   }
   .assistant {
     display: grid;
-    gap: var(--space-4);
+    gap: var(--space-5);
     min-width: 0;
+  }
+  .assistant > * {
+    animation: rise-in var(--motion-duration-slow) var(--motion-ease-standard) both;
+  }
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--space-2));
+    }
   }
   .answer-head {
     display: grid;
-    gap: var(--space-2);
+    gap: var(--space-3);
+    padding-bottom: var(--space-1);
+  }
+  .answer-head h2 {
+    font-size: var(--text-h1-size);
+    line-height: var(--text-h1-line);
+  }
+  .answer-head > .t-body-lg {
+    color: var(--color-text);
   }
   .answer-head__kind {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    color: var(--color-text-muted);
+    justify-self: start;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-lg);
+    border: var(--size-border) solid var(--color-primary-subtle-border);
+    background: var(--gradient-subtle);
+    color: var(--color-on-primary-subtle);
+    font-weight: var(--font-weight-semibold);
   }
 
   .greeting {
     display: grid;
     gap: var(--space-3);
-    padding-top: var(--space-6);
+    margin-top: var(--space-4);
+    padding: var(--space-6) var(--space-5);
+    border-radius: var(--radius-lg);
+    background: var(--gradient-hero);
+    border: var(--size-border) solid var(--color-primary-subtle-border);
+    box-shadow: var(--shadow-1);
   }
   .help-list {
     list-style: none;
@@ -1291,8 +1353,8 @@
     border-radius: 50%;
     display: grid;
     place-items: center;
-    background: var(--color-primary-subtle);
-    color: var(--color-on-primary-subtle);
+    background: var(--gradient-brand);
+    color: var(--color-on-primary);
     font-weight: var(--font-weight-semibold);
   }
   .steps li > p {
@@ -1430,8 +1492,12 @@
   }
 
   /* Office card ------------------------------------------------------------------------- */
+  /* The office card is the one card with a brand-gradient edge: a gradient border-box under a solid padding-box. */
   .office {
-    border-color: var(--color-primary-subtle-border);
+    border-color: transparent;
+    background:
+      linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
+      var(--gradient-brand) border-box;
     box-shadow: var(--shadow-1);
   }
   .office__type {
@@ -1536,9 +1602,8 @@
     position: sticky;
     bottom: 0;
     z-index: var(--z-sticky);
-    background: var(--color-bg);
     padding: var(--space-2) var(--layout-gutter) var(--space-3);
-    border-top: var(--size-border) solid var(--color-border);
+    border-top: var(--size-border) solid var(--color-glass-border);
   }
   .composer__inner {
     max-width: calc(var(--layout-chat-max) - 2 * var(--layout-gutter));
@@ -1554,6 +1619,7 @@
     background: var(--color-surface);
     border: var(--size-border) solid var(--color-border-strong);
     border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
   }
   .inputbar:focus-within {
     outline: var(--size-focus-ring) solid var(--color-focus-ring);
@@ -1633,7 +1699,7 @@
     color: var(--color-text);
   }
   .history__link[aria-current="page"] {
-    background: var(--color-primary-subtle);
+    background: var(--gradient-subtle);
   }
   .history__title,
   .history__preview {
@@ -1705,6 +1771,22 @@
     gap: var(--space-2);
   }
 
+  /* Gradient headline text (landing hero, chat greeting). Forced colours fall back to plain text. */
+  .landing__intro h1,
+  .greeting h1 {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  @media (forced-colors: active) {
+    .landing__intro h1,
+    .greeting h1 {
+      background: none;
+      color: CanvasText;
+    }
+  }
+
   /* Landing (screen 0) ----------------------------------------------------------------- */
   .landing__main {
     flex: 1;
@@ -1720,6 +1802,16 @@
     display: grid;
     gap: var(--space-8);
     align-items: center;
+    padding: var(--space-6) var(--space-5);
+    border-radius: var(--radius-lg);
+    background: var(--gradient-hero);
+    border: var(--size-border) solid var(--color-primary-subtle-border);
+    box-shadow: var(--shadow-1);
+  }
+  @media (min-width: 768px) {
+    .landing__hero {
+      padding: var(--space-12) var(--space-10);
+    }
   }
   .landing__intro {
     display: grid;
@@ -1769,6 +1861,39 @@
     }
   }
 
+  /* Glass (v1.1): floating chrome only. Content cards stay solid. Fallbacks swap the tokens to solid values. */
+  .topbar,
+  .composer,
+  .sidebar,
+  .drawer-open .sidebar,
+  .dialog,
+  .toast {
+    background: var(--color-glass);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  }
+  .topbar {
+    box-shadow: inset 0 -1px 0 var(--color-glass-highlight);
+  }
+  .composer {
+    box-shadow:
+      inset 0 1px 0 var(--color-glass-highlight),
+      var(--shadow-glass);
+  }
+  .dialog,
+  .toast {
+    background: var(--color-glass-strong);
+    border: var(--size-border) solid var(--color-glass-border);
+    box-shadow:
+      inset 0 1px 0 var(--color-glass-highlight),
+      var(--shadow-2);
+  }
+  .drawer-open .sidebar {
+    box-shadow:
+      inset -1px 0 0 var(--color-glass-highlight),
+      var(--shadow-2);
+  }
+
   /* App additions (not in the prototype stylesheet) -------------------------------- */
   /* Native <dialog> (focus trap, Esc) carries the .dialog look; its backdrop is the scrim. */
   dialog.dialog::backdrop {
@@ -1777,7 +1902,7 @@
   dialog.dialog:not([open]) {
     display: none;
   }
-  /* The prototype set these three inline. */
+  /* The prototype set these inline. */
   .fieldset-reset {
     border: 0;
     padding: 0;
@@ -1787,11 +1912,18 @@
   .sidebar__note {
     padding: var(--space-2) var(--space-3);
   }
+  /* Preflight strips list markers; the prototype's prose lists keep the browser's discs. */
+  .prose ul {
+    list-style: disc;
+  }
   .chip--skeleton {
     width: var(--size-tile-min);
   }
   .chip--skeleton .skeleton {
     width: 100%;
+  }
+  .google-mark {
+    stroke: none;
   }
 }
 
@@ -1807,9 +1939,11 @@
   .progress__dots span {
     opacity: 1;
   }
-}
-
-/* The Google mark is filled, not stroked (the prototype set this inline). */
-.google-mark {
-  stroke: none;
+  /* App addition: no press-scale or lift either, so nothing moves at all. */
+  .btn:active,
+  .chip:active,
+  .chip:hover,
+  .icon-btn:active {
+    transform: none;
+  }
 }

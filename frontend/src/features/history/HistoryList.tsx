@@ -1,4 +1,4 @@
-import { MessageSquare, SquarePen } from "lucide-react";
+import { MessageSquare, Plus } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router";
@@ -72,7 +72,7 @@ export function HistoryList({ variant }: HistoryListProps) {
         level={2}
       >
         <p className="t-muted">{t("history.empty_lead")}</p>
-        <LinkButton variant="primary" to="/" icon={<SquarePen className="icon" aria-hidden="true" />}>
+        <LinkButton variant="primary" to="/" icon={<Plus className="icon" aria-hidden="true" />}>
           {t("chat.new")}
         </LinkButton>
       </CenterState>

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ShieldCheck } from "lucide-react";
+import { CircleCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -99,7 +99,7 @@ export function SignupPage() {
           aria-label="Cloudflare Turnstile"
           aria-describedby={turnstileError ? TURNSTILE_ERROR_ID : undefined}
         >
-          <ShieldCheck className="icon" aria-hidden="true" />
+          <CircleCheck className="icon" aria-hidden="true" />
           {TURNSTILE_SITE_KEY && (
             <TurnstileWidget
               siteKey={TURNSTILE_SITE_KEY}

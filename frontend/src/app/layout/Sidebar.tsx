@@ -1,4 +1,4 @@
-import { Info, Settings2, SquarePen, X } from "lucide-react";
+import { Info, Plus, Settings2, X } from "lucide-react";
 import type { Ref } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router";
@@ -38,7 +38,7 @@ export function Sidebar({ showHistory, onClose, closeRef }: SidebarProps) {
           onClick={onClose}
         />
       </div>
-      <LinkButton block to="/" icon={<SquarePen className="icon" aria-hidden="true" />}>
+      <LinkButton block to="/" icon={<Plus className="icon" aria-hidden="true" />}>
         {t("chat.new")}
       </LinkButton>
       {showHistory && (

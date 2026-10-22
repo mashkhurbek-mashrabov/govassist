@@ -1,4 +1,4 @@
-import { CircleAlert, RefreshCw } from "lucide-react";
+import { RefreshCw, TriangleAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useRouteError } from "react-router";
 import { Button } from "../../components/ui/Button";
@@ -15,7 +15,7 @@ export function RouteError() {
   return (
     <main className="auth__main" id="main">
       <CenterState
-        icon={<CircleAlert className="icon" aria-hidden="true" />}
+        icon={<TriangleAlert className="icon" aria-hidden="true" />}
         tone="danger"
         title={t("error_page.title")}
         role="alert"

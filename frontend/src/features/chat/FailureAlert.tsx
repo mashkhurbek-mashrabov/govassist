@@ -1,4 +1,4 @@
-import { RefreshCw } from "lucide-react";
+import { Clock, RefreshCw, Square } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Alert } from "../../components/ui/Alert";
 import { Button } from "../../components/ui/Button";
@@ -22,6 +22,7 @@ export function FailureAlert({ message, onRetry }: FailureAlertProps) {
   return (
     <Alert
       tone={message.tone}
+      icon={message.icon === "clock" ? Clock : message.icon === "square" ? Square : undefined}
       role="alert"
       title={t(message.titleKey)}
       actions={

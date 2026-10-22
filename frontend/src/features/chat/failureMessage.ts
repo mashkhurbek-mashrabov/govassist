@@ -11,6 +11,8 @@ export interface FailureMessage {
   tone: "danger" | "warning";
   /** Whether Retry makes sense (not for limits: they need waiting). */
   retry: boolean;
+  /** Icon other than the tone's default (components.md → Icon inventory). */
+  icon?: "clock" | "square";
 }
 
 /** Codes with their own `chat_error.*` copy. */
@@ -34,7 +36,7 @@ function codeMessage(
   const base = { titleKey: "chat_error.title" };
   if (code === "rate_limited") {
     const values = { limit: hourLimit, minutes: retryMinutes(retryAfter ?? 0) };
-    return { ...base, key: "chat_error.rate_limited", values, tone: "warning", retry: false };
+    return { ...base, key: "chat_error.rate_limited", values, tone: "warning", retry: false, icon: "clock" };
   }
   if (code === "quota_exceeded") {
     return {
@@ -42,6 +44,7 @@ function codeMessage(
       key: scope === "global" ? "chat_error.quota_global" : "chat_error.quota_user",
       tone: "warning",
       retry: false,
+      icon: "clock",
     };
   }
   if (code === "stream_in_progress")
@@ -80,7 +83,13 @@ export function failureMessage(
  */
 export function storedFailureMessage(code: AssistantErrorCode | null, hourLimit: number): FailureMessage {
   if (code === "stopped") {
-    return { titleKey: "chat_error.stopped_title", key: "chat_error.stopped", tone: "warning", retry: true };
+    return {
+      titleKey: "chat_error.stopped_title",
+      key: "chat_error.stopped",
+      tone: "warning",
+      retry: true,
+      icon: "square",
+    };
   }
   return codeMessage(code, null, null, hourLimit);
 }
