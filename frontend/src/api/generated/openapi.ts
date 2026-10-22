@@ -619,13 +619,7 @@ export interface components {
         SourceSummary: {
             publisher: string;
             name: string;
-            /**
-             * @description ``office`` for office sources, else the kind of the source's documents.
-             *
-             *     Args:
-             *         obj: An annotated source from ``public_sources``.
-             */
-            readonly kind: string;
+            readonly kind: components["schemas"]["SourceSummaryKindEnum"];
             /** Format: uri */
             url: string;
             /**
@@ -638,6 +632,14 @@ export interface components {
             /** Format: date-time */
             last_fetched_at: string | null;
         };
+        /**
+         * @description * `law` - law
+         *     * `service_page` - service_page
+         *     * `office` - office
+         *     * `other` - other
+         * @enum {string}
+         */
+        SourceSummaryKindEnum: "law" | "service_page" | "office" | "other";
         SourceSummaryList: {
             items: components["schemas"]["SourceSummary"][];
         };
