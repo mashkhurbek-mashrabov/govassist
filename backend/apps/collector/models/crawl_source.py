@@ -1,3 +1,5 @@
+import re
+
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -20,6 +22,17 @@ class CrawlSource(BaseModel):
     office_type = models.ForeignKey(
         "offices.OfficeType", null=True, blank=True, on_delete=models.PROTECT, related_name="+"
     )
+    office_regions = models.ManyToManyField(
+        "geo.Region",
+        blank=True,
+        related_name="+",
+        help_text="Office sources: keep only offices in these regions (empty: all regions).",
+    )
+    office_name_pattern = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Office sources: regex an office name must contain (case-insensitive).",
+    )
     allowed_url_pattern = models.CharField(
         max_length=500, blank=True, help_text="Regex; links matching it are followed."
     )
@@ -37,10 +50,15 @@ class CrawlSource(BaseModel):
         return self.name
 
     def clean(self) -> None:
-        """Office sources must name the office type they list.
+        """Office sources must name their office type; the name pattern must be a regex.
 
         Raises:
-            ValidationError: When an office source has no office type.
+            ValidationError: When an office source has no office type, or the pattern is not
+                a valid regular expression.
         """
         if self.kind == self.Kind.OFFICE and self.office_type_id is None:
             raise ValidationError({"office_type": "Required for office sources."})
+        try:
+            re.compile(self.office_name_pattern)
+        except re.error as exc:
+            raise ValidationError({"office_name_pattern": str(exc)}) from exc

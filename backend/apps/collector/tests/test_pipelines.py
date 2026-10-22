@@ -8,7 +8,7 @@ from django.utils import timezone
 from apps.collector.extraction import FakeOfficeExtractor, FakeOfficeTypeClassifier, OfficeCandidate
 from apps.collector.models import CrawlSource
 from apps.collector.parsers import ParsedPage
-from apps.collector.pipelines import DocumentPipeline, OfficePipeline, find_region
+from apps.collector.pipelines import DocumentPipeline, OfficePipeline, find_regions
 from apps.common.constants import ReviewStatus
 from apps.corpus.models import Chunk, Document
 from apps.geo.models import District
@@ -136,12 +136,12 @@ def test_office_pipeline_requires_office_type() -> None:
         )
 
 
-def test_find_region_by_any_name(district: District) -> None:
+def test_find_regions_by_any_name(district: District) -> None:
     """Regions match by any language, with or without 'viloyati'."""
-    assert find_region("Тест вилояти") == district.region
-    assert find_region("Test region") == district.region  # English name (name_en)
-    assert find_region("test") == district.region
-    assert find_region("") is None
+    assert find_regions("Тест вилояти") == [district.region]
+    assert find_regions("Test region") == [district.region]  # English name (name_en)
+    assert find_regions("test") == [district.region]
+    assert find_regions("") == []
 
 
 def test_classifier_failure_still_stores_the_document(caplog: pytest.LogCaptureFixture) -> None:

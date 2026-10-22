@@ -5,6 +5,7 @@ exactly what the directory needs.
 """
 
 from collections.abc import Sequence
+from datetime import date
 from typing import Protocol
 
 from asgiref.sync import async_to_sync
@@ -34,6 +35,15 @@ class OfficeCandidate(BaseModel):
     working_hours: list[WorkingHours] = Field(default_factory=list)
     latitude: float | None = None
     longitude: float | None = None
+
+
+class ListedOffice(OfficeCandidate):
+    """An office read from a directory page's structured data (never from the LLM).
+
+    ``data_as_of`` is the directory's own "updated" date when the page states one.
+    """
+
+    data_as_of: date | None = None
 
 
 class OfficeCandidateList(BaseModel):

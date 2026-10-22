@@ -15,6 +15,7 @@ class CrawlSourceAdmin(BaseAdmin):
     list_filter = ("kind", "document_kind", "publisher", "is_active")
     search_fields = ("name", "start_url")
     readonly_fields = ("last_crawled_at", "created_at", "updated_at")
+    filter_horizontal = ("office_regions",)
     actions = ("run_crawl",)
 
     @admin.action(description="Run crawl now")
