@@ -27,7 +27,7 @@ Exact pins live in `requirements*.txt`, compiled by pip-tools with hashes.
 | Admin | **`django-unfold`** 0.110 (+ `unfold.contrib.filters`, `unfold.contrib.forms`) |
 | DB | PostgreSQL 18 + pgvector (`pgvector/pgvector:0.8.7-pg18-trixie`), `psycopg[binary]` 3.3, `pgvector` 0.5 (Python) |
 | Cache / limits | Redis 8 (`redis:8.8-alpine`), Django's built-in `RedisCache` + the `redis` client |
-| Background jobs | Django 6 `django.tasks` API + `django-tasks` 0.12 database backend (`db_worker`). **Verify on Django 6.1 first.** If it fails, use management commands for crawl/index and record that in the PR |
+| Background jobs | Django 6 `django.tasks` API + the database backend from **`django-tasks-db`** 0.13 (`db_worker`). On Django 6.1, `django-tasks` 0.12 no longer ships it. **Verify on Django 6.1 first.** If it fails, use management commands for crawl/index and record that in the PR |
 | LLM / embeddings | `google-genai` 2.x. Generation `GEMINI_MODEL=gemini-3.8-flash`; embeddings `GEMINI_EMBEDDING_MODEL=gemini-embedding-2`, `EMBEDDING_DIM=768`. At setup, confirm both IDs at https://ai.google.dev/gemini-api/docs/models |
 | Schemas | `pydantic` 2.x (LLM answer schema, office extraction schema, request bodies of the async view) |
 | Crawling | `httpx` 0.28, `selectolax` 1.0, `pdfplumber` 0.11. `playwright` 1.64 **only** in `requirements-crawler.txt` (worker image) |

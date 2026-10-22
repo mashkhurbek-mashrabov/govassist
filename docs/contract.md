@@ -70,12 +70,11 @@ Request and response shapes follow **allauth's own spec**. In dev it is served a
 | `code` | `param` | When |
 |---|---|---|
 | `turnstile_failed` | `turnstile_token` | Turnstile verification failed or the token is missing (**our** code, set by the backend) |
-| `email_taken` | `email` | Signup with an existing email |
 | `email_password_mismatch` | — | Wrong email or password at login |
 | `too_many_login_attempts` | — | allauth login rate limit |
-| `password_too_short`, `password_too_common`, `password_entirely_numeric`, `password_too_similar` | `password` | Django password validators |
+| `password_too_short`, `password_too_common`, `password_entirely_numeric` | `password` | Django password validators (confirmed on allauth 65.20) |
 
-The non-Turnstile codes come from allauth/Django. The backend PR confirms the exact set against the installed allauth version and lists any extra codes.
+**Account enumeration prevention is on.** Signing up with an email that already exists answers exactly like a new signup: `401` with a pending `verify_email` flow, so the SPA shows "Check your email". The address's owner gets an "account already exists" email with a password-reset link. There is no `email_taken` error.
 
 To resend the verification email, use the app endpoint `POST /api/v1/auth/resend-verification` (§3). To "use another email" before verification, go back to `/signup`; there is no change-email endpoint.
 
@@ -87,8 +86,11 @@ Frontend URLs that allauth puts in emails and redirects (`HEADLESS_FRONTEND_URLS
 |---|---|
 | `account_confirm_email` | `/verify-email/{key}` |
 | `account_reset_password_from_key` | `/reset-password/{key}` |
+| `account_reset_password` | `/forgot-password` (the "request a reset" page, linked from the "account already exists" email) |
 | `account_signup` | `/signup` |
 | `socialaccount_login_error` | `/login?error=social` |
+
+Keys in email links are URL-encoded (e.g. `MQ%3A…`). The SPA must POST the **decoded** key. Check whether the router already decodes the route param, and test with a key that contains `%3A`.
 
 ---
 
@@ -371,3 +373,4 @@ The example values below are layout placeholders for design and mocks. Never pre
 *Contract v1.0, 2026-10-22: initial version.*
 *Contract v1.1, 2026-10-22: added the change-password endpoint and `Me.has_password`; `POST /auth/resend-verification`; `GET /sources` + `SourceSummary`; assistant `error_code` (incl. `"stopped"`) and the Stop behaviour; `scope` on `quota_exceeded`; clarified `match: "region"`. These answer the design open questions in PR #1.*
 *Contract v1.2, 2026-10-22: auth error codes table (`turnstile_failed` and the allauth/Django codes). Retry after Stop re-sends the question as a new user message, so history shows both attempts.*
+*Contract v1.3, 2026-10-22: from backend findings on allauth 65.20. Removed `email_taken` (enumeration prevention: signup with an existing email looks like a new signup) and `password_too_similar` (never fires at signup). Added the `account_reset_password` → `/forgot-password` frontend URL and the decoded-key rule for email links.*
