@@ -174,7 +174,7 @@ The browser reads the stream with `fetch` + `ReadableStream`, not `EventSource`,
 ### Events, in order
 
 `meta` → `status`* → `office`? → `delta`* → `final` → `done`.
-`error` can replace everything after `meta` and ends the stream.
+`error` can replace everything after `meta` and ends the stream. The one exception is `error` with code `stream_in_progress`: it can be the **first and only** event, with no `meta`, when another stream took the user's lock between the pre-check and the start of streaming. Nothing is stored in that case.
 A keep-alive comment `: ping` is sent every 15 s.
 
 | Event | `data` | Notes |
@@ -184,7 +184,7 @@ A keep-alive comment `: ping` is sent every 15 s.
 | `office` | `OfficeMatch` | At most once, before the first `delta`. Sent only when a retrieved service maps to an office type |
 | `delta` | `{"text": "<raw JSON fragment>"}` | Concatenate all fragments to get a growing, partial `Answer` JSON. Parse it with a partial-JSON parser |
 | `final` | `{"message": Message (assistant)}` | Validated answer, resolved `sources`, `office`, `refused`. **Replaces** the live-parsed answer |
-| `error` | `{"code": "llm_unavailable" \| "llm_timeout" \| "invalid_answer" \| "quota_exceeded" \| "internal_error", "message": str, "scope"?: "user" \| "global"}` | The assistant message is stored with `status: "failed"` and `error_code` = `code`. `scope` is present only for `quota_exceeded` |
+| `error` | `{"code": "llm_unavailable" \| "llm_timeout" \| "invalid_answer" \| "quota_exceeded" \| "stream_in_progress" \| "internal_error", "message": str, "scope"?: "user" \| "global"}` | The assistant message is stored with `status: "failed"` and `error_code` = `code`. `scope` is present only for `quota_exceeded` |
 | `done` | `{}` | Last event on success |
 
 **Stop:** the client aborts the request. The backend detects the disconnect and stores the assistant message with `status: "failed"`, `error_code: "stopped"` and `answer: null`. The partial answer is **not** stored. The UI keeps the partial cards on screen for the current view only. After a reload, history shows "Answer stopped" with Retry. **Retry** sends the same text again as a new `POST /chat`, so history keeps both attempts (the stopped one and the retried one). That is intended.
@@ -391,3 +391,4 @@ The example values below are layout placeholders for design and mocks. Never pre
 - Conversation `title` is never empty; `last_message_preview` = the last user message.
 - `SourceSummary.last_fetched_at` is nullable.*
 *Contract v1.5, 2026-10-22: office localization. Type, district and region labels follow `ui_language`; office name and address are shown as stored.*
+*Contract v1.6, 2026-10-22: SSE `error` code `stream_in_progress`. It can arrive as the only event, with no `meta`, when the lock race is lost.*
