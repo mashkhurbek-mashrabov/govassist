@@ -26,6 +26,11 @@ From Kamola's review of PR #2 (2026-10-22):
 - [ ] **Stored `streaming` messages.** Poll or refetch while any stored assistant message is `streaming`, with a Retry after a timeout. Pairs with the backend item "stuck streaming rows".
 - [ ] **Stale "writing" copy.** A follow-up asked before the post-answer refetch briefly shows the previous answer's stale "writing" copy.
 
+## Integration (main session, G4)
+
+- [ ] Add the `web` service to compose (build `frontend/`, target runtime), passing `VITE_TURNSTILE_SITE_KEY` as a **build arg**, because the build fails without it. Use Cloudflare's test key in dev.
+- [ ] Upstream the generic auth rate-limit string from `frontend/src/i18n/extra-copy.json` into `docs/design/copy.md`.
+
 ## Evaluation (B6)
 
 - [ ] **Honest normalization ablation.** `search(normalize=False)` only skips normalization on the query side, while the index stays transliterated. B6 needs a real "no normalization" index variant: a second `search_vector` over the raw text, or a separate index build. Otherwise the RQ3 normalization result is overstated.
