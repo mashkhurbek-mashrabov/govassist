@@ -3,11 +3,11 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from apps.accounts import services
 from apps.accounts.api.serializers import ResendVerificationSerializer
+from apps.common.throttling import ScopedRateThrottle
 
 
 class ResendVerificationView(APIView):

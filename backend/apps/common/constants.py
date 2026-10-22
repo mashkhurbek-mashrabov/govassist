@@ -116,3 +116,6 @@ CYRL_TO_LATN: dict[str, str] = {
 API_PREFIXES = ("/api/", "/_allauth/")
 
 CSRF_DETAIL = "CSRF check failed. Reload the page and try again."
+
+
+CLIENT_IP_HEADER = "X-Real-IP"  # set by our nginx from CF-Connecting-IP

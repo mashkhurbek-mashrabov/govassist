@@ -96,3 +96,56 @@ def test_login_mismatch_and_rate_limit() -> None:
         codes.append(response.json()["errors"][0]["code"])
     assert codes[0] == "email_password_mismatch"
     assert codes[-1] == "too_many_login_attempts"
+
+
+def _post(client: Client, path: str, body: dict[str, Any]) -> Any:
+    """POST JSON to an allauth headless endpoint."""
+    return client.post(f"/_allauth/browser/v1{path}", body, content_type="application/json")
+
+
+def test_key_and_password_codes() -> None:
+    """Codes the SPA maps (contract v1.8): verify/reset keys and password change."""
+    client = Client()
+    verify = _post(client, "/auth/email/verify", {"key": "nope"})
+    assert _codes(verify.json()["errors"]) == {("invalid_or_expired_key", "key")}
+    reset = _post(
+        client, "/auth/password/reset", {"key": "nope", "password": "a-long-enough-password"}
+    )
+    assert _codes(reset.json()["errors"]) == {("invalid_password_reset", "key")}
+    unknown = _post(client, "/auth/password/request", {"email": "nobody@example.com"})
+    assert unknown.status_code == 200  # no account enumeration
+
+    make_user("pw@example.com")
+    _post(
+        client,
+        "/auth/login",
+        {"email": "pw@example.com", "password": "correct-horse-battery-staple"},
+    )
+    wrong = _post(
+        client,
+        "/account/password/change",
+        {"current_password": "wrong-password", "new_password": "another-long-password"},
+    )
+    assert _codes(wrong.json()["errors"]) == {("enter_current_password", "current_password")}
+    missing = _post(client, "/account/password/change", {"new_password": "another-long-password"})
+    assert _codes(missing.json()["errors"]) == {("required", "current_password")}
+
+
+def test_generic_field_codes_and_unverified_login() -> None:
+    """Field validation uses Django's generic codes; unverified login is a pending flow."""
+    with patch("apps.accounts.turnstile.verify_turnstile", return_value=True):
+        bad_email = _post(
+            Client(),
+            "/auth/signup",
+            {"email": "bad", "password": "a-long-enough-password", "turnstile_token": "t"},
+        )
+    assert ("invalid", "email") in _codes(bad_email.json()["errors"])
+    make_user("unv@example.com", verified=False)
+    pending = _post(
+        Client(),
+        "/auth/login",
+        {"email": "unv@example.com", "password": "correct-horse-battery-staple"},
+    )
+    assert pending.status_code == 401
+    flows = {flow["id"]: flow for flow in pending.json()["data"]["flows"]}
+    assert flows["verify_email"]["is_pending"] is True

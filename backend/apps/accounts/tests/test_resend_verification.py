@@ -42,3 +42,15 @@ def test_rate_limited(api: APIClient) -> None:
     assert response.json()["code"] == "rate_limited"
     assert response.json()["retry_after"] > 0
     assert response["Retry-After"]
+
+
+@pytest.mark.parametrize("client_count", [2])
+def test_rate_limit_is_per_real_client_ip(client_count: int) -> None:
+    """Behind nginx, two clients get separate allowances (X-Real-IP from a trusted peer)."""
+    from django.test import override_settings  # noqa: PLC0415
+
+    with override_settings(TRUSTED_PROXY_NETWORKS=["172.16.0.0/12"]):
+        for index in range(client_count):
+            client = APIClient(REMOTE_ADDR="172.18.0.5", HTTP_X_REAL_IP=f"203.0.113.{index + 1}")
+            statuses = [client.post(URL, {"email": "a@example.com"}).status_code for _ in range(4)]
+            assert statuses == [204, 204, 204, 429]

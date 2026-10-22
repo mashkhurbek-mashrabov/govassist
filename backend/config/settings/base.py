@@ -122,6 +122,7 @@ ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = False
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_SIGNUP_FORM_CLASS = "apps.accounts.forms.SignupForm"
+ACCOUNT_ADAPTER = "apps.accounts.adapter.AccountAdapter"
 HEADLESS_ONLY = True
 HEADLESS_CLIENTS = ("browser",)
 HEADLESS_SERVE_SPECIFICATION = DEBUG
@@ -186,8 +187,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PARSER_CLASSES": ["rest_framework.parsers.JSONParser"],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_THROTTLE_CLASSES": [
-        "rest_framework.throttling.AnonRateThrottle",
-        "rest_framework.throttling.UserRateThrottle",
+        "apps.common.throttling.AnonRateThrottle",
+        "apps.common.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
         "anon": env.str("THROTTLE_ANON", default="60/min"),
@@ -198,7 +199,8 @@ REST_FRAMEWORK = {
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
     "NUM_PROXIES": env.int("NUM_PROXIES", default=0),
 }
-
+# Peers allowed to tell us the client IP (X-Real-IP): our nginx. Empty = trust nobody.
+TRUSTED_PROXY_NETWORKS = env.list("TRUSTED_PROXY_NETWORKS", default=[])
 SPECTACULAR_SETTINGS = {
     "TITLE": "GovAssist API",
     "DESCRIPTION": "App API. Source of truth: docs/contract.md.",
