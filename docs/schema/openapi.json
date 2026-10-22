@@ -1,0 +1,1635 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "GovAssist API",
+        "version": "1.0.0",
+        "description": "App API. Source of truth: docs/contract.md."
+    },
+    "paths": {
+        "/api/v1/auth/resend-verification": {
+            "post": {
+                "operationId": "auth_resend_verification_create",
+                "description": "Validate the email and send a new link when it is unverified.\n\nArgs:\n    request: The incoming request.",
+                "summary": "Resend the verification email",
+                "tags": [
+                    "auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResendVerificationRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Always, whether or not the email exists."
+                    }
+                }
+            }
+        },
+        "/api/v1/conversations": {
+            "get": {
+                "operationId": "conversations_list",
+                "description": "Return one page of conversations.\n\nArgs:\n    request: The incoming request.",
+                "summary": "List my conversations",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "tags": [
+                    "conversations"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedConversationSummaryList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/conversations/{conversation_id}": {
+            "get": {
+                "operationId": "conversations_retrieve",
+                "description": "Return the conversation with all messages.\n\nArgs:\n    request: The incoming request.\n    conversation_id: The conversation id.",
+                "summary": "Get a conversation",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "conversation_id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "conversations"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Conversation"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "conversations_destroy",
+                "description": "Delete the conversation and everything in it.\n\nArgs:\n    request: The incoming request.\n    conversation_id: The conversation id.",
+                "summary": "Delete a conversation",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "conversation_id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "conversations"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/v1/csrf": {
+            "get": {
+                "operationId": "csrf_retrieve",
+                "description": "Return 204; the decorator sets the cookie.\n\nArgs:\n    request: The incoming request.",
+                "summary": "Set the CSRF cookie",
+                "tags": [
+                    "csrf"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/v1/geo/regions": {
+            "get": {
+                "operationId": "geo_regions_list",
+                "description": "Return all regions.\n\nArgs:\n    request: The incoming request.",
+                "summary": "List regions",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "lang",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "en",
+                                "ru",
+                                "uz-Cyrl",
+                                "uz-Latn"
+                            ]
+                        }
+                    }
+                ],
+                "tags": [
+                    "geo"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Place"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/geo/regions/{region_id}/districts": {
+            "get": {
+                "operationId": "geo_regions_districts_list",
+                "description": "Return the districts of ``region_id``.\n\nArgs:\n    request: The incoming request.\n    region_id: The region's SOATO code.\n\nRaises:\n    NotFound: For an unknown region.",
+                "summary": "List districts of a region",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "lang",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "en",
+                                "ru",
+                                "uz-Cyrl",
+                                "uz-Latn"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "region_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "geo"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Place"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/health": {
+            "get": {
+                "operationId": "health_retrieve",
+                "description": "Report database and Redis status.\n\nArgs:\n    request: The incoming request.\n\nReturns:\n    200 when all checks pass, else 503 with the failing checks.",
+                "summary": "Health check",
+                "tags": [
+                    "health"
+                ],
+                "security": [
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Health"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Health"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/me": {
+            "get": {
+                "operationId": "me_retrieve",
+                "description": "Return ``Me``.\n\nArgs:\n    request: The incoming request.",
+                "summary": "Get my profile",
+                "tags": [
+                    "me"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Me"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "me_partial_update",
+                "description": "Update language, region/district or display name.\n\nArgs:\n    request: The incoming request.",
+                "summary": "Update my profile",
+                "tags": [
+                    "me"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedMeUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Me"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "me_destroy",
+                "description": "Delete the account and all its conversations.\n\nArgs:\n    request: The incoming request.",
+                "summary": "Delete my account",
+                "tags": [
+                    "me"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Account and conversations deleted."
+                    }
+                }
+            }
+        },
+        "/api/v1/messages/{message_id}/feedback": {
+            "post": {
+                "operationId": "messages_feedback_create",
+                "description": "Create (201) or update (200) the feedback.\n\nArgs:\n    request: The incoming request.\n    message_id: The assistant message id.",
+                "summary": "Rate an answer",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "message_id",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FeedbackRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Feedback"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Feedback"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/sources": {
+            "get": {
+                "operationId": "sources_retrieve",
+                "description": "Return approved, active sources with their counts.\n\nArgs:\n    request: The incoming request.",
+                "summary": "List knowledge sources",
+                "tags": [
+                    "sources"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SourceList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/suggestions": {
+            "get": {
+                "operationId": "suggestions_retrieve",
+                "description": "Return at most six suggestions.\n\nArgs:\n    request: The incoming request.",
+                "summary": "Starter questions",
+                "tags": [
+                    "suggestions"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Suggestions"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/chat": {
+            "post": {
+                "operationId": "chat_stream",
+                "summary": "Ask a question; the answer streams as Server-Sent Events",
+                "description": "Events: meta → status* → office? → delta* → final → done; error ends the stream. See docs/contract.md §4.",
+                "tags": [
+                    "chat"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChatRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "SSE stream (contract §4).",
+                        "content": {
+                            "text/event-stream": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "validation_error",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Problem"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "not_authenticated",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Problem"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "email_not_verified | profile_incomplete | csrf_failed",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Problem"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not_found (conversation)",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Problem"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "stream_in_progress",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Problem"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "rate_limited | quota_exceeded",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Problem"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Answer": {
+                "additionalProperties": false,
+                "description": "The structured answer card. Every field is always present.",
+                "properties": {
+                    "answer_type": {
+                        "$ref": "#/components/schemas/AnswerType"
+                    },
+                    "language": {
+                        "$ref": "#/components/schemas/LangCode"
+                    },
+                    "title": {
+                        "maxLength": 80,
+                        "title": "Title",
+                        "type": "string"
+                    },
+                    "summary": {
+                        "title": "Summary",
+                        "type": "string"
+                    },
+                    "steps": {
+                        "items": {
+                            "$ref": "#/components/schemas/Item"
+                        },
+                        "maxItems": 7,
+                        "title": "Steps",
+                        "type": "array"
+                    },
+                    "documents": {
+                        "items": {
+                            "$ref": "#/components/schemas/Item"
+                        },
+                        "title": "Documents",
+                        "type": "array"
+                    },
+                    "fee": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Item"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "processing_time": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Item"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "law_points": {
+                        "items": {
+                            "$ref": "#/components/schemas/LawPoint"
+                        },
+                        "title": "Law Points",
+                        "type": "array"
+                    },
+                    "follow_up_questions": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "maxItems": 3,
+                        "title": "Follow Up Questions",
+                        "type": "array"
+                    }
+                },
+                "propertyOrdering": [
+                    "answer_type",
+                    "language",
+                    "title",
+                    "summary",
+                    "steps",
+                    "documents",
+                    "fee",
+                    "processing_time",
+                    "law_points",
+                    "follow_up_questions"
+                ],
+                "required": [
+                    "answer_type",
+                    "language",
+                    "title",
+                    "summary",
+                    "steps",
+                    "documents",
+                    "fee",
+                    "processing_time",
+                    "law_points",
+                    "follow_up_questions"
+                ],
+                "title": "Answer",
+                "type": "object"
+            },
+            "AnswerType": {
+                "enum": [
+                    "service",
+                    "legal",
+                    "not_found",
+                    "off_topic"
+                ],
+                "type": "string"
+            },
+            "AssistantMessage": {
+                "type": "object",
+                "description": "An assistant message: answer card, cited sources, office and status.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/StatusEnum"
+                    },
+                    "error_code": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "The failure code, or null while streaming / on success.\n\nArgs:\n    obj: The message.",
+                        "readOnly": true
+                    },
+                    "answer": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/Answer"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "sources": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/SourceList"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "office": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/OfficeMatch"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "refused": {
+                        "type": "boolean"
+                    },
+                    "feedback": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Feedback"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "answer",
+                    "created_at",
+                    "error_code",
+                    "feedback",
+                    "id",
+                    "office",
+                    "refused",
+                    "role",
+                    "sources",
+                    "status"
+                ]
+            },
+            "BreakTime": {
+                "description": "Daily break window within working hours.",
+                "properties": {
+                    "start": {
+                        "description": "Break start in HH:MM format",
+                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+                        "title": "Start",
+                        "type": "string"
+                    },
+                    "end": {
+                        "description": "Break end in HH:MM format",
+                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+                        "title": "End",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "start",
+                    "end"
+                ],
+                "title": "BreakTime",
+                "type": "object"
+            },
+            "Conversation": {
+                "type": "object",
+                "description": "A conversation with all its messages, oldest first.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "title": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "messages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Message"
+                        },
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "created_at",
+                    "id",
+                    "messages",
+                    "updated_at"
+                ]
+            },
+            "ConversationSummary": {
+                "type": "object",
+                "description": "List item: title, last update and a short preview.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "title": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "last_message_preview": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "last_message_preview",
+                    "updated_at"
+                ]
+            },
+            "Day": {
+                "enum": [
+                    "mon",
+                    "tue",
+                    "wed",
+                    "thu",
+                    "fri",
+                    "sat",
+                    "sun"
+                ],
+                "type": "string"
+            },
+            "Feedback": {
+                "type": "object",
+                "description": "``Feedback``: thumbs up/down with an optional comment.",
+                "properties": {
+                    "rating": {
+                        "$ref": "#/components/schemas/RatingEnum"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 1000
+                    }
+                },
+                "required": [
+                    "rating"
+                ]
+            },
+            "FeedbackRequest": {
+                "type": "object",
+                "description": "``Feedback``: thumbs up/down with an optional comment.",
+                "properties": {
+                    "rating": {
+                        "$ref": "#/components/schemas/RatingEnum"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "default": "",
+                        "maxLength": 1000
+                    }
+                },
+                "required": [
+                    "rating"
+                ]
+            },
+            "Health": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "checks": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "checks",
+                    "status"
+                ]
+            },
+            "Item": {
+                "additionalProperties": false,
+                "description": "One statement with the context sources that support it.",
+                "properties": {
+                    "text": {
+                        "title": "Text",
+                        "type": "string"
+                    },
+                    "source_ids": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Source Ids",
+                        "type": "array"
+                    }
+                },
+                "propertyOrdering": [
+                    "text",
+                    "source_ids"
+                ],
+                "required": [
+                    "text",
+                    "source_ids"
+                ],
+                "title": "Item",
+                "type": "object"
+            },
+            "KindEnum": {
+                "enum": [
+                    "law",
+                    "service_page",
+                    "other"
+                ],
+                "type": "string"
+            },
+            "LangCode": {
+                "enum": [
+                    "uz-Latn",
+                    "uz-Cyrl",
+                    "ru",
+                    "en"
+                ],
+                "type": "string"
+            },
+            "LawPoint": {
+                "additionalProperties": false,
+                "description": "An exact legal clause, its plain-language explanation and sources.",
+                "properties": {
+                    "quote": {
+                        "title": "Quote",
+                        "type": "string"
+                    },
+                    "explanation": {
+                        "title": "Explanation",
+                        "type": "string"
+                    },
+                    "source_ids": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Source Ids",
+                        "type": "array"
+                    }
+                },
+                "propertyOrdering": [
+                    "quote",
+                    "explanation",
+                    "source_ids"
+                ],
+                "required": [
+                    "quote",
+                    "explanation",
+                    "source_ids"
+                ],
+                "title": "LawPoint",
+                "type": "object"
+            },
+            "MatchEnum": {
+                "enum": [
+                    "district",
+                    "region",
+                    "none"
+                ],
+                "type": "string"
+            },
+            "Me": {
+                "type": "object",
+                "description": "The ``Me`` object of the contract.\n\nContext: ``lang``, ``email_verified`` and ``quota`` are computed by the view.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "email_verified": {
+                        "type": "boolean",
+                        "description": "Return the verification flag computed by the view.\n\nArgs:\n    obj: The user.",
+                        "readOnly": true
+                    },
+                    "has_password": {
+                        "type": "boolean",
+                        "description": "False for Google-only accounts that never set a password.\n\nArgs:\n    obj: The user.",
+                        "readOnly": true
+                    },
+                    "display_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "ui_language": {
+                        "$ref": "#/components/schemas/UiLanguageEnum"
+                    },
+                    "region": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Place"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "district": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Place"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "profile_complete": {
+                        "type": "boolean"
+                    },
+                    "quota": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        },
+                        "description": "Return the quota usage computed by the view.\n\nArgs:\n    obj: The user.",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "display_name",
+                    "district",
+                    "email",
+                    "email_verified",
+                    "has_password",
+                    "id",
+                    "profile_complete",
+                    "quota",
+                    "region",
+                    "ui_language"
+                ]
+            },
+            "Message": {
+                "oneOf": [
+                    {
+                        "$ref": "#/components/schemas/UserMessage"
+                    },
+                    {
+                        "$ref": "#/components/schemas/AssistantMessage"
+                    }
+                ],
+                "discriminator": {
+                    "propertyName": "role",
+                    "mapping": {
+                        "None": "#/components/schemas/AssistantMessage"
+                    }
+                }
+            },
+            "OfficeMatch": {
+                "description": "Result of the district → region office lookup.",
+                "properties": {
+                    "match": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/MatchEnum"
+                            }
+                        ],
+                        "title": "Match"
+                    },
+                    "office_type": {
+                        "$ref": "#/components/schemas/OfficeTypeRef"
+                    },
+                    "office": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/OfficeOut"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "match",
+                    "office_type",
+                    "office"
+                ],
+                "title": "OfficeMatch",
+                "type": "object"
+            },
+            "OfficeOut": {
+                "description": "One office as shown on the office card.",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "string"
+                    },
+                    "name": {
+                        "title": "Name",
+                        "type": "string"
+                    },
+                    "office_type": {
+                        "$ref": "#/components/schemas/OfficeTypeRef"
+                    },
+                    "address": {
+                        "title": "Address",
+                        "type": "string"
+                    },
+                    "district": {
+                        "$ref": "#/components/schemas/PlaceRef"
+                    },
+                    "region": {
+                        "$ref": "#/components/schemas/PlaceRef"
+                    },
+                    "phone": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Phone"
+                    },
+                    "working_hours": {
+                        "items": {
+                            "$ref": "#/components/schemas/WorkingHours"
+                        },
+                        "title": "Working Hours",
+                        "type": "array"
+                    },
+                    "latitude": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Latitude"
+                    },
+                    "longitude": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Longitude"
+                    },
+                    "map_url": {
+                        "title": "Map Url",
+                        "type": "string"
+                    },
+                    "data_as_of": {
+                        "title": "Data As Of",
+                        "type": "string"
+                    },
+                    "source_url": {
+                        "title": "Source Url",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "office_type",
+                    "address",
+                    "district",
+                    "region",
+                    "phone",
+                    "working_hours",
+                    "latitude",
+                    "longitude",
+                    "map_url",
+                    "data_as_of",
+                    "source_url"
+                ],
+                "title": "OfficeOut",
+                "type": "object"
+            },
+            "OfficeTypeRef": {
+                "description": "``{code, label}`` of an office type.",
+                "properties": {
+                    "code": {
+                        "title": "Code",
+                        "type": "string"
+                    },
+                    "label": {
+                        "title": "Label",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "label"
+                ],
+                "title": "OfficeTypeRef",
+                "type": "object"
+            },
+            "PaginatedConversationSummaryList": {
+                "type": "object",
+                "required": [
+                    "results",
+                    "next"
+                ],
+                "properties": {
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ConversationSummary"
+                        }
+                    },
+                    "next": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                }
+            },
+            "PatchedMeUpdateRequest": {
+                "type": "object",
+                "description": "PATCH ``/me`` body: all fields optional; ``district_id`` must be in ``region_id``.\n\nChanging ``region_id`` needs a ``district_id`` in the new region (contract v1.4).",
+                "properties": {
+                    "ui_language": {
+                        "$ref": "#/components/schemas/UiLanguageEnum"
+                    },
+                    "region_id": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": 0
+                    },
+                    "district_id": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": 0
+                    },
+                    "display_name": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 80
+                    }
+                }
+            },
+            "Place": {
+                "type": "object",
+                "description": "``{id, name}`` with the name localized to ``context[\"lang\"]`` (Region / District).",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Return the name in the request language.\n\nArgs:\n    obj: A region or district.",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ]
+            },
+            "PlaceRef": {
+                "description": "``{id, name}`` of a region or district.",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "title": "Name",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "title": "PlaceRef",
+                "type": "object"
+            },
+            "RatingEnum": {
+                "enum": [
+                    1,
+                    -1
+                ],
+                "type": "integer",
+                "description": "* `1` - Up\n* `-1` - Down"
+            },
+            "ResendVerificationRequest": {
+                "type": "object",
+                "description": "POST ``/auth/resend-verification`` body.",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "email"
+                ]
+            },
+            "Source": {
+                "description": "A cited source (contract §5).",
+                "properties": {
+                    "id": {
+                        "title": "Id",
+                        "type": "string"
+                    },
+                    "kind": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/KindEnum"
+                            }
+                        ],
+                        "title": "Kind"
+                    },
+                    "title": {
+                        "title": "Title",
+                        "type": "string"
+                    },
+                    "publisher": {
+                        "title": "Publisher",
+                        "type": "string"
+                    },
+                    "url": {
+                        "title": "Url",
+                        "type": "string"
+                    },
+                    "section": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Section"
+                    },
+                    "published_at": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Published At"
+                    },
+                    "fetched_at": {
+                        "title": "Fetched At",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "kind",
+                    "title",
+                    "publisher",
+                    "url",
+                    "section",
+                    "published_at",
+                    "fetched_at"
+                ],
+                "title": "Source",
+                "type": "object"
+            },
+            "SourceList": {
+                "description": "``sources`` of an assistant message (for the OpenAPI schema).",
+                "items": {
+                    "$ref": "#/components/schemas/Source"
+                },
+                "title": "SourceList",
+                "type": "array"
+            },
+            "StatusEnum": {
+                "enum": [
+                    "streaming",
+                    "complete",
+                    "failed"
+                ],
+                "type": "string",
+                "description": "* `streaming` - Streaming\n* `complete` - Complete\n* `failed` - Failed"
+            },
+            "Suggestion": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "category",
+                    "text"
+                ]
+            },
+            "Suggestions": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Suggestion"
+                        }
+                    }
+                },
+                "required": [
+                    "items"
+                ]
+            },
+            "UiLanguageEnum": {
+                "enum": [
+                    "uz-Latn",
+                    "uz-Cyrl",
+                    "ru",
+                    "en"
+                ],
+                "type": "string",
+                "description": "* `uz-Latn` - Oʻzbekcha\n* `uz-Cyrl` - Ўзбекча\n* `ru` - Русский\n* `en` - English"
+            },
+            "UserMessage": {
+                "type": "object",
+                "description": "A user message (text is PII-scrubbed).",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "created_at",
+                    "id",
+                    "role",
+                    "text"
+                ]
+            },
+            "WorkingHours": {
+                "description": "Working hours specification for an office matching contract §5.",
+                "properties": {
+                    "days": {
+                        "items": {
+                            "$ref": "#/components/schemas/Day"
+                        },
+                        "title": "Days",
+                        "type": "array"
+                    },
+                    "open": {
+                        "description": "Opening time in HH:MM format",
+                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+                        "title": "Open",
+                        "type": "string"
+                    },
+                    "close": {
+                        "description": "Closing time in HH:MM format",
+                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+                        "title": "Close",
+                        "type": "string"
+                    },
+                    "break": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BreakTime"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "default": null,
+                        "description": "Lunch or shift break window"
+                    }
+                },
+                "required": [
+                    "days",
+                    "open",
+                    "close"
+                ],
+                "title": "WorkingHours",
+                "type": "object"
+            },
+            "ChatRequest": {
+                "additionalProperties": false,
+                "description": "Body of ``POST /api/v1/chat``.",
+                "properties": {
+                    "conversation_id": {
+                        "anyOf": [
+                            {
+                                "format": "uuid",
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "default": null,
+                        "title": "Conversation Id"
+                    },
+                    "text": {
+                        "minLength": 1,
+                        "title": "Text",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "text"
+                ],
+                "title": "ChatRequest",
+                "type": "object"
+            },
+            "Problem": {
+                "type": "object",
+                "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail",
+                    "code",
+                    "errors"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    },
+                    "detail": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "errors": {
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "retry_after": {
+                        "type": "integer"
+                    },
+                    "scope": {
+                        "type": "string",
+                        "enum": [
+                            "user",
+                            "global"
+                        ]
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "cookieAuth": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "sessionid"
+            }
+        }
+    }
+}

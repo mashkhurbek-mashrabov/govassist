@@ -26,3 +26,7 @@ MIDDLEWARE.insert(
     "django.middleware.csp.ContentSecurityPolicyMiddleware",
 )
 REST_FRAMEWORK["NUM_PROXIES"] = env.int("NUM_PROXIES", default=1)
+
+# Cloudflare redirects HTTP to HTTPS at the edge (nginx sees plain HTTP from the tunnel), and
+# HSTS preload-list submission is an operator decision, not a code default.
+SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W021"]
