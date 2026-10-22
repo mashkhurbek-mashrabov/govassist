@@ -313,7 +313,7 @@ const authHandlers = [
       const email = db.verificationKeys[key];
       const me = email ? db.users[email] : undefined;
       if (!email || !me) return authError("invalid", "key");
-      me.email_verified = true;
+      Object.assign(me, { email_verified: true });
       Reflect.deleteProperty(db.verificationKeys, key);
       db.pendingEmail = null;
       db.sessionEmail = email;
@@ -357,7 +357,7 @@ const authHandlers = [
       }
       if ((body.new_password ?? "").length < MIN_PASSWORD_LENGTH)
         return authError("password_too_short", "new_password");
-      me.has_password = true;
+      Object.assign(me, { has_password: true });
       saveDb();
       return HttpResponse.json({ status: 200 });
     }),
@@ -455,7 +455,7 @@ async function chat(request: Request, me: Me) {
     answer: null,
   };
   conversation.messages.push({ id: meta.user_message_id, role: "user", text, created_at: now }, stored);
-  conversation.updated_at = now;
+  Object.assign(conversation, { updated_at: now });
   me.quota.hour_used += 1;
   me.quota.day_used += 1;
   saveDb();
@@ -628,7 +628,7 @@ const apiHandlers = [
           );
         if (!message) return problem(404, "not_found");
         const created = message.feedback === null;
-        message.feedback = { rating: body.rating, comment: body.comment ?? "" };
+        Object.assign(message, { feedback: { rating: body.rating, comment: body.comment ?? "" } });
         saveDb();
         return HttpResponse.json(message.feedback, { status: created ? 201 : 200 });
       }),
