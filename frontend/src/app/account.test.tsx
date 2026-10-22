@@ -84,6 +84,9 @@ describe("account pages", () => {
     await user.type(screen.getByLabelText("Yangi parol"), "yangi-Parol-123");
     await user.click(screen.getByRole("button", { name: "Parolni saqlash" }));
     expect(await screen.findByText("Joriy parol notoʻgʻri.")).toBeInTheDocument();
+    // Contract v1.8: `enter_current_password` is a field error on the current password.
+    expect(screen.getByLabelText("Joriy parol")).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByLabelText("Joriy parol")).toHaveAccessibleDescription(/Joriy parol notoʻgʻri\./);
     await user.clear(screen.getByLabelText("Joriy parol"));
     await user.type(screen.getByLabelText("Joriy parol"), "eski-parol-123");
     await user.click(screen.getByRole("button", { name: "Parolni saqlash" }));

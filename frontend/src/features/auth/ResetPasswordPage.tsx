@@ -12,8 +12,8 @@ import { PasswordField } from "../../components/ui/PasswordField";
 import { authErrorInfo } from "./authErrors";
 import { resetSchema, type ResetValues } from "./schemas";
 
-/** allauth code for a bad or expired key. */
-const INVALID_KEY = "invalid";
+/** allauth code for an invalid, used or expired reset key (contract v1.8). */
+const INVALID_KEY = "invalid_password_reset";
 
 /**
  * Reset password (screen 5): new password with strength hint; invalid key and success states.

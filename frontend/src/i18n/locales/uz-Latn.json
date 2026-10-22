@@ -78,7 +78,8 @@
     "server": "Nimadir xato ketdi. Birozdan soʻng qayta urinib koʻring.",
     "login_failed": "Elektron pochta yoki parol notoʻgʻri.",
     "social": "Google orqali kirib boʻlmadi. Qayta urinib koʻring yoki elektron pochta bilan kiring.",
-    "current_password_wrong": "Joriy parol notoʻgʻri."
+    "current_password_wrong": "Joriy parol notoʻgʻri.",
+    "too_many_attempts": "Juda koʻp urinish boʻldi. Birozdan soʻng qayta urinib koʻring."
   },
   "check_email": {
     "title": "Pochtangizni tekshiring",

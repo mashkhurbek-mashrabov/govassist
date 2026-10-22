@@ -19,11 +19,17 @@ const CODES: Record<string, Omit<AuthErrorInfo, "field"> & { field?: AuthErrorIn
   password_too_short: { key: "error.password_short", field: "password", warning: false },
   password_too_common: { key: "error.password_common", field: "password", warning: false },
   password_entirely_numeric: { key: "error.password_numeric", field: "password", warning: false },
-  incorrect_password: { key: "error.current_password_wrong", field: "current_password", warning: false },
+  enter_current_password: { key: "error.current_password_wrong", field: "current_password", warning: false },
 };
 
 /** Fallback for unknown codes and non-allauth failures. */
 const SERVER_ERROR: AuthErrorInfo = { key: "error.server", field: null, warning: false };
+
+/** allauth's rate limit: a bare `429 {"status": 429}` with no `errors` (contract v1.8). */
+const RATE_LIMITED: AuthErrorInfo = { key: "error.too_many_attempts", field: null, warning: true };
+
+/** HTTP status of allauth's rate limit. */
+const TOO_MANY_REQUESTS = 429;
 
 /**
  * Describe the first known error of a failed auth call.
@@ -33,6 +39,7 @@ const SERVER_ERROR: AuthErrorInfo = { key: "error.server", field: null, warning:
  */
 export function authErrorInfo(error: unknown): AuthErrorInfo {
   if (!(error instanceof AuthError)) return SERVER_ERROR;
+  if (error.status === TOO_MANY_REQUESTS) return RATE_LIMITED;
   for (const item of error.errors) {
     const known = CODES[item.code];
     if (known) return { key: known.key, warning: known.warning, field: known.field ?? null };

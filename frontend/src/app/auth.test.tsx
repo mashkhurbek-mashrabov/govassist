@@ -44,6 +44,18 @@ describe("auth flows", () => {
     await screen.findByRole("heading", { name: "Sozlamalar", level: 1 });
   });
 
+  it("shows the rate-limit warning for allauth's bare 429 (contract v1.8)", async () => {
+    const user = userEvent.setup();
+    renderApp("/login");
+    await user.type(await screen.findByLabelText("Elektron pochta"), "ratelimit@example.com");
+    await user.type(screen.getByLabelText("Parol"), "namuna-parol-1");
+    await user.click(screen.getByRole("button", { name: "Kirish" }));
+    expect(
+      await screen.findByText("Juda koʻp urinish boʻldi. Birozdan soʻng qayta urinib koʻring."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Nimadir xato ketdi. Birozdan soʻng qayta urinib koʻring.")).toBeNull();
+  });
+
   it("toggles password visibility", async () => {
     const user = userEvent.setup();
     renderApp("/login");

@@ -78,7 +78,8 @@
     "server": "Something went wrong. Please try again in a moment.",
     "login_failed": "The email or password is incorrect.",
     "social": "We could not log you in with Google. Try again or use your email.",
-    "current_password_wrong": "The current password is incorrect."
+    "current_password_wrong": "The current password is incorrect.",
+    "too_many_attempts": "Too many attempts. Try again a little later."
   },
   "check_email": {
     "title": "Check your email",

@@ -90,6 +90,9 @@ function unauthenticated(pending = false) {
   );
 }
 
+/** Login email that makes the mock answer with allauth's bare 429. */
+const RATE_LIMIT_EMAIL = "ratelimit@example.com";
+
 /**
  * allauth 400 with one error.
  *
@@ -288,6 +291,8 @@ const authHandlers = [
     csrf(async ({ request }) => {
       const body = (await request.json()) as { email?: string; password?: string };
       const email = (body.email ?? "").toLowerCase();
+      // Contract v1.8: allauth's rate limit is a bare 429 without `errors`.
+      if (email === RATE_LIMIT_EMAIL) return HttpResponse.json({ status: 429 }, { status: 429 });
       const me = db.users[email];
       if (!me || body.password === WRONG_PASSWORD) return authError("email_password_mismatch", "password");
       if (!me.email_verified) {
@@ -332,7 +337,7 @@ const authHandlers = [
     `${AUTH_BASE}/auth/password/reset`,
     csrf(async ({ request }) => {
       const body = (await request.json()) as { key?: string; password?: string };
-      if (!body.key || !db.resetKeys[body.key]) return authError("invalid", "key");
+      if (!body.key || !db.resetKeys[body.key]) return authError("invalid_password_reset", "key");
       if ((body.password ?? "").length < MIN_PASSWORD_LENGTH)
         return authError("password_too_short", "password");
       Reflect.deleteProperty(db.resetKeys, body.key);
@@ -347,7 +352,7 @@ const authHandlers = [
       if (!me) return unauthenticated();
       const body = (await request.json()) as { current_password?: string; new_password?: string };
       if (me.has_password && (!body.current_password || body.current_password === WRONG_PASSWORD)) {
-        return authError("incorrect_password", "current_password");
+        return authError("enter_current_password", "current_password");
       }
       if ((body.new_password ?? "").length < MIN_PASSWORD_LENGTH)
         return authError("password_too_short", "new_password");
