@@ -4,11 +4,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema_field
 from rest_framework import serializers
 
+from apps.chat.constants import FEEDBACK_COMMENT_MAX_CHARS
 from apps.chat.models import Conversation, Feedback, Message
 from apps.chat.schemas import Answer, SourceList
 from apps.offices.schemas import OfficeMatch
-
-FEEDBACK_COMMENT_MAX_CHARS = 1000
 
 
 class FeedbackSerializer(serializers.ModelSerializer[Feedback]):

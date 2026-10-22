@@ -7,11 +7,9 @@ from django.db.models import Count, Q
 
 from apps.chat.limits import QuotaService, local_now
 from apps.chat.models import Feedback, Message
-from apps.common.models import ReviewStatus
+from apps.common.constants import PERCENT, ReviewStatus
 from apps.corpus.models import Chunk, Document
 from apps.offices.models import Office
-
-PERCENT = 100
 
 
 @dataclass(frozen=True)

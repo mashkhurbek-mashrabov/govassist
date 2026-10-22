@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from apps.chat.citations import resolve_citations
 from apps.chat.prompts import ContextBlock, Turn, load_template, render_prompt
 from apps.chat.schemas import Answer, ChatRequest, gemini_response_schema
-from apps.common.i18n import Lang
+from apps.common.constants import Lang
 
 FIELD_ORDER = [
     "answer_type",

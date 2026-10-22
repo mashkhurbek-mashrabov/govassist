@@ -3,7 +3,7 @@ from typing import Any, ClassVar
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
-from apps.common.i18n import Lang
+from apps.common.constants import Lang
 from apps.common.models import BaseModel
 
 

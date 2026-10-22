@@ -14,8 +14,7 @@ from django.utils import timezone
 from rest_framework.test import APIClient
 
 from apps.accounts.models import User
-from apps.common.i18n import Lang
-from apps.common.models import ReviewStatus
+from apps.common.constants import Lang, ReviewStatus
 from apps.common.text import normalize_for_search
 from apps.corpus.embeddings import FakeEmbedder
 from apps.corpus.models import Chunk, Document

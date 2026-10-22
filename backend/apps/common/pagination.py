@@ -4,8 +4,7 @@ from urllib.parse import parse_qs, urlparse
 from rest_framework.pagination import CursorPagination
 from rest_framework.response import Response
 
-DEFAULT_PAGE_SIZE = 20
-MAX_PAGE_SIZE = 50
+from apps.common.constants import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 
 
 class ContractCursorPagination(CursorPagination):

@@ -1,11 +1,8 @@
 import json
 from pathlib import Path
 
+from apps.collector.constants import SAMPLE_MAX_PAGES, SAMPLE_SOURCES_FIXTURE, TERMS_NOTE
 from apps.collector.models import CrawlSource
-
-SAMPLE_SOURCES_FIXTURE = Path(__file__).parent / "fixtures" / "sample_sources.json"
-SAMPLE_MAX_PAGES = 1
-TERMS_NOTE = "See docs/corpus-sources.md (robots.txt, terms of use, fetch date)."
 
 
 def seed_sample_sources(path: Path = SAMPLE_SOURCES_FIXTURE) -> int:

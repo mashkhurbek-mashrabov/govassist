@@ -7,7 +7,7 @@ from asgiref.sync import async_to_sync
 from django.db import transaction
 from django.db.models import QuerySet
 
-from apps.common.models import ReviewStatus
+from apps.common.constants import ReviewStatus
 from apps.corpus.chunking import chunk_document
 from apps.corpus.embeddings import DocumentInput, Embedder, GeminiEmbedder
 from apps.corpus.models import Chunk, Document

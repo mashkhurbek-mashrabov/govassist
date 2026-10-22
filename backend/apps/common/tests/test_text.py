@@ -4,11 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from apps.common.i18n import Lang
+from apps.common.constants import APOSTROPHES, OKINA, TUTUQ, Lang
 from apps.common.text import (
-    APOSTROPHES,
-    OKINA,
-    TUTUQ,
     canonicalize,
     detect_language,
     detect_script,

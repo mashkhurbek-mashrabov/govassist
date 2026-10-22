@@ -6,10 +6,9 @@ from pathlib import PurePosixPath
 
 import pdfplumber
 
+from apps.collector.constants import MAX_TITLE_CHARS
 from apps.collector.fetchers import FetchResult
 from apps.collector.parsers.base import ParsedPage
-
-MAX_TITLE_CHARS = 200
 
 
 def parse_pdf(result: FetchResult) -> ParsedPage:

@@ -3,21 +3,20 @@
 Changing any constant or rule here changes retrieval and invalidates the evaluation.
 """
 
-import re
 from collections.abc import Iterator
 from dataclasses import dataclass
 
 from apps.common.text import normalize_for_search
-
-CHUNK_MAX_CHARS = 1800
-CHUNK_OVERLAP_CHARS = 300
-CHUNK_MIN_CHARS = 150
-HEADING_SEPARATOR = " › "
-PARAGRAPH_SEPARATOR = "\n\n"
-
-_HEADING = re.compile(r"^(#{1,4})\s+(.+)$")
-_SENTENCE_END = re.compile(r"(?<=[.!?;])\s+")
-_BLANK_LINES = re.compile(r"\n\s*\n")
+from apps.corpus.constants import (
+    BLANK_LINES,
+    CHUNK_MAX_CHARS,
+    CHUNK_MIN_CHARS,
+    CHUNK_OVERLAP_CHARS,
+    HEADING,
+    HEADING_SEPARATOR,
+    PARAGRAPH_SEPARATOR,
+    SENTENCE_END,
+)
 
 
 @dataclass(frozen=True)
@@ -59,7 +58,7 @@ def _sections(text: str) -> Iterator[_Section]:
     body: list[str] = []
     path = ""
     for line in text.splitlines():
-        heading = _HEADING.match(line)
+        heading = HEADING.match(line)
         if heading is None:
             body.append(line)
             continue
@@ -99,7 +98,7 @@ def _pieces(paragraph: str) -> list[str]:
     if len(paragraph) <= CHUNK_MAX_CHARS:
         return [paragraph]
     pieces: list[str] = []
-    for sentence in _SENTENCE_END.split(paragraph):
+    for sentence in SENTENCE_END.split(paragraph):
         pieces.extend([sentence] if len(sentence) <= CHUNK_MAX_CHARS else _split_words(sentence))
     return pieces
 
@@ -118,7 +117,7 @@ def _overlap(previous: str, limit: int) -> str:
     if len(previous) <= limit:
         return previous
     tail = previous[-limit:]
-    boundary = _SENTENCE_END.search(tail)
+    boundary = SENTENCE_END.search(tail)
     if boundary is not None:
         return tail[boundary.end() :]
     _, _, after_first_space = tail.partition(" ")
@@ -148,7 +147,7 @@ def _pack(body: str) -> list[str]:
     Returns:
         Chunk texts, each at most ``CHUNK_MAX_CHARS`` long.
     """
-    paragraphs = [p.strip() for p in _BLANK_LINES.split(body) if p.strip()]
+    paragraphs = [p.strip() for p in BLANK_LINES.split(body) if p.strip()]
     chunks: list[str] = []
     current = ""
     for piece in (piece for paragraph in paragraphs for piece in _pieces(paragraph)):

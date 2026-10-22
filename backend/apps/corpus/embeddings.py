@@ -13,9 +13,7 @@ from google.genai import types
 
 from apps.common.gemini import call_with_retries, get_client
 from apps.common.text import canonicalize
-
-QUERY_TEMPLATE = "task: question answering | query: {query}"
-DOCUMENT_TEMPLATE = "title: {title} | text: {text}"
+from apps.corpus.constants import DOCUMENT_TEMPLATE, QUERY_TEMPLATE
 
 
 @dataclass(frozen=True)

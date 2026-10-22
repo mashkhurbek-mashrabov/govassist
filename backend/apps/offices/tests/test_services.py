@@ -4,7 +4,7 @@ from datetime import date
 
 import pytest
 
-from apps.common.models import ReviewStatus
+from apps.common.constants import ReviewStatus
 from apps.geo.models import District, Region
 from apps.offices.models import Office, OfficeType
 from apps.offices.services import approve_offices, reject_offices

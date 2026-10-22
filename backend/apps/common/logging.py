@@ -7,8 +7,7 @@ from asgiref.sync import iscoroutinefunction, markcoroutinefunction
 from django.http import HttpRequest, HttpResponseBase
 from django.utils.decorators import sync_and_async_middleware
 
-REQUEST_ID_HEADER = "X-Request-ID"
-MAX_REQUEST_ID_LENGTH = 64
+from apps.common.constants import MAX_REQUEST_ID_LENGTH, REQUEST_ID_HEADER
 
 request_id_var: ContextVar[str] = ContextVar("request_id", default="-")
 

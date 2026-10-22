@@ -2,7 +2,7 @@
 
 import urllib.parse
 
-MAPS_SEARCH_BASE_URL = "https://www.google.com/maps/search/?api=1&query="
+from apps.offices.constants import MAPS_SEARCH_BASE_URL
 
 
 def map_url(

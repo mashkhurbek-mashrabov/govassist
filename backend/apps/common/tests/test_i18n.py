@@ -5,7 +5,8 @@ from django.http import HttpRequest
 from django.test import RequestFactory
 
 from apps.accounts.models import User
-from apps.common.i18n import Lang, resolve_lang
+from apps.common.constants import Lang
+from apps.common.i18n import resolve_lang
 
 
 def _request(query: str = "", accept: str = "", user: User | None = None) -> HttpRequest:

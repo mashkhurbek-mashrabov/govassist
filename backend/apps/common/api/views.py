@@ -9,11 +9,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-logger = logging.getLogger(__name__)
+from apps.common.constants import FAIL, HEALTH_CACHE_KEY, OK
 
-HEALTH_CACHE_KEY = "health:ping"
-OK = "ok"
-FAIL = "fail"
+logger = logging.getLogger(__name__)
 
 
 def _check_db() -> str:

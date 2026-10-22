@@ -2,13 +2,12 @@ from typing import Any
 
 from rest_framework import serializers
 
+from apps.accounts.constants import DISPLAY_NAME_MAX_LENGTH
 from apps.accounts.models import User
 from apps.accounts.services import ProfileUpdate
-from apps.common.i18n import Lang
+from apps.common.constants import Lang
 from apps.geo.api.serializers import PlaceSerializer
 from apps.geo.models import District, Region
-
-DISPLAY_NAME_MAX_LENGTH = 80
 
 
 class QuotaSerializer(serializers.Serializer[Any]):

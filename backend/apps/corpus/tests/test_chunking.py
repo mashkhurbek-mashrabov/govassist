@@ -4,15 +4,14 @@ from itertools import pairwise
 
 import pytest
 
-from apps.common.i18n import Lang
+from apps.common.constants import Lang
 from apps.common.text import normalize_for_search
-from apps.corpus.chunking import (
+from apps.corpus.chunking import ChunkDraft, chunk_document
+from apps.corpus.constants import (
     CHUNK_MAX_CHARS,
     CHUNK_MIN_CHARS,
     CHUNK_OVERLAP_CHARS,
     HEADING_SEPARATOR,
-    ChunkDraft,
-    chunk_document,
 )
 
 

@@ -2,13 +2,13 @@
 
 import hashlib
 import logging
-import re
 from datetime import datetime
 from typing import Protocol
 
 from django.conf import settings
 from django.db import transaction
 
+from apps.collector.constants import REGION_WORDS
 from apps.collector.extraction import (
     OfficeCandidate,
     OfficeExtractor,
@@ -16,19 +16,16 @@ from apps.collector.extraction import (
 )
 from apps.collector.models import CrawlSource
 from apps.collector.parsers import ParsedPage
-from apps.common.models import ReviewStatus
+from apps.common.constants import ReviewStatus
 from apps.common.text import canonicalize, detect_language, detect_script, uz_cyrl_to_latn
-from apps.corpus.models import Document, DocumentKind
+from apps.corpus.constants import DocumentKind
+from apps.corpus.models import Document
+from apps.geo.constants import NAME_FIELDS
 from apps.geo.models import Region
 from apps.offices.matching import match_district
 from apps.offices.models import Office, OfficeType, ServiceOffice
 
 logger = logging.getLogger(__name__)
-
-NAME_FIELDS = ("name_uz_latn", "name_uz_cyrl", "name_ru", "name_en")
-_REGION_WORDS = re.compile(
-    r"\b(viloyati|viloyat|shahri|shahar|respublikasi|respublika|oblast|region|city|republic)\b"
-)
 
 
 class Pipeline(Protocol):
@@ -44,7 +41,7 @@ class Pipeline(Protocol):
 def _region_key(name: str) -> str:
     """Comparable region name: Latin, canonical, without 'viloyati'/'region'-like words."""
     latin = uz_cyrl_to_latn(name) if detect_script(name) == "cyrl" else name
-    return " ".join(_REGION_WORDS.sub(" ", canonicalize(latin)).split())
+    return " ".join(REGION_WORDS.sub(" ", canonicalize(latin)).split())
 
 
 def find_region(name: str) -> Region | None:

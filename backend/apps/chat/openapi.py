@@ -2,11 +2,8 @@
 
 from typing import Any
 
+from apps.chat.constants import CHAT_PATH, CHAT_REQUEST, PROBLEM
 from apps.chat.schemas import ChatRequest
-
-CHAT_PATH = "/api/v1/chat"
-PROBLEM = {"$ref": "#/components/schemas/Problem"}
-CHAT_REQUEST = {"$ref": "#/components/schemas/ChatRequest"}
 
 
 def _problem(description: str) -> dict[str, Any]:

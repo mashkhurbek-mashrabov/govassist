@@ -1,9 +1,8 @@
 import json
 from pathlib import Path
 
+from apps.offices.constants import OFFICE_TYPES_FIXTURE
 from apps.offices.models import OfficeType
-
-OFFICE_TYPES_FIXTURE = Path(__file__).parent / "fixtures" / "office_types.json"
 
 
 def seed_office_types(path: Path = OFFICE_TYPES_FIXTURE) -> int:

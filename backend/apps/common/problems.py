@@ -9,9 +9,9 @@ from django.http import Http404, JsonResponse
 from rest_framework import exceptions, status
 from rest_framework.response import Response
 
-logger = logging.getLogger(__name__)
+from apps.common.constants import PROBLEM_CONTENT_TYPE
 
-PROBLEM_CONTENT_TYPE = "application/problem+json"
+logger = logging.getLogger(__name__)
 
 
 class Problem(exceptions.APIException):

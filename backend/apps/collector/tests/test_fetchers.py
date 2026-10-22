@@ -10,9 +10,8 @@ from unittest.mock import MagicMock
 import httpx
 import pytest
 
+from apps.collector.constants import RETRY_AFTER_CAP_S, RETRY_FALLBACK_S
 from apps.collector.fetchers import (
-    RETRY_AFTER_CAP_S,
-    RETRY_FALLBACK_S,
     BrowserFetcher,
     HostRateLimiter,
     HttpFetcher,

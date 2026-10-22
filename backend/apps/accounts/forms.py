@@ -4,10 +4,7 @@ from django import forms
 from django.http import HttpRequest
 
 from apps.accounts import turnstile
-
-TURNSTILE_TOKEN_MAX_LENGTH = 2048
-TURNSTILE_FAILED = "turnstile_failed"
-TURNSTILE_MESSAGE = "Bot check failed. Reload the page and try again."
+from apps.accounts.constants import TURNSTILE_FAILED, TURNSTILE_MESSAGE, TURNSTILE_TOKEN_MAX_LENGTH
 
 
 class SignupForm(forms.Form):

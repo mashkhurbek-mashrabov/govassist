@@ -10,13 +10,16 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel, field_validator, model_validator
 
+from apps.chat.constants import (
+    FOLLOW_UPS_MAX,
+    GEMINI_UNSUPPORTED_KEYS,
+    REFUSED_TYPES,
+    STEPS_MAX,
+    TITLE_MAX_CHARS,
+)
+
 type LangCode = Literal["uz-Latn", "uz-Cyrl", "ru", "en"]
 type AnswerType = Literal["service", "legal", "not_found", "off_topic"]
-
-TITLE_MAX_CHARS = 80
-STEPS_MAX = 7
-FOLLOW_UPS_MAX = 3
-REFUSED_TYPES = frozenset({"not_found", "off_topic"})
 
 
 def _keep_property_order(schema: dict[str, Any]) -> None:
@@ -101,9 +104,6 @@ class Answer(OrderedModel):
     def refused(self) -> bool:
         """True for ``not_found`` and ``off_topic`` answers."""
         return self.answer_type in REFUSED_TYPES
-
-
-GEMINI_UNSUPPORTED_KEYS = frozenset({"additionalProperties"})
 
 
 def _without_unsupported(node: Any) -> Any:

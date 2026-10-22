@@ -13,10 +13,8 @@ from django.conf import settings
 from django.core.cache import BaseCache, cache
 from django.utils import timezone
 
+from apps.chat.constants import DAY_TTL_S, HOUR_TTL_S
 from apps.common.problems import QuotaExceeded, RateLimited, StreamInProgress
-
-HOUR_TTL_S = 3600
-DAY_TTL_S = 90_000
 
 
 def local_now() -> datetime:

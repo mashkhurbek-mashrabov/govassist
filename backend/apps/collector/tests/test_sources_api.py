@@ -5,7 +5,7 @@ from django.utils import timezone
 from rest_framework.test import APIClient
 
 from apps.collector.models import CrawlSource
-from apps.common.models import ReviewStatus
+from apps.common.constants import ReviewStatus
 from apps.corpus.models import Document
 from apps.geo.models import District
 from apps.offices.models import Office, OfficeType

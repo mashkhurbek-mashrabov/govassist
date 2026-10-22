@@ -1,25 +1,8 @@
 """UI/content languages and request language resolution (contract §1)."""
 
-from django.db import models
 from django.http import HttpRequest
 
-
-class Lang(models.TextChoices):
-    """The four supported languages/scripts."""
-
-    UZ_LATN = "uz-Latn", "Oʻzbekcha"
-    UZ_CYRL = "uz-Cyrl", "Ўзбекча"
-    RU = "ru", "Русский"
-    EN = "en", "English"
-
-
-DEFAULT_LANG = Lang.UZ_LATN
-_ACCEPT_LANGUAGE_PREFIXES: tuple[tuple[str, Lang], ...] = (
-    ("uz-cyrl", Lang.UZ_CYRL),
-    ("uz", Lang.UZ_LATN),
-    ("ru", Lang.RU),
-    ("en", Lang.EN),
-)
+from apps.common.constants import ACCEPT_LANGUAGE_PREFIXES, DEFAULT_LANG, Lang
 
 
 def parse_lang(value: str | None) -> Lang | None:
@@ -45,7 +28,7 @@ def _from_accept_language(header: str) -> Lang | None:
     """
     for part in header.split(","):
         tag = part.split(";")[0].strip().lower()
-        for prefix, lang in _ACCEPT_LANGUAGE_PREFIXES:
+        for prefix, lang in ACCEPT_LANGUAGE_PREFIXES:
             if tag.startswith(prefix):
                 return lang
     return None

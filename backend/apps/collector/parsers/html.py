@@ -1,19 +1,19 @@
 """Generic HTML → text with ``#`` heading markers (selectolax)."""
 
-import re
 import urllib.parse
 
 from selectolax.lexbor import LexborHTMLParser, LexborNode
 
+from apps.collector.constants import (
+    BLOCK_TAGS,
+    DROP_SELECTOR,
+    HEADING_TAGS,
+    MANY_NEWLINES,
+    SKIPPED_SCHEMES,
+    TEXT_NODE,
+)
 from apps.collector.fetchers import FetchResult
 from apps.collector.parsers.base import ParsedPage
-
-DROP_SELECTOR = "nav, header, footer, script, style, noscript, aside, form, svg"
-HEADING_TAGS = frozenset({"h1", "h2", "h3", "h4"})
-BLOCK_TAGS = frozenset({"p", "div", "section", "article", "main", "blockquote", "pre"})
-TEXT_NODE = "-text"
-_MANY_NEWLINES = re.compile(r"\n{3,}")
-_SKIPPED_SCHEMES = ("javascript:", "mailto:", "tel:")
 
 
 def clean(text: str) -> str:
@@ -53,7 +53,7 @@ def render(node: LexborNode) -> str:
 def tidy(text: str) -> str:
     """Strip each line, collapse runs of blank lines and trim."""
     lines = (" ".join(line.split()) for line in text.splitlines())
-    return _MANY_NEWLINES.sub("\n\n", "\n".join(lines)).strip()
+    return MANY_NEWLINES.sub("\n\n", "\n".join(lines)).strip()
 
 
 def links_of(tree: LexborHTMLParser, base_url: str) -> list[str]:
@@ -66,7 +66,7 @@ def links_of(tree: LexborHTMLParser, base_url: str) -> list[str]:
     seen: dict[str, None] = {}
     for anchor in tree.css("a[href]"):
         href = (anchor.attributes.get("href") or "").strip()
-        if not href or href.startswith(_SKIPPED_SCHEMES):
+        if not href or href.startswith(SKIPPED_SCHEMES):
             continue
         url, _ = urllib.parse.urldefrag(urllib.parse.urljoin(base_url, href))
         if urllib.parse.urlsplit(url).scheme in {"http", "https"}:

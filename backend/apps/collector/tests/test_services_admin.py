@@ -17,7 +17,7 @@ from apps.collector.crawler import Crawler
 from apps.collector.fetchers import BrowserFetcher, HttpFetcher
 from apps.collector.models import CrawlJob, CrawlSource
 from apps.collector.pipelines import DocumentPipeline, OfficePipeline
-from apps.common.models import ReviewStatus
+from apps.common.constants import ReviewStatus
 from apps.corpus.models import Document
 from apps.geo.models import District
 from apps.offices.models import Office, OfficeType

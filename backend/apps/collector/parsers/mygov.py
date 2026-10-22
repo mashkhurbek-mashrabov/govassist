@@ -2,13 +2,10 @@
 
 from selectolax.lexbor import LexborNode
 
+from apps.collector.constants import MYGOV_NOISE_SELECTOR, SECTION_SELECTOR, SERVICE_SELECTOR
 from apps.collector.fetchers import FetchResult
 from apps.collector.parsers.base import ParsedPage
 from apps.collector.parsers.html import clean, links_of, page_title, render, tidy, tree_of
-
-SERVICE_SELECTOR = ".serviceBox"
-SECTION_SELECTOR = ".item, .accordionContent"
-NOISE_SELECTOR = "button, svg, img"
 
 
 def _section(node: LexborNode) -> str:
@@ -36,7 +33,7 @@ def parse_mygov(result: FetchResult) -> ParsedPage:
     links = links_of(tree, result.final_url)
     box = tree.css_first(SERVICE_SELECTOR)
     if box is not None:
-        for node in box.css(f".accordionContent {NOISE_SELECTOR}"):
+        for node in box.css(f".accordionContent {MYGOV_NOISE_SELECTOR}"):
             node.decompose()
     heading = box.css_first("h1") if box is not None else None
     title = clean(heading.text()) if heading is not None else page_title(tree)

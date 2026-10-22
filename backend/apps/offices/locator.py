@@ -4,8 +4,8 @@ from collections.abc import Sequence
 from typing import Any
 from uuid import UUID
 
-from apps.common.models import ReviewStatus
-from apps.corpus.models import DocumentKind
+from apps.common.constants import ReviewStatus
+from apps.corpus.constants import DocumentKind
 from apps.offices.maps import map_url
 from apps.offices.models import Office, OfficeType, ServiceOffice
 from apps.offices.schemas import OfficeMatch, OfficeOut, OfficeTypeRef, PlaceRef

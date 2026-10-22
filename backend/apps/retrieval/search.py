@@ -16,14 +16,14 @@ from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.db.models import F, QuerySet
 from pgvector.django import CosineDistance
 
-from apps.common.models import ReviewStatus
+from apps.common.constants import MS_PER_S, ReviewStatus
 from apps.common.text import normalize_for_search
-from apps.corpus.models import SEARCH_CONFIG, Chunk
+from apps.corpus.constants import SEARCH_CONFIG
+from apps.corpus.models import Chunk
 
 logger = logging.getLogger(__name__)
 
 type Mode = Literal["vector", "keyword", "hybrid"]
-MS_PER_S = 1000
 
 
 @dataclass(frozen=True)

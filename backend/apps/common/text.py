@@ -6,35 +6,27 @@ Changing any rule here changes retrieval and therefore the evaluation results.
 import re
 from typing import Literal
 
-from apps.common.i18n import Lang
+from apps.common.constants import (
+    APOSTROPHE_AFTER,
+    CYRILLIC,
+    CYRILLIC_RATIO_THRESHOLD,
+    CYRL_TO_LATN,
+    CYRL_VOWELS,
+    LETTER,
+    NOT_WORD,
+    OKINA,
+    SIGNS,
+    SPACES,
+    TUTUQ,
+    UZ_CYRILLIC_LETTERS,
+    UZ_CYRILLIC_STOPWORDS,
+    UZ_LATIN_OKINA,
+    UZ_LATIN_STOPWORDS,
+    WORD,
+    Lang,
+)
 
 type Script = Literal["latn", "cyrl"]
-
-CYRILLIC_RATIO_THRESHOLD = 0.5
-UZ_CYRILLIC_LETTERS = frozenset("ўқғҳЎҚҒҲ")
-UZ_CYRILLIC_STOPWORDS = frozenset({"ва", "учун", "билан"})
-UZ_LATIN_STOPWORDS = frozenset({"va", "uchun", "bilan", "qanday"})
-
-OKINA = "ʻ"  # U+02BB, after o/g: oʻ, gʻ
-TUTUQ = "ʼ"  # U+02BC, glottal stop
-APOSTROPHES = "ʻʼ'`‘’ʹ"
-_UZ_LATIN_OKINA = re.compile(rf"[og][{APOSTROPHES}]", re.IGNORECASE)
-_APOSTROPHE_AFTER = re.compile(rf"(.?)[{APOSTROPHES}]")
-_NOT_WORD = re.compile(rf"[^\w\s{OKINA}{TUTUQ}]|_")
-_SPACES = re.compile(r"\s+")
-_CYRILLIC = re.compile(r"[Ѐ-ӿ]")
-_LETTER = re.compile(r"[^\W\d_]")
-_WORD = re.compile(r"\w+")
-
-_CYRL_VOWELS = frozenset("аеёиоуэюяўАЕЁИОУЭЮЯЎ")
-_SIGNS = frozenset("ъьЪЬ")
-_CYRL_TO_LATN: dict[str, str] = {
-    "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "ё": "yo", "ж": "j", "з": "z",
-    "и": "i", "й": "y", "к": "k", "л": "l", "м": "m", "н": "n", "о": "o", "п": "p",
-    "р": "r", "с": "s", "т": "t", "у": "u", "ф": "f", "х": "x", "ц": "ts", "ч": "ch",
-    "ш": "sh", "щ": "sh", "ъ": TUTUQ, "ы": "i", "ь": "", "э": "e", "ю": "yu", "я": "ya",
-    "ў": f"o{OKINA}", "қ": "q", "ғ": f"g{OKINA}", "ҳ": "h",
-}  # fmt: skip
 
 
 def detect_script(text: str) -> Script:
@@ -43,16 +35,16 @@ def detect_script(text: str) -> Script:
     Args:
         text: Any user text.
     """
-    letters = _LETTER.findall(text)
+    letters = LETTER.findall(text)
     if not letters:
         return "latn"
-    cyrillic = sum(1 for letter in letters if _CYRILLIC.match(letter))
+    cyrillic = sum(1 for letter in letters if CYRILLIC.match(letter))
     return "cyrl" if cyrillic / len(letters) > CYRILLIC_RATIO_THRESHOLD else "latn"
 
 
 def _words(text: str) -> set[str]:
     """Lowercased word set of ``text``."""
-    return {word.lower() for word in _WORD.findall(text)}
+    return {word.lower() for word in WORD.findall(text)}
 
 
 def detect_language(text: str) -> Lang:
@@ -68,7 +60,7 @@ def detect_language(text: str) -> Lang:
     if detect_script(text) == "cyrl":
         is_uzbek = bool(UZ_CYRILLIC_LETTERS & set(text)) or bool(UZ_CYRILLIC_STOPWORDS & words)
         return Lang.UZ_CYRL if is_uzbek else Lang.RU
-    is_uzbek = bool(_UZ_LATIN_OKINA.search(text)) or bool(UZ_LATIN_STOPWORDS & words)
+    is_uzbek = bool(UZ_LATIN_OKINA.search(text)) or bool(UZ_LATIN_STOPWORDS & words)
     return Lang.UZ_LATN if is_uzbek else Lang.EN
 
 
@@ -84,10 +76,10 @@ def _latin_for(char: str, previous: str) -> str:
     """
     lower = char.lower()
     if lower == "е":
-        starts_syllable = not previous.isalpha() or previous in _CYRL_VOWELS | _SIGNS
+        starts_syllable = not previous.isalpha() or previous in CYRL_VOWELS | SIGNS
         latin = "ye" if starts_syllable else "e"
     else:
-        latin = _CYRL_TO_LATN.get(lower, char)
+        latin = CYRL_TO_LATN.get(lower, char)
     return latin.capitalize() if char != lower and latin else latin
 
 
@@ -115,8 +107,8 @@ def canonicalize(text: str) -> str:
     Args:
         text: Latin or Cyrillic text.
     """
-    lowered = _APOSTROPHE_AFTER.sub(_unify_apostrophe, text.lower())
-    return _SPACES.sub(" ", _NOT_WORD.sub(" ", lowered)).strip()
+    lowered = APOSTROPHE_AFTER.sub(_unify_apostrophe, text.lower())
+    return SPACES.sub(" ", NOT_WORD.sub(" ", lowered)).strip()
 
 
 def normalize_for_search(text: str, lang: str) -> str:

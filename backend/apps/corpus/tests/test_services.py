@@ -6,8 +6,9 @@ from unittest.mock import patch
 import pytest
 from django.test import TestCase
 
-from apps.common.models import ReviewStatus
-from apps.corpus.models import Chunk, Document, DocumentKind
+from apps.common.constants import ReviewStatus
+from apps.corpus.constants import DocumentKind
+from apps.corpus.models import Chunk, Document
 from apps.corpus.services import approve_documents, reindex_documents, reject_documents
 
 

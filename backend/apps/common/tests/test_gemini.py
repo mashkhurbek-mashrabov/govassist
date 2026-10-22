@@ -8,14 +8,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import override_settings
 from google.genai import errors
 
-from apps.common.gemini import (
-    BACKOFF_BASE_S,
-    BACKOFF_CAP_S,
-    backoff_delay,
-    call_with_retries,
-    get_client,
-    is_retryable,
-)
+from apps.common.constants import BACKOFF_BASE_S, BACKOFF_CAP_S
+from apps.common.gemini import backoff_delay, call_with_retries, get_client, is_retryable
 
 
 def _api_error(code: int) -> errors.APIError:

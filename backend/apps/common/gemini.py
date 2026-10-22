@@ -14,12 +14,14 @@ from django.core.exceptions import ImproperlyConfigured
 from google import genai
 from google.genai import errors, types
 
-RETRYABLE_STATUS = frozenset({408, 429, 500, 502, 503, 504})
-BACKOFF_BASE_S = 0.5
-BACKOFF_CAP_S = 20.0
-RETRY_INFO_CAP_S = 90.0
-RETRY_INFO_TYPE = "type.googleapis.com/google.rpc.RetryInfo"
-MS_PER_S = 1000
+from apps.common.constants import (
+    BACKOFF_BASE_S,
+    BACKOFF_CAP_S,
+    MS_PER_S,
+    RETRY_INFO_CAP_S,
+    RETRY_INFO_TYPE,
+    RETRYABLE_STATUS,
+)
 
 
 def get_client() -> genai.Client:

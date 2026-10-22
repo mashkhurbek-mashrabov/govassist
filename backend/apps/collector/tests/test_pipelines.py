@@ -9,7 +9,7 @@ from apps.collector.extraction import FakeOfficeExtractor, FakeOfficeTypeClassif
 from apps.collector.models import CrawlSource
 from apps.collector.parsers import ParsedPage
 from apps.collector.pipelines import DocumentPipeline, OfficePipeline, find_region
-from apps.common.models import ReviewStatus
+from apps.common.constants import ReviewStatus
 from apps.corpus.models import Chunk, Document
 from apps.geo.models import District
 from apps.offices.hours import WorkingHours

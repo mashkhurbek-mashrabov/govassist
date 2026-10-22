@@ -7,19 +7,9 @@ import hashlib
 from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import cache
-from pathlib import Path
 
-from apps.common.i18n import Lang
-
-PROMPTS_DIR = Path(__file__).parent / "prompts"
-USER_MARKER = "=== USER ==="
-NONE = "(none)"
-LANGUAGE_NAMES = {
-    Lang.UZ_LATN: "Uzbek (Latin script)",
-    Lang.UZ_CYRL: "Uzbek (Cyrillic script)",
-    Lang.RU: "Russian",
-    Lang.EN: "English",
-}
+from apps.chat.constants import LANGUAGE_NAMES, NONE, PROMPTS_DIR, USER_MARKER
+from apps.common.constants import Lang
 
 
 @dataclass(frozen=True)

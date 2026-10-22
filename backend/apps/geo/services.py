@@ -4,10 +4,8 @@ from typing import Any
 
 from django.db import transaction
 
+from apps.geo.constants import NAME_FIELDS, SOATO_FIXTURE
 from apps.geo.models import District, Region
-
-SOATO_FIXTURE = Path(__file__).parent / "fixtures" / "soato.json"
-NAME_FIELDS = ("name_uz_latn", "name_uz_cyrl", "name_ru")
 
 
 def _names(row: dict[str, Any]) -> dict[str, str]:

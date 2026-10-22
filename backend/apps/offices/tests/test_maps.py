@@ -2,7 +2,8 @@
 
 import urllib.parse
 
-from apps.offices.maps import MAPS_SEARCH_BASE_URL, map_url
+from apps.offices.constants import MAPS_SEARCH_BASE_URL
+from apps.offices.maps import map_url
 
 NAMUNA_OFFICE_NAME = "NAMUNA Davlat xizmatlari markazi"
 NAMUNA_OFFICE_ADDRESS = "Amir Temur koʻchasi 1-uy"

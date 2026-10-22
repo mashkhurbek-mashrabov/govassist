@@ -1,19 +1,8 @@
 from django.db import models
 
-from apps.common.models import BaseModel, LocalizedName, ReviewStatus
-
-
-class OfficeType(BaseModel, LocalizedName):
-    """A kind of office, e.g. ``public_service_center``. Names are the labels."""
-
-    code = models.SlugField(max_length=50, unique=True)
-    description = models.TextField(blank=True)
-
-    class Meta:
-        ordering = ["code"]
-
-    def __str__(self) -> str:
-        return self.code
+from apps.common.constants import ReviewStatus
+from apps.common.models import BaseModel
+from apps.offices.models.office_type import OfficeType
 
 
 class Office(BaseModel):
@@ -42,21 +31,3 @@ class Office(BaseModel):
 
     def __str__(self) -> str:
         return self.name
-
-
-class ServiceOffice(BaseModel):
-    """Which office type handles the service described by a service page."""
-
-    document = models.ForeignKey(
-        "corpus.Document", on_delete=models.CASCADE, related_name="service_offices"
-    )
-    office_type = models.ForeignKey(OfficeType, on_delete=models.CASCADE, related_name="+")
-    confirmed = models.BooleanField(default=False)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["document", "office_type"], name="uniq_service_office"),
-        ]
-
-    def __str__(self) -> str:
-        return f"{self.document_id} → {self.office_type_id}"

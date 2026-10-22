@@ -13,16 +13,17 @@ from typing import Any, Protocol
 import httpx
 from django.conf import settings
 
-logger = logging.getLogger(__name__)
+from apps.collector.constants import (
+    HTTP_CLIENT_ERROR,
+    HTTP_SERVER_ERROR,
+    PDF_TYPE,
+    RETRY_AFTER_CAP_S,
+    RETRY_FALLBACK_S,
+    RETRY_MAX_ATTEMPTS,
+)
+from apps.common.constants import MS_PER_S, RETRYABLE_STATUS
 
-RETRY_AFTER_CAP_S = 300.0
-RETRY_FALLBACK_S = 5.0
-RETRY_MAX_ATTEMPTS = 3
-RETRYABLE_STATUS = frozenset({429, 503})
-HTTP_CLIENT_ERROR = 400
-HTTP_SERVER_ERROR = 500
-MS_PER_S = 1000
-PDF_TYPE = "application/pdf"
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)

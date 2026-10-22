@@ -4,10 +4,8 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views import defaults
 from django.views.csrf import csrf_failure as django_csrf_failure
 
-from apps.common.problems import PROBLEM_CONTENT_TYPE, problem_body
-
-API_PREFIXES = ("/api/", "/_allauth/")
-CSRF_DETAIL = "CSRF check failed. Reload the page and try again."
+from apps.common.constants import API_PREFIXES, CSRF_DETAIL, PROBLEM_CONTENT_TYPE
+from apps.common.problems import problem_body
 
 
 def is_api(request: HttpRequest) -> bool:

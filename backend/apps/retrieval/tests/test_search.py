@@ -7,8 +7,7 @@ from asgiref.sync import async_to_sync
 from django.test import override_settings
 from django.utils import timezone
 
-from apps.common.i18n import Lang
-from apps.common.models import ReviewStatus
+from apps.common.constants import Lang, ReviewStatus
 from apps.common.text import normalize_for_search
 from apps.corpus.embeddings import FakeEmbedder
 from apps.corpus.models import Chunk, Document

@@ -2,7 +2,7 @@ from django.db.models import Count, IntegerField, OuterRef, Q, QuerySet, Subquer
 from django.db.models.functions import Coalesce
 
 from apps.collector.models import CrawlSource
-from apps.common.models import ReviewStatus
+from apps.common.constants import ReviewStatus
 from apps.offices.models import Office
 
 

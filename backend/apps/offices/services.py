@@ -3,7 +3,7 @@
 from django.db import transaction
 from django.db.models import QuerySet
 
-from apps.common.models import ReviewStatus
+from apps.common.constants import ReviewStatus
 from apps.offices.models import Office
 
 

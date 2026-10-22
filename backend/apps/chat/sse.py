@@ -7,7 +7,7 @@ from contextlib import suppress
 from dataclasses import dataclass, field
 from typing import Any
 
-PING = ": ping\n\n"
+from apps.chat.constants import PING
 
 
 @dataclass(frozen=True)

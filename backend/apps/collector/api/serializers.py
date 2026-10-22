@@ -2,9 +2,8 @@ from typing import Any
 
 from rest_framework import serializers
 
+from apps.collector.constants import OFFICE_KIND
 from apps.collector.models import CrawlSource
-
-OFFICE_KIND = "office"
 
 
 class SourceSummarySerializer(serializers.Serializer[Any]):

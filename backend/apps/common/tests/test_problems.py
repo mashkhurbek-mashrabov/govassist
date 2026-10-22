@@ -7,13 +7,8 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from rest_framework import exceptions
 
-from apps.common.problems import (
-    PROBLEM_CONTENT_TYPE,
-    QuotaExceeded,
-    RateLimited,
-    exception_handler,
-    problem_response,
-)
+from apps.common.constants import PROBLEM_CONTENT_TYPE
+from apps.common.problems import QuotaExceeded, RateLimited, exception_handler, problem_response
 
 CASES: list[tuple[Exception, int, str]] = [
     (exceptions.NotAuthenticated(), 401, "not_authenticated"),

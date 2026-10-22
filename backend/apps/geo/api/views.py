@@ -8,11 +8,12 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.common.i18n import Lang, resolve_lang
+from apps.common.constants import Lang
+from apps.common.i18n import resolve_lang
 from apps.geo import selectors
 from apps.geo.api.serializers import PlaceSerializer
+from apps.geo.constants import GEO_CACHE_S
 
-GEO_CACHE_S = 60 * 60
 LANG_PARAM = OpenApiParameter("lang", str, enum=Lang.values, required=False)
 _cached = method_decorator(
     [cache_page(GEO_CACHE_S), vary_on_headers("Accept-Language", "Cookie")], name="get"

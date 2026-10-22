@@ -17,17 +17,19 @@ from pydantic import ValidationError
 from apps.accounts.models import User
 from apps.chat.api.serializers import serialize_message
 from apps.chat.citations import Citations, resolve_citations
+from apps.chat.constants import STOPPED, TITLE_FROM_QUESTION_CHARS
 from apps.chat.generator import AnswerGenerator
 from apps.chat.limits import QuotaService
 from apps.chat.models import Conversation, Message, Retrieval
 from apps.chat.prompts import ContextBlock, Prompt, Turn, render_prompt
 from apps.chat.schemas import Answer
 from apps.chat.sse import Event
-from apps.common.i18n import Lang
+from apps.common.constants import MS_PER_S, Lang
 from apps.common.pii import scrub
 from apps.common.problems import ResourceNotFound, StreamInProgress
 from apps.common.text import detect_language
 from apps.common.time import isoformat_utc
+from apps.corpus.constants import HEADING_SEPARATOR
 from apps.corpus.embeddings import Embedder
 from apps.corpus.models import Chunk
 from apps.offices.locator import locate
@@ -35,10 +37,6 @@ from apps.retrieval.search import Hit, search
 
 logger = logging.getLogger(__name__)
 
-MS_PER_S = 1000
-STOPPED = "stopped"
-TITLE_FROM_QUESTION_CHARS = 60
-HEADING_SEPARATOR = " › "
 
 type Locator = Callable[..., dict[str, Any] | None]
 type Searcher = Callable[..., list[Hit]]

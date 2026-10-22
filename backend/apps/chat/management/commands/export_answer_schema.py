@@ -4,9 +4,8 @@ from typing import Any
 
 from django.core.management.base import BaseCommand, CommandParser
 
+from apps.chat.constants import FILE_NAME
 from apps.chat.schemas import Answer
-
-FILE_NAME = "answer.schema.json"
 
 
 def answer_schema_json() -> str:

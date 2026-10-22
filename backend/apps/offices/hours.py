@@ -5,9 +5,10 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from apps.offices.constants import TIME_REGEX
+
 logger = logging.getLogger(__name__)
 
-TIME_REGEX = r"^(?:[01]\d|2[0-3]):[0-5]\d$"
 type Day = Literal["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 
 

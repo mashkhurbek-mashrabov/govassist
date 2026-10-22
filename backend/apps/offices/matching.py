@@ -1,33 +1,11 @@
 """District matching for office ingestion."""
 
 import difflib
-import re
 from dataclasses import dataclass
 
 from apps.common.text import canonicalize, detect_script, uz_cyrl_to_latn
 from apps.geo.models import District, Region
-
-FUZZY_THRESHOLD = 0.9
-
-DISTRICT_SUFFIXES = (
-    "tumani",
-    "tuman",
-    "shahri",
-    "shahar",
-    "rayon",
-    "gorod",
-    "district",
-    "city",
-    "район",
-    "город",
-)
-
-_SUFFIX_REGEX = re.compile(
-    r"\s+(?:"
-    + "|".join(re.escape(s) for s in sorted(DISTRICT_SUFFIXES, key=len, reverse=True))
-    + r")$",
-    re.IGNORECASE,
-)
+from apps.offices.constants import FUZZY_THRESHOLD, SUFFIX_REGEX
 
 
 @dataclass(frozen=True)
@@ -47,7 +25,7 @@ def _strip_suffixes(text: str) -> str:
     Returns:
         District name with administrative suffix removed.
     """
-    return _SUFFIX_REGEX.sub("", text).strip()
+    return SUFFIX_REGEX.sub("", text).strip()
 
 
 def _normalize_name(name: str) -> str:

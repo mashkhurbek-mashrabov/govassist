@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from apps.accounts.models import User
 from apps.accounts.selectors import ais_email_verified
+from apps.chat.constants import SSE_HEADERS
 from apps.chat.generator import GeminiAnswerGenerator
 from apps.chat.limits import QuotaService
 from apps.chat.schemas import ChatRequest
@@ -21,8 +22,6 @@ from apps.common.problems import (
     problem_response,
 )
 from apps.corpus.embeddings import GeminiEmbedder
-
-SSE_HEADERS = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
 
 
 def build_answer_service() -> AnswerService:

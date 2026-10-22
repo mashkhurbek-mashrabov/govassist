@@ -4,9 +4,8 @@ from django.db.models import OuterRef, Prefetch, QuerySet, Subquery
 from django.db.models.functions import Left
 
 from apps.accounts.models import User
+from apps.chat.constants import PREVIEW_CHARS
 from apps.chat.models import Conversation, Message
-
-PREVIEW_CHARS = 120
 
 
 def conversations_of(user: User) -> QuerySet[Conversation]:

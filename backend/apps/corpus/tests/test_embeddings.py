@@ -6,14 +6,8 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from django.test import override_settings
 
-from apps.corpus.embeddings import (
-    DOCUMENT_TEMPLATE,
-    QUERY_TEMPLATE,
-    DocumentInput,
-    FakeEmbedder,
-    GeminiEmbedder,
-    format_document,
-)
+from apps.corpus.constants import DOCUMENT_TEMPLATE, QUERY_TEMPLATE
+from apps.corpus.embeddings import DocumentInput, FakeEmbedder, GeminiEmbedder, format_document
 
 SAMPLE_DIM = 32
 

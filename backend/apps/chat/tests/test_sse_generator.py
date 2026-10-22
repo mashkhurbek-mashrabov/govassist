@@ -9,9 +9,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from google.genai import errors
 
+from apps.chat.constants import PING
 from apps.chat.generator import FakeAnswerGenerator, GeminiAnswerGenerator, Usage
 from apps.chat.prompts import Prompt
-from apps.chat.sse import PING, Event, format_event, sse_stream
+from apps.chat.sse import Event, format_event, sse_stream
 
 PROMPT = Prompt(system="rules", user="question", version="v1", sha256="0" * 64)
 

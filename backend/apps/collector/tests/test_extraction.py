@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from apps.collector.constants import MAX_PAGE_CHARS
 from apps.collector.extraction import (
-    MAX_PAGE_CHARS,
     FakeOfficeTypeClassifier,
     GeminiOfficeExtractor,
     GeminiOfficeTypeClassifier,

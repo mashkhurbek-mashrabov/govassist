@@ -2,7 +2,7 @@ import uuid
 
 from django.db import models
 
-from apps.common.i18n import Lang
+from apps.common.constants import Lang
 
 
 class BaseModel(models.Model):
@@ -43,11 +43,3 @@ class LocalizedName(models.Model):
             Lang.EN: self.name_en,
         }
         return names.get(Lang(lang), "") or self.name_uz_latn
-
-
-class ReviewStatus(models.TextChoices):
-    """Admin review state of crawled documents and offices."""
-
-    PENDING = "pending", "Pending"
-    APPROVED = "approved", "Approved"
-    REJECTED = "rejected", "Rejected"
