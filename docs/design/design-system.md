@@ -103,7 +103,7 @@ Colour is never the only signal: badges carry text ("Hozir ochiq", "Yopiq"), err
 
 4 px base: `--space-1` (4) · `-2` (8) · `-3` (12) · `-4` (16) · `-5` (20) · `-6` (24) · `-8` (32) · `-10` (40) · `-12` (48) · `-16` (64). `--space-half` (2) is for optical icon nudges only.
 
-Page gutter `--layout-gutter`: 16 px on phones, 24 px from 768 px. Card padding 16 px on phones, 20/24 px from 768 px. Gap between answer cards 16 px; between messages 24 px.
+Page gutter `--layout-gutter`: 16 px on phones, 24 px from 768 px. Content widths: chat 760 px, settings/about 720 px, auth 440 px, landing 1152 px. Card padding 16 px on phones, 20/24 px from 768 px. Gap between answer cards 16 px; between messages 24 px.
 
 ## 5. Radius (3 steps)
 

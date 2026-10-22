@@ -207,6 +207,7 @@
   --layout-chat-max: 47.5rem;   /* 760 */
   --layout-auth-max: 27.5rem;   /* 440 */
   --layout-page-max: 45rem;     /* 720: settings, about */
+  --layout-landing-max: 72rem;  /* 1152: landing page */
   --layout-sidebar: 18.5rem;    /* 296 */
   --layout-topbar: 3.5rem;      /* 56 */
   --layout-gutter: var(--space-4);

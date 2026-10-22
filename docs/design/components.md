@@ -83,6 +83,14 @@ Every motion uses `--motion-*` tokens and stops under `prefers-reduced-motion`.
 ### Tabs
 Optional in the plan and not needed by any screen, so not designed.
 
+### Landing parts (screen 0)
+- **Hero** `.landing__hero`: display heading, lead, actions (Sign up primary, Log in secondary; full width on phones, side by side from 768 px), small note. Two columns from 1280 px.
+- **Sample answer preview** `.landing__preview`: a `figure` with caption "Javob namunasi · NAMUNA" and a raised card that reuses AnswerHeader, StepsList and the OfficeCard badge row. Citation badges are plain `span`s (`aria-hidden`), not links, because there are no sources on the page.
+- **HowStep** `.how-step`: icon tile (40 px, primary-subtle) · h3 · muted text; three in a row from 768 px.
+
+### ChangePasswordForm (Settings → Account)
+Inline form card inside the Account card: title "Parolni oʻzgartirish", or "Parol oʻrnatish" + one-line explanation when `Me.has_password` is false · current password (PasswordField, only when `has_password`) · new password (PasswordField + strength + hint) · Save (primary, busy while saving) + Cancel (ghost). Errors: wrong current password on the field. Success replaces the form with a success Alert "Parol oʻzgartirildi.".
+
 ---
 
 ## Chat
@@ -95,7 +103,7 @@ A full-width column, 16 px gap, visually hidden "GovAssist javobi:" prefix. `ari
 
 ### ProgressLine `.progress`
 - **Anatomy:** three pulsing dots · optional "✓ 4 ta manba topildi" · stage text.
-- **Stages** (from `status.stage`): `searching` → "Hujjatlar qidirilmoqda…"; `found` → "✓ {count} ta manba topildi"; `writing` → "✓ 4 ta manba topildi · Javob yozilmoqda…". The found count stays visible once known. After `final` the line is removed; after Stop it becomes "■ Javob toʻxtatildi. Savolni qayta yuborishingiz mumkin."
+- **Stages** (from `status.stage`): `searching` → "Hujjatlar qidirilmoqda…"; `found` → "✓ {count} ta manba topildi"; `writing` → "✓ 4 ta manba topildi · Javob yozilmoqda…". The found count stays visible once known. After `final` the line is removed; after Stop it becomes "■ Javob toʻxtatildi. Savolni qayta yuborishingiz mumkin." The partial cards stay for this view only (the backend stores no partial answer). After a reload the stored message (`status: failed`, `error_code: "stopped"`) renders as a warning Alert "Javob toʻxtatildi" with **Retry**; other `error_code`s use their error copy (screen 12).
 - **Reduced motion:** dots solid, text unchanged.
 - **A11y:** `role="status"`, `aria-live="polite"`; announces only stage changes.
 
@@ -163,6 +171,10 @@ A full-width column, 16 px gap, visually hidden "GovAssist javobi:" prefix. `ari
 **A11y:** `section` with `aria-labelledby`; the hours `<table>` has a caption and row headers; the map link says it opens a new tab; the badge text is real text, not colour only.
 
 ---
+
+## Journey playback (prototype only)
+
+`prototype/flow.js` is not a product component. It shows how streaming should *feel*: each stage holds for about 1–2.5 s, the growing text types out, and the next block's skeleton holds its place. In the product the timing comes from the SSE stream. The journey bar's **Pause** stops the timer (WCAG 2.2.2); with reduced motion the text appears at once and the page jumps from stage to stage.
 
 ## Streaming behaviour
 

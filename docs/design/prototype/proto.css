@@ -404,6 +404,8 @@ a:hover { color: var(--color-link-hover); }
 .progress__found { display: inline-flex; align-items: center; gap: var(--space-1); }
 .progress__found .icon { color: var(--color-success); width: var(--size-icon-sm); height: var(--size-icon-sm); }
 .progress--done .progress__dots { display: none; }
+.progress--done { flex-wrap: nowrap; align-items: flex-start; }
+.progress--done .icon { margin-top: var(--space-half); }
 
 .typing::after { content: ""; display: inline-block; width: 0.5em; height: 1em; margin-left: var(--space-1);
   vertical-align: text-bottom; background: var(--color-primary); animation: pulse var(--motion-duration-pulse) steps(2) infinite; }
@@ -528,6 +530,35 @@ a:hover { color: var(--color-link-hover); }
 .meter-row { display: grid; gap: var(--space-2); }
 .meter-row__label { display: flex; justify-content: space-between; gap: var(--space-3); }
 .row-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+/* Landing (screen 0) ----------------------------------------------------------------- */
+.landing__main { flex: 1; width: 100%; max-width: var(--layout-landing-max); margin: 0 auto; padding: var(--space-4) var(--layout-gutter) var(--space-12); display: grid; gap: var(--space-10); align-content: start; }
+.landing__hero { display: grid; gap: var(--space-8); align-items: center; }
+.landing__intro { display: grid; gap: var(--space-4); }
+.landing__actions { display: grid; gap: var(--space-3); }
+.landing__preview { margin: 0; display: grid; gap: var(--space-2); }
+.how { list-style: none; display: grid; gap: var(--space-3); }
+.how-step { align-content: start; }
+.how-step__icon { width: var(--space-10); height: var(--space-10); border-radius: var(--radius-md); display: grid; place-items: center;
+  background: var(--color-primary-subtle); color: var(--color-primary); }
+@media (min-width: 768px) {
+  .landing__main { padding-top: var(--space-12); }
+  .landing__actions { grid-template-columns: repeat(2, max-content); }
+  .how { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 1280px) { .landing__hero { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--space-12); } }
+
+/* Journeys (prototype chrome, not product) ------------------------------------------------ */
+.journey-bar { position: sticky; top: 0; z-index: var(--z-toast); }
+.journey-bar__pos { flex: 1; min-width: 0; color: var(--color-text-muted); }
+.journey-bar button:disabled { color: var(--color-text-disabled); cursor: not-allowed; }
+.proto-note {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-4);
+  border: var(--size-border) dashed var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface-sunken);
+  color: var(--color-text-muted); font-size: var(--text-small-size);
+}
+.proto-note a { min-height: var(--size-touch-min); display: inline-flex; align-items: center; font-weight: var(--font-weight-semibold); }
+.journey-list { list-style: none; display: grid; gap: var(--space-4); }
 
 /* Gallery (components.html, type.html) ------------------------------------------------- */
 .gallery { display: grid; gap: var(--space-8); }

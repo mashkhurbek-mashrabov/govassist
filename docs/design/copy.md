@@ -105,6 +105,7 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `error.server` | Nimadir xato ketdi. Birozdan soʻng qayta urinib koʻring. | Something went wrong. Please try again in a moment. | 80 |
 | `error.login_failed` | Elektron pochta yoki parol notoʻgʻri. | The email or password is incorrect. | 60 |
 | `error.social` | Google orqali kirib boʻlmadi. Qayta urinib koʻring yoki elektron pochta bilan kiring. | We could not log you in with Google. Try again or use your email. | 110 |
+| `error.current_password_wrong` | Joriy parol notoʻgʻri. | The current password is incorrect. | 50 |
 
 ## check_email
 
@@ -126,8 +127,8 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `verify.success_title` | Elektron pochta tasdiqlandi | Email confirmed | 40 |
 | `verify.success_lead` | Endi hududingizni tanlang, shunda kerakli idorani koʻrsata olamiz. | Next, choose where you live so we can show the right office. | 110 |
 | `verify.invalid_title` | Havola yaroqsiz yoki muddati oʻtgan | This link is invalid or has expired | 50 |
-| `verify.invalid_lead` | Hisobingizga kiring va yangi havola soʻrang. | Log in and request a new link. | 70 |
-| `verify.request_new` | Yangi havola soʻrash | Request a new link | 30 |
+| `verify.invalid_lead` | Elektron pochtangizni kiriting, yangi havola yuboramiz. | Enter your email and we will send you a new link. | 70 |
+| `verify.request_new` | Yangi havola yuborish | Send a new link | 30 |
 
 ## forgot
 
@@ -148,6 +149,33 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `reset.submit` | Parolni saqlash | Save password | 24 |
 | `reset.invalid` | Bu havola yaroqsiz yoki muddati oʻtgan. Yangisini soʻrang. | This link is invalid or has expired. Request a new one. | 80 |
 | `reset.success` | Parol yangilandi. Endi yangi parol bilan kiring. | Your password is updated. Log in with your new password. | 80 |
+
+## landing
+
+| key | uz-Latn | en | max |
+|---|---|---|---|
+| `landing.title` | Davlat xizmatini qanday olishni va qaysi idoraga borishni aniq aytib beramiz. | Find out how to get a public service and exactly which office to visit. | 120 |
+| `landing.lead` | Savolingizni oddiy soʻzlar bilan yozing. Javob koʻrib chiqilgan rasmiy manbalardan tuziladi. | Ask in plain words. Answers come from reviewed official sources. | 120 |
+| `landing.signup` | Roʻyxatdan oʻtish | Sign up | 24 |
+| `landing.login` | Kirish | Log in | 16 |
+| `landing.cta_note` | Savol berish uchun roʻyxatdan oʻting. Bu bir daqiqa oladi. | Sign up to ask questions. It takes a minute. | 80 |
+| `landing.how_title` | Qanday ishlaydi | How it works | 30 |
+| `landing.step_1_title` | Soʻrang | Ask | 24 |
+| `landing.step_1` | Masalan: “Pasportimni qanday yangilayman?” | For example: “How do I renew my passport?” | 70 |
+| `landing.step_2_title` | Qadamlarni oling | Get the steps | 30 |
+| `landing.step_2` | Qadamlar, kerakli hujjatlar, toʻlov va muddat — manbalari bilan. | Steps, documents to bring, fee and time, with sources. | 90 |
+| `landing.step_3_title` | Toʻgʻri idoraga boring | Go to the right office | 30 |
+| `landing.step_3` | Tumaningizdagi idora manzili, ish vaqti va xaritadagi joyi. | The office in your district: address, hours and map. | 90 |
+| `landing.preview_label` | Javob namunasi | Sample answer | 30 |
+
+## password_change
+
+| key | uz-Latn | en | max |
+|---|---|---|---|
+| `password_change.set_title` | Parol oʻrnatish | Set a password | 30 |
+| `password_change.set_lead` | Hozir Google orqali kirasiz. Parol oʻrnatsangiz, elektron pochta bilan ham kira olasiz. | You log in with Google now. Set a password to also log in with your email. | 120 |
+| `password_change.current` | Joriy parol | Current password | 24 |
+| `password_change.saved` | Parol oʻzgartirildi. | Your password is changed. | 40 |
 
 ## onboarding
 
@@ -226,6 +254,7 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `answer.source_kind_law` | Qonun hujjati | Law | 20 |
 | `answer.source_kind_service_page` | Xizmat sahifasi | Service page | 20 |
 | `answer.source_kind_other` | Boshqa manba | Other source | 20 |
+| `answer.source_kind_office` | Idoralar roʻyxati | Office list | 24 |
 | `answer.followups` | Yana soʻrashingiz mumkin | You can also ask | 30 |
 | `answer.not_found_help` | Savolni boshqa soʻzlar bilan yozib koʻring yoki mavzulardan birini tanlang. | Try different words, or pick one of these topics. | 90 |
 | `answer.off_topic_help` | Men davlat xizmatlari va Oʻzbekiston qonunlari boʻyicha javob beraman. | I answer questions about public services and the laws of Uzbekistan. | 90 |
@@ -284,7 +313,10 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `chat_error.llm_timeout` | Javob juda uzoq kechikdi. Qayta urinib koʻring. | The answer took too long. Please try again. | 70 |
 | `chat_error.invalid_answer` | Javobni toʻgʻri tuzib boʻlmadi. Qayta urinib koʻring. | We could not put the answer together. Please try again. | 70 |
 | `chat_error.rate_limited` | Bir soatda {limit} tagacha savol berish mumkin. {minutes} daqiqadan soʻng yana soʻrang. | You can ask up to {limit} questions an hour. Ask again in {minutes} min. | 100 |
-| `chat_error.quota_exceeded` | Bugungi savollar chegarasiga yetdingiz. Ertaga yana soʻrang. | You have reached today’s question limit. Ask again tomorrow. | 80 |
+| `chat_error.quota_user` | Bugungi savollar chegarasiga yetdingiz. Ertaga yana soʻrang. | You have reached today’s question limit. Ask again tomorrow. | 80 |
+| `chat_error.quota_global` | Bugun xizmatning umumiy chegarasiga yetildi. Ertaga qayta urinib koʻring. | The service has reached today’s overall limit. Please try again tomorrow. | 90 |
+| `chat_error.stopped_title` | Javob toʻxtatildi | Answer stopped | 30 |
+| `chat_error.stopped` | Siz javobni toʻxtatdingiz. Qayta soʻrash uchun “Qayta urinish”ni bosing. | You stopped this answer. Tap “Try again” to ask again. | 90 |
 | `chat_error.stream_in_progress` | Oldingi javob hali yozilmoqda. U tugashini kuting. | The previous answer is still being written. Wait for it to finish. | 80 |
 | `chat_error.offline` | Internet aloqasi yoʻq. Ulanganingizdan soʻng qayta urinib koʻring. | You are offline. Try again when you are connected. | 80 |
 | `chat_error.back_online` | Aloqa tiklandi. | You are back online. | 30 |
@@ -347,6 +379,8 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `about.privacy_4` | Hisobingizni sozlamalarda istalgan vaqt oʻchirishingiz mumkin. | You can delete your account at any time in Settings. | 90 |
 | `about.sources_title` | Manbalar roʻyxati | Source list | 30 |
 | `about.sources_lead` | Bilimlar bazasidagi manbalar: | Sources in the knowledge base: | 50 |
+| `about.source_docs` | {n} ta hujjat | {n} documents | 20 |
+| `about.source_updated` | Yangilangan: {date} | Updated {date} | 30 |
 | `about.not_official_title` | Rasmiy xizmat emas | Not an official service | 30 |
 
 ## notfound
