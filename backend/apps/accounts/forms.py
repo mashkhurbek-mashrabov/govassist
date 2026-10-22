@@ -6,6 +6,8 @@ from django.http import HttpRequest
 from apps.accounts import turnstile
 
 TURNSTILE_TOKEN_MAX_LENGTH = 2048
+TURNSTILE_FAILED = "turnstile_failed"
+TURNSTILE_MESSAGE = "Bot check failed. Reload the page and try again."
 
 
 class SignupForm(forms.Form):
@@ -14,21 +16,26 @@ class SignupForm(forms.Form):
     allauth headless merges this form into its signup input (``ACCOUNT_SIGNUP_FORM_CLASS``).
     """
 
-    turnstile_token = forms.CharField(max_length=TURNSTILE_TOKEN_MAX_LENGTH)
+    turnstile_token = forms.CharField(
+        max_length=TURNSTILE_TOKEN_MAX_LENGTH,
+        required=False,
+        error_messages={"max_length": TURNSTILE_MESSAGE},
+    )
 
     def clean_turnstile_token(self) -> str:
         """Verify the token with Cloudflare.
+
+        A missing token fails the same way, so the SPA handles one code (contract §2).
 
         Returns:
             The valid token.
 
         Raises:
-            forms.ValidationError: When Cloudflare rejects the token.
+            forms.ValidationError: ``turnstile_failed`` when the token is missing or rejected.
         """
-        token: str = self.cleaned_data["turnstile_token"]
-        if not turnstile.verify_turnstile(token):
-            msg = "Bot check failed. Reload the page and try again."
-            raise forms.ValidationError(msg, code="turnstile_failed")
+        token: str = self.cleaned_data.get("turnstile_token") or ""
+        if not token or not turnstile.verify_turnstile(token):
+            raise forms.ValidationError(TURNSTILE_MESSAGE, code=TURNSTILE_FAILED)
         return token
 
     def signup(self, request: HttpRequest, user: Any) -> None:
