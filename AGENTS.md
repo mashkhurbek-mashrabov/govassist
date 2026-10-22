@@ -87,7 +87,7 @@ Claude may merge PRs when **all** of these hold:
 
 | PR | Who merges | How |
 |---|---|---|
-| Lane PR → `main` | Main session (Claude) | `gh pr merge <n> --squash --delete-branch` |
+| Lane PR → `main` | Main session (Claude) | `gh pr merge <n> --squash` (**no** `--delete-branch`, which can remove the lane's worktree and its `.env`). Delete the remote branch later with `git push origin --delete <branch>`, after the lane confirms its `.env` is copied |
 | Antigravity branch → lane branch | Lane owner (Claude) | `git merge --no-ff`, then remove the helper's worktree |
 
 Never merge with failing or missing checks, never bypass branch protection, never force-push.
@@ -198,7 +198,7 @@ Run these from the repo root. Replace `<lane>` (`design` / `backend` / `frontend
    git worktree prune
    ```
 
-- **Keep `.env` before cleanup.** Before a worktree is removed (by you, or by the app when the session is archived), copy its `.env` to the main checkout's root `.env`. If the root has none, copy the whole file (`cp -n`). If the root already has one, append only the keys it lacks, and never overwrite existing values. Never print, log or commit the values. Do this at the end of your task, before reporting done.
+- **Keep `.env` before cleanup.** Before a worktree is removed (by you, or by the app when the session is archived), copy its `.env` to the main checkout's root `.env`. If the root has none, copy the whole file (`cp -n`). If the root already has one, append only the keys it lacks, and never overwrite existing values. Never print, log or commit the values. Do this **before you mark your PR ready for review**, not at the end: a merge can remove the worktree. Confirm the copy in your ready-for-review report.
 - If the app started your session in its own managed worktree (`.claude/worktrees/…`), work there and don't remove it yourself. The app removes it when the session is archived.
 - Never pass `--force` to `git worktree remove`. If git refuses, there are uncommitted changes: commit and push them, or ask the author.
 - The local branch can stay. The main session deletes merged branches.
