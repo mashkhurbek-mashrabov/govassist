@@ -1,6 +1,6 @@
 # GovAssist design system v1
 
-**Status: In review** (gate G2, `docs/plans/00-main-plan.md` §5). **Lane:** Design, Sevara (Claude). **Plan:** [`01-design-plan.md`](../plans/01-design-plan.md). **Contract:** v1.2.
+**Status: Approved** (gate G2 passed 2026-10-22 by the main session; PR #1 merged). See `docs/plans/00-main-plan.md` §5. **Lane:** Design, Sevara (Claude). **Plan:** [`01-design-plan.md`](../plans/01-design-plan.md). **Contract:** v1.2.
 
 A calm, phone-first, WCAG 2.2 AA design for GovAssist: landing, auth, onboarding, chat with live-streaming answer cards, the office card, history, settings and about, plus **six clickable end-to-end journeys (J1–J6)**. It is deliberately **not** styled like a government site: warm neutral greys with one indigo accent, a plain wordmark, no emblem and no flag colours. "Rasmiy davlat xizmati emas" (*Not an official government service*) and the answer disclaimer are on every relevant screen.
 

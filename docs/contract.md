@@ -302,6 +302,8 @@ interface WorkingHours {
 }
 ```
 
+Localization: `office_type.label`, `district.name` and `region.name` come in the user's `ui_language`. `office.name` and `address` are shown **as stored**, in the source's language, and are never translated.
+
 `map_url` takes one of two forms:
 - with coordinates: `https://www.google.com/maps/search/?api=1&query=<lat>,<lng>`;
 - without: `…&query=<url-encoded name + address>`.
@@ -388,3 +390,4 @@ The example values below are layout placeholders for design and mocks. Never pre
 - Districts endpoint returns 404 for an unknown region.
 - Conversation `title` is never empty; `last_message_preview` = the last user message.
 - `SourceSummary.last_fetched_at` is nullable.*
+*Contract v1.5, 2026-10-22: office localization. Type, district and region labels follow `ui_language`; office name and address are shown as stored.*

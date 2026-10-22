@@ -198,6 +198,7 @@ Run these from the repo root. Replace `<lane>` (`design` / `backend` / `frontend
    git worktree prune
    ```
 
+- If the app started your session in its own managed worktree (`.claude/worktrees/…`), work there and don't remove it yourself. The app removes it when the session is archived.
 - Never pass `--force` to `git worktree remove`. If git refuses, there are uncommitted changes: commit and push them, or ask the author.
 - The local branch can stay. The main session deletes merged branches.
 
