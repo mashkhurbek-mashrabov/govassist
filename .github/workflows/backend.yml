@@ -101,6 +101,12 @@ jobs:
           mb=$((size / 1000 / 1000))
           echo "runtime image: ${mb} MB"
           test "$mb" -le "$MAX_RUNTIME_MB"
+      - name: Web image never imports crawler-only modules
+        run: |
+          docker run --rm -e SECRET_KEY=ci -e DATABASE_URL=postgres://ci@localhost/ci \
+            -e REDIS_URL=redis://localhost:6379/0 -e ALLOWED_HOSTS=ci \
+            -e DJANGO_SETTINGS_MODULE=config.settings.prod govassist-backend:ci \
+            python -c "import django; django.setup(); from django.urls import get_resolver; get_resolver().url_patterns; import apps.collector.tasks, apps.corpus.tasks"
       - name: Trivy scan (fail on CRITICAL)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:

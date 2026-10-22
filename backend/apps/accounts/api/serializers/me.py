@@ -120,12 +120,6 @@ class MeUpdateSerializer(serializers.Serializer[Any]):
         )
 
 
-class ResendVerificationSerializer(serializers.Serializer[Any]):
-    """POST ``/auth/resend-verification`` body."""
-
-    email = serializers.EmailField()
-
-
 class DeleteMeSerializer(serializers.Serializer[Any]):
     """DELETE ``/me`` body: ``{"confirm": true}`` is required."""
 

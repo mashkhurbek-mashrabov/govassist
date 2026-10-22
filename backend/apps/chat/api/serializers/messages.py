@@ -4,23 +4,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema_field
 from rest_framework import serializers
 
-from apps.chat.constants import FEEDBACK_COMMENT_MAX_CHARS
-from apps.chat.models import Conversation, Feedback, Message
+from apps.chat.api.serializers.feedback import FeedbackSerializer
+from apps.chat.models import Message
 from apps.chat.schemas import Answer, SourceList
 from apps.offices.schemas import OfficeMatch
-
-
-class FeedbackSerializer(serializers.ModelSerializer[Feedback]):
-    """``Feedback``: thumbs up/down with an optional comment."""
-
-    rating = serializers.ChoiceField(choices=Feedback.Rating.choices)
-    comment = serializers.CharField(
-        max_length=FEEDBACK_COMMENT_MAX_CHARS, required=False, allow_blank=True, default=""
-    )
-
-    class Meta:
-        model = Feedback
-        fields = ("rating", "comment")
 
 
 class UserMessageSerializer(serializers.Serializer[Message]):
@@ -113,32 +100,3 @@ def serialize_message(message: Message) -> dict[str, Any]:
         UserMessageSerializer if message.role == Message.Role.USER else AssistantMessageSerializer
     )
     return serializer(message).data
-
-
-class ConversationSummarySerializer(serializers.ModelSerializer[Conversation]):
-    """List item: title, last update and a short preview."""
-
-    last_message_preview = serializers.CharField(allow_blank=True)
-
-    class Meta:
-        model = Conversation
-        fields = ("id", "title", "updated_at", "last_message_preview")
-
-
-class ConversationSerializer(serializers.ModelSerializer[Conversation]):
-    """A conversation with all its messages, oldest first."""
-
-    messages = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Conversation
-        fields = ("id", "title", "created_at", "updated_at", "messages")
-
-    @extend_schema_field(serializers.ListField(child=MESSAGE_SCHEMA))
-    def get_messages(self, obj: Conversation) -> list[dict[str, Any]]:
-        """Messages oldest first, each in its role's shape.
-
-        Args:
-            obj: The conversation (messages prefetched with feedback).
-        """
-        return [serialize_message(message) for message in obj.messages.all()]
