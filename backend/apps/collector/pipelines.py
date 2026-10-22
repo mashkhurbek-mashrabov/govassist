@@ -1,5 +1,6 @@
 """What a parsed page becomes: a pending Document, or pending Offices (plan §5 step 3)."""
 
+import difflib
 import hashlib
 import logging
 import math
@@ -12,7 +13,9 @@ from django.db import transaction
 
 from apps.collector.constants import (
     EARTH_RADIUS_M,
+    NAME_PARENTHESES,
     OFFICE_DUPLICATE_METRES,
+    OFFICE_NAME_SIMILARITY,
     REGION_NAME_FIELDS,
     REGION_WORDS,
 )
@@ -103,6 +106,22 @@ def _resolve_place(
     exact = [pair for pair in matches if not pair[1].needs_review]
     best = exact or matches
     return best[0] if len(best) == 1 else None
+
+
+def _name_key(name: str) -> str:
+    """An office name without its parenthesised part, punctuation and case (duplicate checks)."""
+    return canonicalize(NAME_PARENTHESES.sub(" ", name))
+
+
+def same_name(a: str, b: str) -> bool:
+    """True when two listed names are the same office name, give or take a suffix letter.
+
+    Args:
+        a: One name.
+        b: The other.
+    """
+    first, second = _name_key(a), _name_key(b)
+    return difflib.SequenceMatcher(None, first, second).ratio() >= OFFICE_NAME_SIMILARITY
 
 
 def distance_m(a: tuple[float, float], b: tuple[float, float]) -> float:
@@ -200,15 +219,15 @@ class OfficePipeline:
     def _is_duplicate(
         office_type: OfficeType, candidate: OfficeCandidate, district_id: int
     ) -> bool:
-        """Same type and district, and the same address, the same name, or the same spot."""
-        address, name = canonicalize(candidate.address), canonicalize(candidate.name)
+        """Same type and district, and the same address, a near-identical name, or the same spot."""
+        address = canonicalize(candidate.address)
         point = (
             (candidate.latitude, candidate.longitude)
             if candidate.latitude is not None and candidate.longitude is not None
             else None
         )
         for office in Office.objects.filter(office_type=office_type, district_id=district_id):
-            if address == canonicalize(office.address) or name == canonicalize(office.name):
+            if address == canonicalize(office.address) or same_name(candidate.name, office.name):
                 return True
             if (
                 point is not None
