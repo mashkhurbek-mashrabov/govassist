@@ -127,6 +127,19 @@
   --color-google-yellow: var(--palette-google-yellow);
   --color-google-red: var(--palette-google-red);
 
+  /* Glass (v1.1): only on floating chrome (top bar, composer, sidebar, drawer, dialogs, toasts).
+     Alphas were chosen so muted text keeps ≥ 5:1 even over solid dark content behind the glass. */
+  --color-glass: rgb(255 255 255 / 0.82);         /* bars, composer, sidebar, drawer */
+  --color-glass-strong: rgb(255 255 255 / 0.9);   /* dialogs, toasts (sit on the scrim) */
+  --color-glass-border: rgb(12 10 9 / 0.08);      /* hairline edge */
+  --color-glass-highlight: rgb(255 255 255 / 0.7); /* 1 px top highlight */
+
+  /* Page backdrop: soft colour washes so the glass has something to frost. */
+  --gradient-page:
+    radial-gradient(40rem 28rem at 0% 0%, var(--palette-indigo-100), transparent 70%),
+    radial-gradient(36rem 26rem at 100% 10%, var(--palette-amber-50), transparent 70%),
+    radial-gradient(44rem 30rem at 60% 100%, var(--palette-indigo-50), transparent 70%);
+
   /* 3. Typography --------------------------------------------------------- */
   /* Inter covers Latin Extended (incl. U+02BB ʻ) and Cyrillic (incl. ў қ ғ ҳ). Two weights only. */
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
@@ -168,13 +181,19 @@
   --space-16: 4rem;    /* 64 */
 
   /* 5. Radius (3 steps) ---------------------------------------------------- */
-  --radius-sm: 0.375rem; /* 6: badges, checkboxes */
-  --radius-md: 0.625rem; /* 10: buttons, inputs, chips */
-  --radius-lg: 1rem;     /* 16: cards, bubbles, dialogs */
+  --radius-sm: 0.5rem;   /* 8: badges, checkboxes */
+  --radius-md: 0.75rem;  /* 12: buttons, inputs, chips */
+  --radius-lg: 1.25rem;  /* 20: cards, bubbles, dialogs */
 
   /* 6. Elevation (2 levels) ------------------------------------------------ */
   --shadow-1: 0 1px 2px rgb(12 10 9 / 0.06), 0 1px 3px rgb(12 10 9 / 0.08);
   --shadow-2: 0 8px 24px rgb(12 10 9 / 0.14), 0 2px 6px rgb(12 10 9 / 0.08);
+  --shadow-glass: 0 4px 16px rgb(12 10 9 / 0.06), 0 1px 2px rgb(12 10 9 / 0.04);
+  --shadow-primary: 0 4px 12px rgb(70 66 200 / 0.28), 0 1px 2px rgb(70 66 200 / 0.2);
+
+  /* Glass blur: modest so low-end Android stays smooth. */
+  --glass-blur: 14px;
+  --glass-saturate: 1.4;
 
   /* 7. Motion ---------------------------------------------------------------- */
   --motion-duration-fast: 120ms;
@@ -183,6 +202,7 @@
   --motion-duration-pulse: 1200ms; /* progress dots, skeleton shimmer */
   --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-press-scale: 0.98; /* buttons and chips shrink a little while pressed */
 
   /* 8. Sizes ----------------------------------------------------------------- */
   --size-touch-min: 2.75rem;    /* 44: every interactive target */
@@ -232,6 +252,25 @@
 }
 
 /* Reduced motion: no movement, no pulsing. State changes stay visible through color and text. */
+/* Solid glass fallbacks: no backdrop-filter support, or the user asks for less transparency.
+   Same values in both blocks; keep them in step. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --color-glass: var(--palette-white);
+    --color-glass-strong: var(--palette-white);
+    --glass-blur: 0px;
+    --glass-saturate: 1;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --color-glass: var(--palette-white);
+    --color-glass-strong: var(--palette-white);
+    --glass-blur: 0px;
+    --glass-saturate: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --motion-duration-fast: 0ms;
@@ -282,4 +321,8 @@
   --color-info-border: var(--palette-indigo-800);
   --color-skeleton: var(--palette-neutral-800);
   --color-skeleton-highlight: var(--palette-neutral-700);
+  --color-glass: rgb(28 25 23 / 0.88);
+  --color-glass-strong: rgb(28 25 23 / 0.92);
+  --color-glass-border: rgb(255 255 255 / 0.08);
+  --color-glass-highlight: rgb(255 255 255 / 0.06);
 }
