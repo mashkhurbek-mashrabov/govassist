@@ -22,6 +22,12 @@ DISTRICT_SUFFIXES = (
     "город",
 )
 
+# Which kind of unit a name's suffix word means ("Samarqand shahri" is the city, not the
+# "Samarqand tumani" district: SOATO names cities without a suffix).
+CITY_SUFFIXES = frozenset({"shahri", "shahar", "gorod", "city", "город"})
+DISTRICT_KIND_SUFFIXES = frozenset({"tumani", "tuman", "rayon", "district", "район"})
+DISTRICT_FIELDS = ("name_uz_latn", "name_uz_cyrl", "name_ru", "name_en")
+
 SUFFIX_REGEX = re.compile(
     r"\s+(?:"
     + "|".join(re.escape(s) for s in sorted(DISTRICT_SUFFIXES, key=len, reverse=True))

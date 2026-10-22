@@ -4,8 +4,15 @@ import difflib
 from dataclasses import dataclass
 
 from apps.common.text import canonicalize, detect_script, uz_cyrl_to_latn
+from apps.geo.constants import DistrictKind
 from apps.geo.models import District, Region
-from apps.offices.constants import FUZZY_THRESHOLD, SUFFIX_REGEX
+from apps.offices.constants import (
+    CITY_SUFFIXES,
+    DISTRICT_FIELDS,
+    DISTRICT_KIND_SUFFIXES,
+    FUZZY_THRESHOLD,
+    SUFFIX_REGEX,
+)
 
 
 @dataclass(frozen=True)
@@ -43,6 +50,17 @@ def _normalize_name(name: str) -> str:
     return _strip_suffixes(canon)
 
 
+def _kind_of(name: str) -> str | None:
+    """``city`` or ``district`` when the name ends with a word saying which, else None."""
+    words = canonicalize(uz_cyrl_to_latn(name) if detect_script(name) == "cyrl" else name).split()
+    last = words[-1] if words else ""
+    if last in CITY_SUFFIXES:
+        return DistrictKind.CITY
+    if last in DISTRICT_KIND_SUFFIXES:
+        return DistrictKind.DISTRICT
+    return None
+
+
 def match_district(name: str, region: Region) -> DistrictMatch | None:
     """Match a district name to a District within the given Region.
 
@@ -50,7 +68,8 @@ def match_district(name: str, region: Region) -> DistrictMatch | None:
       1. If Cyrillic, transliterate with ``uz_cyrl_to_latn``.
       2. Canonicalize text (lowercase, unified apostrophes, whitespace).
       3. Strip administrative suffixes (tumani, tuman, shahri, etc.).
-      4. Exact match against all 4 localized name fields of districts in region.
+      4. Exact match against all 4 localized name fields of districts in region; several
+         hits are narrowed by the suffix's kind (city/district), else ambiguous (None).
       5. Fuzzy match with SequenceMatcher (ratio >= FUZZY_THRESHOLD).
       6. Return None if no match meets the threshold.
 
@@ -61,32 +80,40 @@ def match_district(name: str, region: Region) -> DistrictMatch | None:
     Returns:
         DistrictMatch with needs_review flag, or None if unmatchable.
     """
-    if not name or not name.strip():
-        return None
-
     cleaned_name = _normalize_name(name)
-    if not cleaned_name:
+    if not cleaned_name:  # empty, whitespace or only a suffix word
         return None
 
     districts = list(region.districts.all())
     if not districts:
         return None
 
-    # Step 4: Exact match against any of the 4 name fields (normalized)
-    for district in districts:
-        for field_name in ("name_uz_latn", "name_uz_cyrl", "name_ru", "name_en"):
-            val: str = getattr(district, field_name, "")
-            if not val:
-                continue
-            if cleaned_name == _normalize_name(val):
-                return DistrictMatch(district=district, needs_review=False)
+    # Step 4: exact match on any of the 4 name fields (normalized). When the stripped name
+    # fits several units (the city "Samarqand" and "Samarqand tumani"), the suffix word of
+    # the input picks the kind; still several means ambiguous, and nothing is guessed.
+    exact = [
+        district
+        for district in districts
+        if any(
+            cleaned_name == _normalize_name(value)
+            for field in DISTRICT_FIELDS
+            if (value := getattr(district, field, ""))
+        )
+    ]
+    kind = _kind_of(name)
+    if len(exact) > 1 and kind is not None:
+        exact = [district for district in exact if district.kind == kind]
+    if len(exact) == 1:
+        return DistrictMatch(district=exact[0], needs_review=False)
+    if exact:
+        return None
 
     # Step 5: Fuzzy match using difflib.SequenceMatcher
     best_district: District | None = None
     best_ratio = 0.0
 
     for district in districts:
-        for field_name in ("name_uz_latn", "name_uz_cyrl", "name_ru", "name_en"):
+        for field_name in DISTRICT_FIELDS:
             val = getattr(district, field_name, "")
             if not val:
                 continue

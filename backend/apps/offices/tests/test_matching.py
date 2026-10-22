@@ -85,3 +85,28 @@ def test_match_district_region_without_districts() -> None:
         name_en="Empty region",
     )
     assert match_district("Test", empty_region) is None
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("name", "expected"),
+    [
+        ("SAMARQAND shahri", 9904401),
+        ("Samarqand shahar", 9904401),
+        ("Samarqand tumani", 9904233),
+        ("Самарқанд тумани", 9904233),
+        ("Samarqand", None),  # city or district: ambiguous, never guessed
+    ],
+)
+def test_match_district_tells_a_city_from_its_namesake_district(
+    name: str, expected: int | None
+) -> None:
+    """SOATO names the city "Samarqand"; the suffix word picks city or district."""
+    region = Region.objects.create(id=9904, name_uz_latn="Namuna viloyati")
+    District.objects.create(id=9904401, region=region, name_uz_latn="Samarqand", kind="city")
+    District.objects.create(
+        id=9904233, region=region, name_uz_latn="Samarqand tumani", name_uz_cyrl="Самарқанд тумани"
+    )
+    match = match_district(name, region)
+    assert (match.district.id if match else None) == expected
+    assert match is None or match.needs_review is False
