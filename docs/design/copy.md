@@ -86,6 +86,8 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `signup.submitting` | Hisob yaratilmoqda… | Creating account… | 30 |
 | `signup.have_account` | Hisobingiz bormi? | Already have an account? | 30 |
 | `signup.login_link` | Kirish | Log in | 16 |
+| `signup.carried_title` | Savolingiz saqlandi | Your question is saved | 30 |
+| `signup.carried_text` | Roʻyxatdan oʻtgach, javob shu savol bilan boshlanadi. | After you sign up, the answer starts with this question. | 80 |
 
 ## login
 
@@ -116,6 +118,7 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `error.server` | Nimadir xato ketdi. Birozdan soʻng qayta urinib koʻring. | Something went wrong. Please try again in a moment. | 80 |
 | `error.login_failed` | Elektron pochta yoki parol notoʻgʻri. | The email or password is incorrect. | 60 |
 | `error.social` | Google orqali kirib boʻlmadi. Qayta urinib koʻring yoki elektron pochta bilan kiring. | We could not log you in with Google. Try again or use your email. | 110 |
+| `error.too_many_attempts` | Juda koʻp urinish boʻldi. Birozdan soʻng qayta urinib koʻring. | Too many attempts. Try again a little later. | 70 |
 | `error.current_password_wrong` | Joriy parol notoʻgʻri. | The current password is incorrect. | 50 |
 
 ## check_email
@@ -168,19 +171,9 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `landing.eyebrow` | Bepul · 4 tilda · Manbalari bilan | Free · 4 languages · With sources | 50 |
 | `landing.title` | Qaysi hujjat, qaysi idora — aniq javob. | Which documents, which office: a clear answer. | 60 |
 | `landing.lead` | Savolingizni oddiy soʻzlar bilan yozing. GovAssist qadamlar, kerakli hujjatlar va tumaningizdagi idorani rasmiy manbalar asosida koʻrsatadi. | Ask in plain words. GovAssist shows the steps, the documents to bring and the office in your district, based on official sources. | 160 |
-| `landing.see_how` | Qanday ishlashini koʻrish | See how it works | 30 |
 | `landing.signup` | Roʻyxatdan oʻtish | Sign up | 24 |
 | `landing.login` | Kirish | Log in | 16 |
 | `landing.cta_note` | Bepul. Roʻyxatdan oʻtish bir daqiqa oladi. | Free. Signing up takes a minute. | 60 |
-| `landing.features_title` | Nega GovAssist | Why GovAssist | 30 |
-| `landing.f1_title` | Aynan sizning tumaningizdagi idora | The exact office in your district | 50 |
-| `landing.f1` | Manzil, ish vaqti, telefon va xaritadagi joyi — har bir javobda. | Address, hours, phone and map location in every answer. | 90 |
-| `landing.f2_title` | Rasmiy hujjatlar asosida | Based on official documents | 40 |
-| `landing.f2` | Har bir qadam yonida manba raqami. Bosib, asl sahifani oching. | Every step shows a source number. Tap it to open the original page. | 90 |
-| `landing.f3_title` | 4 tilda | 4 languages | 20 |
-| `landing.f3` | Oʻzbekcha (lotin va kirill), ruscha yoki inglizcha soʻrang. | Ask in Uzbek (Latin or Cyrillic), Russian or English. | 80 |
-| `landing.f4_title` | Bepul | Free | 20 |
-| `landing.f4` | Roʻyxatdan oʻting va savol bering — toʻlov yoʻq. | Sign up and ask. There is nothing to pay. | 70 |
 | `landing.faq_title` | Koʻp soʻraladigan savollar | Frequently asked questions | 40 |
 | `landing.q1` | Bu rasmiy davlat xizmatimi? | Is this an official government service? | 60 |
 | `landing.a1` | Yoʻq. GovAssist — mustaqil talaba loyihasi. U ariza qabul qilmaydi va hech narsani sizning nomingizdan yubormaydi. | No. GovAssist is an independent student project. It doesn't accept applications or submit anything on your behalf. | 160 |
@@ -200,14 +193,83 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `landing.step_3_title` | Toʻgʻri idoraga boring | Go to the right office | 30 |
 | `landing.step_3` | Tumaningizdagi idora manzili, ish vaqti va xaritadagi joyi. | The office in your district: address, hours and map. | 90 |
 | `landing.preview_label` | Javob namunasi | Sample answer | 30 |
+| `landing.ask_label` | Savolingizni yozing — roʻyxatdan oʻtgach, javob darhol boshlanadi | Type your question. After you sign up, the answer starts right away | 80 |
+| `landing.ask_placeholder` | Savolingizni yozing… | Type your question… | 30 |
+| `landing.ask_submit` | Soʻrash | Ask | 12 |
+| `landing.popular` | Koʻp soʻraladi: | Often asked: | 24 |
+| `landing.problem_title` | Notoʻgʻri idora — yoʻqotilgan kun | The wrong office costs you a day | 50 |
+| `landing.problem_lead` | Davlat xizmati uchun qaysi idoraga borish va nima olib borish kerakligi koʻpincha aniq emas. | For a public service it is often unclear which office to go to and what to bring. | 120 |
+| `landing.p1_title` | Notoʻgʻri idora | The wrong office | 30 |
+| `landing.p1` | Navbatda turib, xizmat boshqa joyda koʻrsatilishini bilib qolasiz. | You wait in line, then learn the service is handled somewhere else. | 90 |
+| `landing.p2_title` | Bitta hujjat yetmaydi | One document is missing | 34 |
+| `landing.p2` | Bitta qogʻoz uchun ikkinchi marta kelishga toʻgʻri keladi. | One missing paper means a second trip. | 90 |
+| `landing.p3_title` | Eskirgan maslahat | Outdated advice | 30 |
+| `landing.p3` | Forum va chatlardagi maʼlumot qachon yozilgani nomaʼlum. | You can't tell when the advice in forums and chats was written. | 90 |
+| `landing.problem_answer` | GovAssist borishdan oldin hammasini bir joyda koʻrsatadi. | GovAssist shows it all in one place, before you go. | 80 |
+| `landing.compare_title` | GovAssist va oddiy chatbot | GovAssist vs an ordinary chatbot | 40 |
+| `landing.compare_lead` | Ikkalasi ham savolga javob beradi. Farqi — javob nimaga asoslangani va keyin qayerga borishingizda. | Both answer questions. The difference is what the answer is based on, and where it sends you next. | 130 |
+| `landing.compare_topic` | Nima | What | 12 |
+| `landing.compare_bot` | Oddiy chatbot | Ordinary chatbot | 24 |
+| `landing.c1_topic` | Manba | Source | 16 |
+| `landing.c1_bot` | Xotira yoki internetdagi sahifalardan javob beradi | Answers from memory or web pages | 70 |
+| `landing.c1_us` | Faqat rasmiy hujjatlardan (lex.uz, my.gov.uz), har bir qadam manbasi bilan | Only official documents (lex.uz, my.gov.uz), every step cited | 90 |
+| `landing.c2_topic` | Idora | Office | 16 |
+| `landing.c2_bot` | “Idoraga boring” deydi | Says “go to the office” | 50 |
+| `landing.c2_us` | Tumaningizdagi aniq idora: manzil, ish vaqti, xarita | The exact office in your district: address, hours, map | 80 |
+| `landing.c3_topic` | Bilmasa | When unsure | 16 |
+| `landing.c3_bot` | Toʻlov yoki muddatni oʻylab topishi mumkin | May invent fees or deadlines | 60 |
+| `landing.c3_us` | Taxmin qilmaydi — “bilmayman” deydi | Doesn't guess: says “I don't know” | 60 |
+| `landing.c4_topic` | Til | Language | 16 |
+| `landing.c4_bot` | Oʻzbek tilida zaif, yozuvni farqlamaydi | Weak in Uzbek, ignores the script | 60 |
+| `landing.c4_us` | Oʻzbekcha (lotin va kirill), ruscha, inglizcha | Uzbek (Latin and Cyrillic), Russian, English | 70 |
+| `landing.c5_topic` | Yangiligi | Freshness | 16 |
+| `landing.c5_bot` | Maʼlumot qanchalik yangi ekanini bilmaydi | No idea how fresh its information is | 60 |
+| `landing.c5_us` | Har bir manba qachon olinganini koʻrsatadi | Shows the date every source was fetched | 60 |
+| `landing.services_title` | Ommabop xizmatlar | Popular services | 30 |
+| `landing.services_lead` | Xizmatni tanlang — savol tayyor boʻladi. Roʻyxatdan oʻtgach, javobni darhol olasiz. | Pick a service and the question is ready. After you sign up, you get the answer right away. | 120 |
 
 ## footer
 
 | key | uz-Latn | en | max |
 |---|---|---|---|
 | `footer.tagline` | Davlat xizmatlari boʻyicha mustaqil yordamchi. | An independent assistant for public services. | 60 |
-| `footer.thesis` | ITPU magistratura dissertatsiyasi loyihasi · 2026 | MSc thesis project at ITPU · 2026 | 60 |
 | `footer.sources` | Manbalar | Sources | 20 |
+| `footer.product` | Mahsulot | Product | 20 |
+| `footer.legal` | Huquqiy | Legal | 24 |
+| `footer.source_list` | Manbalar roʻyxati | Source list | 24 |
+| `footer.copyright` | © 2026 GovAssist | © 2026 GovAssist | 24 |
+
+## nav
+
+| key | uz-Latn | en | max |
+|---|---|---|---|
+| `nav.label` | Sahifa boʻlimlari | Page sections | 30 |
+| `nav.how` | Qanday ishlaydi | How it works | 24 |
+| `nav.why` | Nega GovAssist | Why GovAssist | 24 |
+| `nav.services` | Xizmatlar | Services | 16 |
+| `nav.faq` | Savollar | FAQ | 16 |
+| `nav.open` | Menyuni ochish | Open menu | 24 |
+
+## service
+
+| key | uz-Latn | en | max |
+|---|---|---|---|
+| `service.passport` | Pasport va ID karta | Passport and ID card | 30 |
+| `service.passport_q` | ID kartani qanday olaman? | How do I get an ID card? | 70 |
+| `service.birth` | Tugʻilganlik guvohnomasi | Birth certificate | 30 |
+| `service.birth_q` | Tugʻilganlik haqida guvohnomani qanday olaman? | How do I get a birth certificate? | 70 |
+| `service.marriage` | Nikohni qayd etish | Marriage registration | 30 |
+| `service.marriage_q` | Nikohni qanday roʻyxatdan oʻtkazamiz? | How do we register a marriage? | 70 |
+| `service.driving` | Haydovchilik guvohnomasi | Driving licence | 30 |
+| `service.driving_q` | Haydovchilik guvohnomasini qanday almashtiraman? | How do I replace my driving licence? | 70 |
+| `service.property` | Koʻchmas mulk | Property | 30 |
+| `service.property_q` | Uyni oʻz nomimga qanday rasmiylashtiraman? | How do I register a home in my name? | 70 |
+| `service.business` | Biznesni roʻyxatdan oʻtkazish | Business registration | 30 |
+| `service.business_q` | Yakka tartibdagi tadbirkor sifatida qanday roʻyxatdan oʻtaman? | How do I register as a sole proprietor? | 70 |
+| `service.pension` | Pensiya | Pension | 30 |
+| `service.pension_q` | Pensiya tayinlash uchun qanday hujjatlar kerak? | What documents do I need to apply for a pension? | 70 |
+| `service.utilities` | Kommunal xizmatlar | Utilities | 30 |
+| `service.utilities_q` | Elektr tarmogʻiga ulanish uchun nima qilish kerak? | How do I get connected to the power grid? | 70 |
 
 ## password_change
 
@@ -249,7 +311,7 @@ Source of the `uz-Latn.json` and `en.json` locale files. The frontend lane adds 
 | `chat.can_help` | Nimalarda yordam beraman | What I can help with | 40 |
 | `chat.help_1` | Hujjat olish yoki almashtirish tartibi, qadamma-qadam | How to get or replace a document, step by step | 70 |
 | `chat.help_2` | Kerakli hujjatlar, toʻlov va muddat | Documents to bring, fee and processing time | 60 |
-| `chat.help_3` | Tumaningizdagi idora: manzil, ish vaqti, telefon | The office in your district: address, hours, phone | 70 |
+| `chat.help_3` | Tumaningizdagi idora: manzil, ish vaqti, xaritadagi joyi | The office in your district: address, hours, map location | 70 |
 | `chat.help_4` | Qonunda nima deyilgani, manbasi bilan | What the law says, with the source | 60 |
 | `chat.suggestions` | Masalan, soʻrang: | Try asking: | 30 |
 | `chat.input_label` | Savolingiz | Your question | 20 |
@@ -450,6 +512,7 @@ The SPA maps codes, never raw `message` text (contract §1, §2, §4). Unknown c
 | allauth 400 | `email_taken` | `error.email_taken` |
 | allauth 400 | `email_password_mismatch` | `error.login_failed` |
 | allauth 400 | `too_many_login_attempts` | `error.too_many_logins` |
+| allauth 429 | rate limit on any other auth call (sign-up, password reset) | `error.too_many_attempts` |
 | allauth 400 | `password_too_short` | `error.password_short` |
 | allauth 400 | `password_too_common` | `error.password_common` |
 | allauth 400 | `password_entirely_numeric` | `error.password_numeric` |

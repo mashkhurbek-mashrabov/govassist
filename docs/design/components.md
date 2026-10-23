@@ -143,15 +143,52 @@ Large radio cards for choosing a language where it is the main task: onboarding 
 ### Tabs
 Optional in the plan and not needed by any screen, so not designed.
 
-### Landing parts (screen 0, v1.2)
-- **Header** `.lp__header`: sticky glass bar · wordmark · LanguageMenu · "Kirish" ghost button.
-- **Hero** `.lp-hero`: `--gradient-mesh` background (soft indigo/violet/amber radial blobs, no image). Eyebrow chip `.lp-eyebrow` ("Bepul · 4 tilda · Manbalari bilan") · headline `.lp-title` in `--text-display-xl` with `--gradient-text` clipped to the text (both stops pass 4.5:1 on every part of the mesh; under `forced-colors` it falls back to plain `CanvasText`) · lead `.lp-lead` · actions: **Sign up** (primary) + **"Qanday ishlashini koʻrish"** (secondary, jumps to the How section) · note `.lp-note` (`landing.cta_note`). Phone: one column, buttons full width. ≥ 1280 px: two columns, text left, preview right.
-- **Streaming preview** `.lp-preview`: a `figure` with a visually hidden caption ("Javob namunasi · NAMUNA") and a NAMUNA tag. It plays the answer the way the chat streams it: question → progress line → summary → steps 1–3 with citation badges → office card, staggered over `--motion-duration-preview` (9 s), then it holds. Pure CSS keyframes, no JS. **Reduced motion:** no animation, the finished card is shown and the progress line is hidden. Content is contract §6 data only; badges are `span`s, not links.
-- **Features** `.lp-features`: 4 cards (1 column → 2 at 768 px → 4 at 1280 px), each a gradient icon tile + h3 + text: *exact office in your district* (`map-pin`) · *official sources* (`book-open`) with text chips "lex.uz" "my.gov.uz" (`.lp-tags`; text only, never the publishers' logos) · *4 languages* (`languages`) with chips in each language's own script · *free* (`gift`).
-- **How it works** `.lp-steps`: an ordered list of 3 cards; the number is drawn by a CSS counter in a gradient circle.
-- **FAQ** `.lp-faq`: native `details`/`summary` accordion (keyboard and screen reader support for free), chevron turns 180° when open. 4 questions (`landing.q1–q4`): is it official, where answers come from, is personal data stored, is it legal advice.
-- **CTA band** `.lp-band`: `--gradient-brand` panel, white heading + text (AA on every stop), `.btn--on-brand` (white button, primary text).
-- **Footer** `.lp-footer`: wordmark + tagline + "GovAssist — mustaqil talaba loyihasi…" · nav (About, Privacy, Sources) · LanguageMenu (opens upwards) · legal row with the "Rasmiy davlat xizmati emas" pill `.lp-notofficial` and the thesis line.
+### Landing parts (screen 0, v1.3)
+The welcome page has to say **why GovAssist and not any chatbot**. Its structure takes ideas from my.gov.uz (a prominent search, service-category tiles with simple icons, popular questions). It uses none of that portal's branding, emblem, colours or icon assets: GovAssist keeps its own indigo identity, Lucide icons and the "not official" note, so nobody mistakes it for the official portal.
+
+- **Header** `.lp__header`: sticky glass bar.
+  - ≥ 1280 px: wordmark · anchor nav `.lp-nav` (Qanday ishlaydi · Nega GovAssist · Xizmatlar · Savollar) · LanguageMenu · "Kirish" (ghost) + "Roʻyxatdan oʻtish" (primary).
+  - 768–1279 px: wordmark · LanguageMenu · the two auth buttons · hamburger.
+  - < 768 px: wordmark · LanguageMenu · hamburger. The buttons move into the menu.
+  - **Hamburger** `.lp-nav-toggle`: an icon button with `aria-expanded` + `aria-controls`. It opens `.lp-nav-panel` under the bar: the four section links (48 px rows) and Kirish / Roʻyxatdan oʻtish side by side. Esc closes and returns focus. Choosing a link closes it.
+- **Hero** `.lp-hero` on `--gradient-mesh`: eyebrow chip · display-xl gradient headline · lead · **AskBox** · popular-question chips · note (`landing.cta_note`). ≥ 1280 px: text left, preview right.
+- **AskBox** `.lp-ask`, the hero's main action.
+  - A visible label (`landing.ask_label`), then a textarea ("Savolingizni yozing…") and a "Soʻrash" primary button with `arrow-right`, inside one raised field. The whole box gets the focus ring.
+  - Phone: the button goes full width under the textarea.
+  - Submitting an empty box does nothing (native `required`).
+  - **Carrying the question:** the question is kept in `sessionStorage` (key `govassist.pendingQuestion`) and the user goes to Sign up. It is **never put in the URL** (it can contain personal data).
+  - After onboarding, the frontend sends it as the first chat message and then clears it. The backend scrubs PII as for any question.
+- **Popular chips** `.lp-popular`: three `.chip` links (`service.*_q`). Each carries its question the same way.
+- **Streaming preview** `.lp-preview`: as in v1.2 (CSS keyframes over `--motion-duration-preview`, static under reduced motion). New in v1.3: it is **translated into the UI language** (question, kind label, progress text, title, summary, steps, office type, open badge; `PREVIEW` sample, NAMUNA). The office **name and address stay as stored** (contract v1.5), with `lang="uz-Latn"`.
+- **ProblemList** `.lp-problem`: the heading "Notoʻgʻri idora — yoʻqotilgan kun", a lead, and 3 cards, each a warning-tinted icon tile + h3 + text:
+  - wrong office (`map-pin-x`);
+  - one missing document (`file-x`);
+  - outdated advice (`clock-alert`).
+
+  An answer strip `.lp-answer` follows: "GovAssist borishdan oldin hammasini bir joyda koʻrsatadi.". Qualitative only, no numbers.
+- **ComparisonTable** `.lp-compare` (section `#why`): a real `<table>` with a hidden caption, column headers (Nima · Oddiy chatbot · GovAssist) and one row header per topic:
+  - source;
+  - office;
+  - when unsure;
+  - language;
+  - freshness.
+
+  The chatbot cells are muted, each with an `x` mark in a grey circle. The GovAssist cells sit on `--gradient-subtle`, each with a `check` mark in a brand-gradient circle.
+  - < 768 px: each row becomes a card (topic, then the chatbot line, then the GovAssist line). Each line gets a small visible tag (`.lp-compare__tag`, `aria-hidden`, since the header cells still label the cells).
+  - The claims describe only what the product does: cited official sources, the office from the directory, `not_found` instead of guessing, the four languages, the source fetch date.
+- **ServiceTiles** `.lp-services` (section `#services`): 8 tiles, 2 columns on phones and 4 from 768 px.
+  - Each tile `.lp-service` is one link: icon tile (primary on gradient-subtle) · title · example question · "Soʻrash →".
+  - The tiles: passport/ID (`id-card`) · birth certificate (`baby`) · marriage (`heart-handshake`) · driving licence (`car`) · property (`house`) · business registration (`briefcase-business`) · pension (`hand-coins`) · utilities (`zap`).
+  - Clicking carries the example question to sign-up, like the AskBox.
+  - Titles and questions hyphenate (`hyphens: auto`) so long Russian words don't break mid-letter.
+- **How it works** `.lp-steps` (`#how`), **FAQ** `.lp-faq` (`#faq`) and the **CTA band** `.lp-band` are as in v1.2. Each anchored section has `scroll-margin-top` so the sticky header doesn't cover its heading.
+- **Footer** `.lp-footer`:
+  - the brand column: wordmark, tagline, the long "not official" sentence, LanguageMenu (opens upwards);
+  - then three columns, each with an `h2` title: **Mahsulot** (the four section links) · **Manbalar** (lex.uz and my.gov.uz as plain external text links, plus "Manbalar roʻyxati" → About) · **Huquqiy** (Loyiha haqida, Maxfiylik);
+  - a bottom row: "© 2026 GovAssist" and the "Rasmiy davlat xizmati emas" pill `.lp-notofficial`;
+  - the thesis line is removed;
+  - phone: brand on top, then Product and Sources side by side, Legal full width.
+- **CarriedQuestion** (Sign up): an info alert `[data-carried]` with "Savolingiz saqlandi", the question in `<q>`, and "Roʻyxatdan oʻtgach, javob shu savol bilan boshlanadi." It is hidden until a question is waiting.
 
 ### ChangePasswordForm (Settings → Account)
 Inline form card inside the Account card: title "Parolni oʻzgartirish", or "Parol oʻrnatish" + one-line explanation when `Me.has_password` is false · current password (PasswordField, only when `has_password`) · new password (PasswordField + strength + hint) · Save (primary, busy while saving) + Cancel (ghost). Errors: wrong current password on the field. Success replaces the form with a success Alert "Parol oʻzgartirildi.".
@@ -259,7 +296,7 @@ Every icon is a real Lucide icon from **`lucide-static` 1.61.0**, copied unchang
 
 | Lucide name | `lucide-react` | Where it is used |
 |---|---|---|
-| `menu` | `Menu` | Top bar: open the history drawer |
+| `menu` | `Menu` | Top bar: open the history drawer; landing hamburger |
 | `square-pen` | `SquarePen` | Top bar: new chat |
 | `plus` | `Plus` | Sidebar and History: "Yangi suhbat" button |
 | `arrow-up` | `ArrowUp` | InputBar: Send |
@@ -272,7 +309,7 @@ Every icon is a real Lucide icon from **`lucide-static` 1.61.0**, copied unchang
 | `thumbs-down` | `ThumbsDown` | FeedbackBar 👎 |
 | `check` | `Check` | ProgressLine "sources found"; saved states; toasts; selected combobox option |
 | `circle-check` | `CircleCheck` | Success alerts; verify and reset success; Turnstile placeholder |
-| `x` | `X` | Drawer close |
+| `x` | `X` | Drawer close; landing comparison: the chatbot mark |
 | `triangle-alert` | `TriangleAlert` | Warning alerts (region fallback); invalid link; error page |
 | `circle-alert` | `CircleAlert` | Field errors; danger alerts; chat error alerts |
 | `info` | `Info` | Disclaimer; info alerts; About nav link |
@@ -291,13 +328,22 @@ Every icon is a real Lucide icon from **`lucide-static` 1.61.0**, copied unchang
 | `eye-off` | `EyeOff` | PasswordField "hide" (while the password is visible) |
 | `mail` | `Mail` | Check email; reset link sent; prototype email notes |
 | `log-out` | `LogOut` | Settings: log out |
-| `message-square` | `MessageSquare` | Empty history |
+| `message-square` | `MessageSquare` | Empty history; sign-up carried question |
 | `refresh-cw` | `RefreshCw` | Retry; resend link; reload |
 | `globe` | `Globe` | LanguageMenu button |
 | `list-checks` | `ListChecks` | Steps card; chat help list; landing step 2 |
 | `book-open` | `BookOpen` | Sources card; About source list |
 | `compass` | `Compass` | Service kind label; off_topic card; 404 |
 | `lock` | `Lock` | Privacy note; change password |
-| `house` | `House` | 404 "Bosh sahifaga qaytish" |
-| `languages` | `Languages` | Landing feature "4 languages" |
-| `gift` | `Gift` | Landing feature "free" |
+| `house` | `House` | 404 "Bosh sahifaga qaytish"; landing service tile: property |
+| `id-card` | `IdCard` | Landing service tile: passport and ID card |
+| `baby` | `Baby` | Landing service tile: birth certificate |
+| `heart-handshake` | `HeartHandshake` | Landing service tile: marriage registration |
+| `car` | `Car` | Landing service tile: driving licence |
+| `briefcase-business` | `BriefcaseBusiness` | Landing service tile: business registration |
+| `hand-coins` | `HandCoins` | Landing service tile: pension |
+| `zap` | `Zap` | Landing service tile: utilities |
+| `map-pin-x` | `MapPinX` | Landing problem: wrong office |
+| `file-x` | `FileX` | Landing problem: a missing document |
+| `clock-alert` | `ClockAlert` | Landing problem: outdated advice |
+| `arrow-right` | `ArrowRight` | Landing AskBox "Soʻrash"; service tile "Soʻrash →" |

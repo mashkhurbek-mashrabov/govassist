@@ -13,17 +13,39 @@ All 17 screens (0–16) from `01-design-plan.md` §4, then the end-to-end journe
 
 ## 0. Landing `/welcome` · [`welcome.html`](prototype/welcome.html)
 
-- **Purpose:** first visit, before any account. Say in one sentence what GovAssist does, show an answer being built, and lead to Sign up.
-- **Layout (v1.2):** sticky glass header (wordmark · LanguageMenu · "Kirish") · **hero** on `--gradient-mesh`: eyebrow chip, gradient display-xl headline, lead, **Sign up** (primary) + **"Qanday ishlashini koʻrish"** (secondary, jumps to How it works), small note · **streaming preview**: the NAMUNA answer from contract §6 plays in (question → progress → summary → 3 steps with citation badges → office card with "Hozir ochiq" and address), static under reduced motion · **features** (4 cards): exact office in your district · official sources with text chips "lex.uz · my.gov.uz" (no logos) · 4 languages · free · **How it works**: 3 numbered steps · **FAQ**: 4 questions in an accordion · **CTA band** on the brand gradient · **footer**: wordmark + tagline + "not an official government service" text, About / Privacy / Sources, LanguageMenu, legal row. Phone: one column, buttons full width, features 1 per row. ≥ 768 px: buttons side by side, features 2 per row, steps in a row. ≥ 1280 px: hero in two columns (text left, preview right), features 4 per row, max 1152 px.
-- **States:** `default` (uz-Latn) · `lang-open` (LanguageMenu open: popover at 1440, bottom sheet at 375) · `uz-Cyrl` · `ru` · `en` (the page after switching in place; all four languages are in the file, so the menu really switches it).
-- **Copy:** `landing.*`, `footer.*`, `lang.*`, `app.not_official`, `app.not_official_long`.
-- **Data:** none. The preview is static sample markup; its badges are not links.
+- **Purpose:** first visit, before any account. Show **why GovAssist and not an ordinary chatbot**, let people ask right away, and lead them to sign up with their question kept.
+- **Layout (v1.3)**, top to bottom:
+  1. **Header**: sticky glass. Logo · anchor nav (Qanday ishlaydi · Nega GovAssist · Xizmatlar · Savollar, ≥ 1280 px) · LanguageMenu · Kirish + Roʻyxatdan oʻtish (≥ 768 px) · a hamburger below 1280 px, whose panel holds the nav and both buttons.
+  2. **Hero** on the mesh: eyebrow, gradient headline, lead.
+     - The **AskBox** ("Savolingizni yozing…" + Soʻrash): it keeps the question and goes to Sign up.
+     - Three popular-question chips and the "free" note.
+     - On the right (below on phones), the **streaming preview**, translated into the UI language.
+  3. **Problem**: "Notoʻgʻri idora — yoʻqotilgan kun", 3 pain cards and the one-line answer. Qualitative, no statistics.
+  4. **Why GovAssist** (`#why`): the **GovAssist vs ordinary chatbot** table, 5 rows (source, office, when unsure, language, freshness). Cards on phones.
+  5. **Popular services** (`#services`): 8 tiles (passport/ID, birth certificate, marriage, driving licence, property, business registration, pension, utilities). Each goes to Sign up with its example question kept.
+  6. **How it works** (`#how`, 3 steps) · **FAQ** (`#faq`, 4 questions) · **CTA band**.
+  7. **Footer**: brand + tagline + "not official" sentence + LanguageMenu · Product / Sources / Legal columns · "© 2026 GovAssist" + the "not official" pill.
+- **Visual reference:** my.gov.uz for the structure only (prominent search, category tiles, popular questions). No branding, emblem, colours or icons from it.
+- **Breakpoints:**
+  - Phone: one column. Tiles 2 per row; the comparison table becomes stacked cards.
+  - ≥ 768 px: auth buttons in the header, problem cards in a row, tiles 4 per row, steps in a row.
+  - ≥ 1280 px: inline nav, hero in two columns, max 1152 px.
+- **States:**
+  - `default` (uz-Latn);
+  - `lang-open` (popover at 1440, bottom sheet at 375);
+  - `menu-open` (hamburger panel; at 1440 the inline nav shows instead);
+  - `uz-Cyrl` · `ru` · `en`: all four languages are in the file and switch in place, the preview included.
+- **Copy:** `landing.*`, `nav.*`, `service.*`, `footer.*`, `lang.*`, `app.not_official`, `app.not_official_long`.
+- **Data:** none from the API.
+  - The preview is static NAMUNA markup from contract §6, translated; office name and address stay as stored.
+  - The carried question lives in `sessionStorage` (`govassist.pendingQuestion`), never in the URL. After onboarding the frontend sends it as the first question (`POST /api/v1/chat`, contract §4, new conversation) and clears it. The backend scrubs PII as usual.
+  - Service tiles are question shortcuts; they promise no data of their own.
 
 ## 1. Sign up `/signup` · [`signup.html`](prototype/signup.html)
 
 - **Purpose:** create an account with email + password or Google, so the user can ask questions.
 - **Components:** Button (google, primary block), divider-text, TextField, PasswordField with strength, Turnstile slot, Alert (danger), inline privacy note, links.
-- **States:** `default` · `errors` (error summary, invalid email, weak/short password, Turnstile failed; also used for `error.email_taken` and `error.password_common`) · `submitting` (fields disabled, button spinner "Hisob yaratilmoqda…") · `server-error` (danger alert, form kept).
+- **States:** `default` · `question` (v1.3: an info alert shows the question carried over from the landing; hidden when none is waiting) · `errors` (error summary, invalid email, weak/short password, Turnstile failed; also used for `error.email_taken` and `error.password_common`) · `submitting` (fields disabled, button spinner "Hisob yaratilmoqda…") · `server-error` (danger alert, form kept).
 - **Copy:** `signup.*`, `auth.*`, `error.form_summary`, `error.email_invalid`, `error.email_taken`, `error.password_short`, `error.password_common`, `error.turnstile`, `error.server`.
 - **Data:** POST `/_allauth/browser/v1/auth/signup` `{email, password, turnstile_token}`; Google via `auth/provider/redirect` (`provider=google`, `process=login`). allauth `400 errors[].code` map to copy keys (never the raw `message`; table in `copy.md` → Error codes): `turnstile_failed`, `email_taken`, `password_too_short`, `password_too_common`, `password_entirely_numeric`, `password_too_similar`; `param` says which field gets the error. Success → screen 3.
 

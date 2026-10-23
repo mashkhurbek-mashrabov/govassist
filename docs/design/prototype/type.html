@@ -59,6 +59,7 @@
         b.setAttribute("aria-pressed", String(b.getAttribute("data-state") === state));
       });
       document.body.classList.toggle("drawer-open", state.indexOf("drawer") === 0);
+      if (window.GovAssistLang) window.GovAssistLang.closeAll();
       if (window.GovAssistLang && state === "lang-open") {
         var m = document.querySelector('[data-when~="lang-open"]:not([hidden]) [data-lang-menu]');
         if (m) window.GovAssistLang.open(m);
