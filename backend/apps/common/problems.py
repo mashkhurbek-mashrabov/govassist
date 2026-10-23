@@ -132,14 +132,6 @@ class QuotaExceeded(Problem):
         return {"scope": self.scope}
 
 
-class LLMUnavailable(Problem):
-    """Gemini failed before streaming started."""
-
-    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-    default_code = "llm_unavailable"
-    default_detail = "The answer service is unavailable. Try again later."
-
-
 def problem_body(
     status_code: int,
     code: str,

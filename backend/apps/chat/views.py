@@ -12,6 +12,7 @@ from apps.chat.limits import QuotaService
 from apps.chat.schemas import ChatRequest
 from apps.chat.service import AnswerService
 from apps.chat.sse import sse_stream
+from apps.common.gemini import aclose_client, get_client
 from apps.common.problems import (
     EmailNotVerified,
     InvalidInput,
@@ -25,11 +26,19 @@ from apps.corpus.embeddings import GeminiEmbedder
 
 
 def build_answer_service() -> AnswerService:
-    """Wire the production collaborators (Gemini embedder and generator, Redis quotas)."""
+    """Wire the production collaborators (Gemini embedder and generator, Redis quotas).
+
+    Embedder and generator share one Gemini client, closed by the service when the stream
+    ends (or by the view when the request fails before streaming).
+    """
+    client = get_client()
     return AnswerService(
-        embedder=GeminiEmbedder(max_tries=settings.CHAT_EMBED_MAX_TRIES, honor_server_delay=False),
-        generator_factory=GeminiAnswerGenerator,
+        embedder=GeminiEmbedder(
+            client, max_tries=settings.CHAT_EMBED_MAX_TRIES, honor_server_delay=False
+        ),
+        generator_factory=lambda: GeminiAnswerGenerator(client),
         quota=QuotaService(),
+        on_close=lambda: aclose_client(client),
     )
 
 
@@ -85,9 +94,13 @@ async def chat_stream(request: HttpRequest) -> HttpResponseBase:
     try:
         user = await _signed_in_user(request)
         body = _parse(request.body)
-        service = build_answer_service()
+    except Problem as problem:
+        return problem_response(problem)
+    service = build_answer_service()
+    try:
         conversation = await service.prepare(user, body.conversation_id)
     except Problem as problem:
+        await service.aclose()
         return problem_response(problem)
     events = service.answer(user, conversation, body.text)
     return StreamingHttpResponse(

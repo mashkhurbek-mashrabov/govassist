@@ -21,6 +21,7 @@ class OfficeTypeAdmin(BaseAdmin):
 class OfficeAdmin(BaseAdmin):
     """Offices awaiting or past review, with map and source links."""
 
+    list_select_related = ("office_type", "district")
     list_display = (
         "name",
         "office_type",
@@ -88,6 +89,7 @@ class OfficeAdmin(BaseAdmin):
 class ServiceOfficeAdmin(BaseAdmin):
     """Which office type handles which service page; confirm suggestions here."""
 
+    list_select_related = ("document", "office_type")
     list_display = ("document", "office_type", "confirmed")
     list_filter = ("confirmed", "office_type")
     list_editable = ("confirmed",)

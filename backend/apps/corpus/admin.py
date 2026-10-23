@@ -86,6 +86,7 @@ class DocumentAdmin(BaseAdmin):
 class ChunkAdmin(BaseAdmin):
     """Indexed chunks (read-only)."""
 
+    list_select_related = ("document",)
     list_display = ("document", "order", "heading_path", "char_count")
     search_fields = ("text",)
     exclude = ("embedding",)

@@ -110,14 +110,14 @@ def test_robots_status_rules(status: int, allowed: bool) -> None:
     assert _robots(status).allowed("https://x.example/a") is allowed
 
 
-def test_robots_unreachable_allows() -> None:
-    """A network error on robots.txt allows (logged)."""
+def test_robots_unreachable_disallows() -> None:
+    """A network error on robots.txt disallows (RFC 9309: rules unknown), logged."""
 
     def handler(request: httpx.Request) -> httpx.Response:
         """Fail like a dead host."""
         raise httpx.ConnectError("down")
 
-    assert RobotsPolicy(_client(handler)).allowed("https://x.example/a")
+    assert not RobotsPolicy(_client(handler)).allowed("https://x.example/a")
 
 
 def test_http_fetcher_waits_out_503_then_succeeds() -> None:
