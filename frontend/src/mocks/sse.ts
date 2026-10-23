@@ -132,3 +132,18 @@ export function sseResponse(
     headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", "X-Accel-Buffering": "no" },
   });
 }
+
+/**
+ * Frames of an answer that has no streamed text (contract v1.11 `sources`: built without the LLM).
+ *
+ * @param meta Ids for the `meta` event.
+ * @param message Final assistant message.
+ * @returns meta → final → done.
+ */
+export function finalOnlyFrames(meta: MetaEventData, message: AssistantMessage): SseFrame[] {
+  return [
+    { event: "meta", data: meta },
+    { event: "final", data: { message } },
+    { event: "done", data: {} },
+  ];
+}

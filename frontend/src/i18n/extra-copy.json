@@ -5,6 +5,9 @@
     },
     "account": {
       "menu_label": "Hisob menyusi"
+    },
+    "answer": {
+      "kind_sources": "Manbalar"
     }
   },
   "en": {
@@ -13,6 +16,9 @@
     },
     "account": {
       "menu_label": "Account menu"
+    },
+    "answer": {
+      "kind_sources": "Sources"
     }
   }
 }

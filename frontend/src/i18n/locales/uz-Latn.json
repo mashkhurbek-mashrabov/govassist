@@ -294,7 +294,8 @@
     "source_kind_office": "Idoralar roʻyxati",
     "followups": "Yana soʻrashingiz mumkin",
     "not_found_help": "Savolni boshqa soʻzlar bilan yozib koʻring yoki mavzulardan birini tanlang.",
-    "off_topic_help": "Men davlat xizmatlari va Oʻzbekiston qonunlari boʻyicha javob beraman."
+    "off_topic_help": "Men davlat xizmatlari va Oʻzbekiston qonunlari boʻyicha javob beraman.",
+    "kind_sources": "Manbalar"
   },
   "feedback": {
     "question": "Javob foydali boʻldimi?",
