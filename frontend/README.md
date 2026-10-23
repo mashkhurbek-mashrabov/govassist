@@ -2,7 +2,7 @@
 
 React 19 + Vite 8 + TypeScript 6.0 SPA. Rules: [`AGENTS.md`](AGENTS.md). Plan: [`docs/plans/03-frontend-plan.md`](../docs/plans/03-frontend-plan.md). API: [`docs/contract.md`](../docs/contract.md).
 
-Status: **F0 + F1** against contract **v1.1** (logic on MSW mocks, unstyled). F2 applies the design after gate G2; F3 switches to the real backend after G3.
+Status: complete against contract **v1.10** and design **v1.3**: real backend, streaming answer cards, four languages, account menu. Mock mode (below) still runs without a backend.
 
 ## Run
 

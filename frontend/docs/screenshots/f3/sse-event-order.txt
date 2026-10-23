@@ -1,3 +1,0 @@
-passport service meta → status×2 → office → status → delta×24 → final → done
-legal legal meta → status×3 → delta×18 → final → done
-offTopic off_topic meta → status×2 → office → status → delta×7 → final → done
