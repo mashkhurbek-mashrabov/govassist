@@ -34,7 +34,7 @@ from apps.corpus.constants import HEADING_SEPARATOR
 from apps.corpus.embeddings import Embedder
 from apps.corpus.models import Chunk
 from apps.offices.locator import locate
-from apps.offices.models import OfficeType
+from apps.offices.selectors import aoffice_type_label
 from apps.retrieval.search import Hit, search
 
 logger = logging.getLogger(__name__)
@@ -359,17 +359,8 @@ class AnswerService:
             question=question.text,
             context=context.blocks,
             history=history,
-            office_type_label=await self._office_label(office, question.language),
+            office_type_label=await aoffice_type_label(office, question.language),
         )
-
-    async def _office_label(self, office: dict[str, Any] | None, language: str) -> str | None:
-        """The office type label in the question's language (the card keeps ``ui_language``)."""
-        if office is None:
-            return None
-        office_type = await OfficeType.objects.filter(code=office["office_type"]["code"]).afirst()
-        if office_type is None:
-            return str(office["office_type"]["label"])
-        return office_type.name_for(language)
 
     async def _finish(
         self,
