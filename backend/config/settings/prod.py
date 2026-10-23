@@ -31,6 +31,6 @@ TRUSTED_PROXY_NETWORKS = env.list(
     "TRUSTED_PROXY_NETWORKS", default=["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
 )
 
-# Cloudflare redirects HTTP to HTTPS at the edge (nginx sees plain HTTP from the tunnel), and
+# The main nginx/Cloudflare redirect HTTP to HTTPS (the web nginx sees plain HTTP), and
 # HSTS preload-list submission is an operator decision, not a code default.
 SILENCED_SYSTEM_CHECKS = ["security.W008", "security.W021"]
