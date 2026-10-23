@@ -239,7 +239,7 @@ The same schema is sent to Gemini as `response_schema` and validated with Pydant
 type Lang = "uz-Latn" | "uz-Cyrl" | "ru" | "en";
 
 interface Answer {
-  answer_type: "service" | "legal" | "smalltalk" | "not_found" | "off_topic";
+  answer_type: "service" | "legal" | "smalltalk" | "sources" | "not_found" | "off_topic";
   language: Lang;                 // language/script of the user's question
   title: string;                  // ≤ 80 chars
   summary: string;                // 1–2 plain sentences
@@ -259,6 +259,8 @@ Rules:
 
 - `not_found` / `off_topic`: only `title`, `summary` and optionally `follow_up_questions`. Every other array is empty and the nullable fields are null.
 - `smalltalk`: greetings, thanks, and questions about GovAssist itself ("what can you do?"). A short, friendly `summary` in the question's language that says what GovAssist helps with, plus `follow_up_questions` (2–3 example service questions). Same empty fields as `not_found`, and no sources. It is **not** refused (`refused: false`), and `office` is `null`.
+- `sources`: the user asks for the sources of the current conversation ("list the sources", "Manbalarni ko'rsating", "Покажи источники"). The answer is built **without a corpus search or the LLM**: `title` and a one-sentence `summary` in the question's language, every other array empty and the nullable fields null. `final.message.sources` lists the documents already cited by this conversation's earlier answers: deduplicated, in order of first citation, relabelled `S1..Sn`. If nothing was cited yet, `sources` is empty and the `summary` says so. Not refused (`refused: false`), `office` is `null`.
+- Follow-up questions: retrieval may use a standalone rewrite of the question built from the recent turns (context-dependent follow-ups such as "how much does it cost?"). The stored and displayed question is always the user's own text; nothing in the API changes.
 - No answer may mention "the provided context/information" or other internals. `not_found` says plainly that GovAssist has no information on this yet.
 - `source_ids` refer to the context labels `S1..Sn`. In `final`, unknown IDs are **removed**, and an item can end up with `source_ids: []`, which the UI shows without a citation badge.
 - `office` is **not** part of `Answer`. Office data comes only from the database (`OfficeMatch`).
@@ -408,3 +410,4 @@ The example values below are layout placeholders for design and mocks. Never pre
 *Contract v1.7, 2026-10-22: the early `office` event is provisional. On refused answers (`not_found` / `off_topic`), `final.message.office` is `null`, and stored history has no office.*
 *Contract v1.8, 2026-10-22: auth codes `invalid_password_reset` and `enter_current_password`; the allauth 429 has no `errors` array (from the frontend review).*
 *Contract v1.9, 2026-10-22: confirmed allauth 65.20 codes, `invalid_or_expired_key` and `required`/`invalid`; unverified login is a 401 pending flow; a reset request for an unknown email returns 200.*
+*Contract v1.11, 2026-10-23: new `answer_type` `sources` ("list the sources" of the conversation): built from the conversation's earlier citations, no corpus search or LLM, not refused, no office. Retrieval may rewrite follow-up questions into standalone queries (issues #34, #35).*
