@@ -207,6 +207,18 @@ describe("chat", () => {
     expect(screen.getByText(/boshqa soʻzlar bilan/)).toBeInTheDocument();
   });
 
+  it("answers a greeting with smalltalk whose chips ask a service question (contract v1.10)", async () => {
+    const user = userEvent.setup();
+    renderApp("/");
+    await ask(user, "Salom");
+    expect(await screen.findByRole("heading", { level: 2, name: "NAMUNA: Salom!" })).toBeInTheDocument();
+    await waitForSettledAnswer();
+    expect(screen.queryByText(/yuridik maslahat emas/)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Pasportimni qanday yangilayman?" }));
+    await waitForSettledAnswer();
+    expect(screen.getByRole("heading", { level: 2, name: "Pasportni almashtirish" })).toBeInTheDocument();
+  });
+
   it("stops a stream and keeps the partial cards for this view", async () => {
     server.use(partialThenHang());
     const user = userEvent.setup();

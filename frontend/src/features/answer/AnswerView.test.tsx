@@ -187,6 +187,48 @@ describe("AnswerView", () => {
     );
     expect(screen.queryByText("Qayerga borish kerak")).not.toBeInTheDocument();
   });
+
+  it("renders smalltalk as a friendly card: chips, no hint, sources or disclaimer (contract v1.10)", () => {
+    const onAsk = vi.fn();
+    const smalltalk: Answer = {
+      ...SAMPLE_OFF_TOPIC_ANSWER,
+      answer_type: "smalltalk",
+      title: "NAMUNA: Salom!",
+      summary: "NAMUNA: Men GovAssist.",
+      follow_up_questions: ["Pasportimni qanday yangilayman?", "NAMUNA savol"],
+    };
+    render(
+      <AnswerView
+        answer={smalltalk}
+        sources={[]}
+        office={null}
+        messageId="m"
+        streaming={false}
+        complete
+        onAsk={onAsk}
+      />,
+      { wrapper: queryWrapper(testQueryClient()) },
+    );
+    expect(screen.getByRole("heading", { level: 2, name: "NAMUNA: Salom!" })).toBeInTheDocument();
+    expect(screen.getByText("NAMUNA: Men GovAssist.")).toBeInTheDocument();
+    expect(screen.queryByText(/boshqa soʻzlar bilan/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/davlat xizmatlari va Oʻzbekiston qonunlari/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Manbalar" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/yuridik maslahat emas/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Pasportimni qanday yangilayman?" }));
+    expect(onAsk).toHaveBeenCalledWith("Pasportimni qanday yangilayman?");
+  });
+
+  it("withdraws the early office when the answer turns out to be smalltalk", () => {
+    const { rerender } = render(streamingView({}, SAMPLE_OFFICE), {
+      wrapper: queryWrapper(testQueryClient()),
+    });
+    expect(screen.getByRole("heading", { name: "Qayerga borish kerak" })).toBeInTheDocument();
+    rerender(streamingView({ answer_type: "smalltalk" }, SAMPLE_OFFICE));
+    expect(
+      screen.getByText("Qayerga borish kerak", { selector: "h3" }).closest(".office-leave"),
+    ).toHaveAttribute("inert");
+  });
 });
 
 /** nextSkeleton(): at most one block ahead of the text. */
