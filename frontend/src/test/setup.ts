@@ -6,8 +6,12 @@ import i18n, { DEFAULT_LANGUAGE } from "../i18n";
 import { resetMockDb } from "../mocks/db";
 import { MOCK_CSRF_TOKEN } from "../mocks/handlers";
 import { server } from "../mocks/server";
+import { preloadRoutes } from "./render";
 
-beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
+beforeAll(async () => {
+  server.listen({ onUnhandledFrame: "error" });
+  await preloadRoutes();
+});
 beforeEach(() => {
   resetMockDb();
   document.cookie = `csrftoken=${MOCK_CSRF_TOKEN}`;
