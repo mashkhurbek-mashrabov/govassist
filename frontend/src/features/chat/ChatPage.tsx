@@ -1,9 +1,10 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router";
 import { ApiError } from "../../api/http";
 import { useConversation } from "../../api/queries";
 import { Alert } from "../../components/ui/Alert";
+import { takePendingQuestion } from "../../lib/pendingQuestion";
 import { useChatContext } from "./chatContext";
 import { AssistantMessage } from "./AssistantMessage";
 import { Composer } from "./Composer";
@@ -33,6 +34,13 @@ export function ChatPage() {
   const notFound = conversation.error instanceof ApiError && conversation.error.status === 404;
   const isNew = conversationId === null && !turn;
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // A question carried from the landing (sessionStorage) becomes the first question of a new chat, once.
+  useEffect(() => {
+    if (!isNew) return;
+    const carried = takePendingQuestion();
+    if (carried) send(carried, null);
+  }, [isNew, send]);
 
   /**
    * Ask a question in this conversation.

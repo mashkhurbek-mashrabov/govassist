@@ -1,7 +1,9 @@
 import { Building2, Compass, MapPin } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { SAMPLE_PREVIEW } from "./samplePreview";
+import type { Lang } from "../../api/types";
+import { DEFAULT_LANGUAGE, isLang } from "../../i18n";
+import { PREVIEW, PREVIEW_OFFICE } from "./samplePreview";
 
 /** CSS classes that reveal the steps one after another (`pp-step-1` …). */
 const STEP_CLASSES = ["pp-step-1", "pp-step-2", "pp-step-3"] as const;
@@ -24,15 +26,17 @@ function useOnScreen(element: HTMLElement | null): boolean {
 }
 
 /**
- * The landing's auto-playing answer preview (screens.md → Landing → Streaming preview): the NAMUNA sample
- * answer streams in the way the chat does (question → progress → summary → steps → office), as pure CSS
+ * The landing's auto-playing answer preview (screens.md → Landing → Streaming preview): the NAMUNA sample,
+ * translated into the UI language (the office name and address stay as stored), streams in the way the chat does (question → progress → summary → steps → office), as pure CSS
  * keyframes. It is paused off screen; under reduced motion it shows the finished card. Citation badges are
  * decorative `span`s, because the page has no sources.
  *
  * @returns The preview figure.
  */
 export function LandingPreview() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang: Lang = isLang(i18n.language) ? i18n.language : DEFAULT_LANGUAGE;
+  const preview = PREVIEW[lang];
   const ref = useRef<HTMLElement>(null);
   const [element, setElement] = useState<HTMLElement | null>(null);
   useEffect(() => setElement(ref.current), []);
@@ -48,15 +52,13 @@ export function LandingPreview() {
         {t("landing.preview_label")} · NAMUNA
       </figcaption>
       <div className="lp-preview__bar">
-        <span className="answer-head__kind t-small" lang={SAMPLE_PREVIEW.lang}>
+        <span className="answer-head__kind t-small">
           <Compass className="icon" aria-hidden="true" />
-          {SAMPLE_PREVIEW.kind}
+          {preview.kind}
         </span>
         <span className="lang-tag">NAMUNA</span>
       </div>
-      <p className="lp-preview__q" lang={SAMPLE_PREVIEW.lang}>
-        {SAMPLE_PREVIEW.question}
-      </p>
+      <p className="lp-preview__q">{preview.question}</p>
       <p className="progress pp-progress" aria-hidden="true">
         <span className="progress__dots" aria-hidden="true">
           <span />
@@ -65,12 +67,12 @@ export function LandingPreview() {
         </span>
         <span>{t("progress.searching")}</span>
       </p>
-      <div className="pp-summary" lang={SAMPLE_PREVIEW.lang}>
-        <p className="t-h3 t-strong">{SAMPLE_PREVIEW.title}</p>
-        <p className="t-muted">{SAMPLE_PREVIEW.summary}</p>
+      <div className="pp-summary">
+        <p className="t-h3 t-strong">{preview.title}</p>
+        <p className="t-muted">{preview.summary}</p>
       </div>
-      <ol className="steps" lang={SAMPLE_PREVIEW.lang}>
-        {SAMPLE_PREVIEW.steps.map((step, index) => (
+      <ol className="steps">
+        {preview.steps.map((step, index) => (
           <li key={step.text} className={STEP_CLASSES[index]}>
             <p>
               {step.text}
@@ -83,18 +85,20 @@ export function LandingPreview() {
           </li>
         ))}
       </ol>
-      <div className="lp-preview__office pp-office" lang={SAMPLE_PREVIEW.lang}>
+      <div className="lp-preview__office pp-office">
         <div className="office__type">
           <span className="office__type-label">
             <Building2 className="icon" aria-hidden="true" />
-            {SAMPLE_PREVIEW.officeType}
+            {preview.officeType}
           </span>
-          <span className="badge badge--open">{SAMPLE_PREVIEW.badge}</span>
+          <span className="badge badge--open">{preview.badge}</span>
         </div>
-        <p className="t-strong">{SAMPLE_PREVIEW.officeName}</p>
+        <p className="t-strong" lang={PREVIEW_OFFICE.lang}>
+          {PREVIEW_OFFICE.name}
+        </p>
         <p className="office__row">
           <MapPin className="icon" aria-hidden="true" />
-          <span>{SAMPLE_PREVIEW.address}</span>
+          <span lang={PREVIEW_OFFICE.lang}>{PREVIEW_OFFICE.address}</span>
         </p>
       </div>
     </figure>

@@ -1,61 +1,36 @@
-import {
-  BookOpen,
-  ChevronDown,
-  CircleCheck,
-  Check,
-  Gift,
-  Info,
-  Languages,
-  MapPin,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, Check, ChevronDown, CircleCheck, ClockAlert, FileX, MapPinX } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router";
 import { withNext } from "../../app/guards";
 import { LinkButton } from "../../components/ui/LinkButton";
-import { Wordmark } from "../../components/ui/Wordmark";
-import { LANGUAGES } from "../../i18n";
-import { LanguageMenu } from "../language/LanguageMenu";
+import { savePendingQuestion } from "../../lib/pendingQuestion";
+import { AskBox, CARRY_TO } from "./AskBox";
+import { Comparison } from "./Comparison";
+import { LandingFooter } from "./LandingFooter";
+import { LandingHeader } from "./LandingHeader";
 import { LandingPreview } from "./LandingPreview";
+import { FAQ, PROBLEMS, SERVICES, STEPS } from "./landingContent";
 
-/** Feature cards (copy key `landing.f{n}`), their icons and the text chips some of them show. */
-const FEATURES: { n: number; Icon: LucideIcon; tags?: "sources" | "languages" }[] = [
-  { n: 1, Icon: MapPin },
-  { n: 2, Icon: BookOpen, tags: "sources" },
-  { n: 3, Icon: Languages, tags: "languages" },
-  { n: 4, Icon: Gift },
-];
-/** Publishers named on the sources feature: text only, never their logos. */
-const SOURCE_TAGS = ["lex.uz", "my.gov.uz"] as const;
-/** "How it works" steps (`landing.step_{n}`). */
-const STEPS = [1, 2, 3] as const;
-/** FAQ entries (`landing.q{n}` / `landing.a{n}`). */
-const FAQ = [1, 2, 3, 4] as const;
-/** Target of "See how it works". */
-const HOW_ID = "landing-how";
+/** Icons of the three problem cards (`landing.p1` … `p3`). */
+const PROBLEM_ICONS = [MapPinX, FileX, ClockAlert] as const;
 
 /**
- * Landing (screen 0, design v1.2): sticky glass header with the language menu, mesh hero with the
- * auto-playing preview, features, how it works, FAQ, CTA band and footer. Keeps `?next=` for the login link.
+ * Landing (screen 0, design v1.3): why GovAssist and not an ordinary chatbot. Header with section nav and a
+ * hamburger, mesh hero with the ask box and the translated streaming preview, problem framing, the
+ * comparison table, popular-service tiles, how it works, FAQ, CTA band and footer. Questions from the ask
+ * box, chips and tiles are carried to sign-up in sessionStorage (never the URL).
  *
  * @returns The page.
  */
 export function WelcomePage() {
   const { t } = useTranslation();
   const [params] = useSearchParams();
-  const loginTo = withNext("/login", params.get("next"));
   return (
     <div className="lp">
       <a className="skip-link" href="#main">
         {t("app.skip_to_main")}
       </a>
-      <header className="lp__header">
-        <Wordmark to="/welcome" />
-        <LanguageMenu />
-        <LinkButton variant="ghost" small to={loginTo}>
-          {t("landing.login")}
-        </LinkButton>
-      </header>
+      <LandingHeader loginTo={withNext("/login", params.get("next"))} />
       <main id="main" data-lang-region>
         <section className="lp-hero" aria-labelledby="landing-title">
           <div className="lp__inner">
@@ -68,14 +43,7 @@ export function WelcomePage() {
                 {t("landing.title")}
               </h1>
               <p className="lp-lead">{t("landing.lead")}</p>
-              <div className="lp-actions">
-                <LinkButton variant="primary" to="/signup">
-                  {t("landing.signup")}
-                </LinkButton>
-                <a className="btn btn--secondary" href={`#${HOW_ID}`}>
-                  <span>{t("landing.see_how")}</span>
-                </a>
-              </div>
+              <AskBox />
               <p className="lp-note">
                 <Check className="icon" aria-hidden="true" />
                 {t("landing.cta_note")}
@@ -84,11 +52,22 @@ export function WelcomePage() {
             <LandingPreview />
           </div>
         </section>
-        <Features />
-        <section className="lp-section" id={HOW_ID} aria-labelledby="landing-how-title" tabIndex={-1}>
+        <Problem />
+        <section className="lp-section" id="why" aria-labelledby="landing-why" tabIndex={-1}>
           <div className="lp__inner">
             <div className="lp-section__head">
-              <h2 id="landing-how-title">{t("landing.how_title")}</h2>
+              <p className="lp-kicker">{t("nav.why")}</p>
+              <h2 id="landing-why">{t("landing.compare_title")}</h2>
+              <p>{t("landing.compare_lead")}</p>
+            </div>
+            <Comparison />
+          </div>
+        </section>
+        <Services />
+        <section className="lp-section" id="how" aria-labelledby="landing-how" tabIndex={-1}>
+          <div className="lp__inner">
+            <div className="lp-section__head">
+              <h2 id="landing-how">{t("landing.how_title")}</h2>
             </div>
             <ol className="lp-steps">
               {STEPS.map((n) => (
@@ -100,7 +79,7 @@ export function WelcomePage() {
             </ol>
           </div>
         </section>
-        <section className="lp-section" aria-labelledby="landing-faq">
+        <section className="lp-section" id="faq" aria-labelledby="landing-faq" tabIndex={-1}>
           <div className="lp__inner">
             <div className="lp-section__head">
               <h2 id="landing-faq">{t("landing.faq_title")}</h2>
@@ -132,90 +111,88 @@ export function WelcomePage() {
           </div>
         </section>
       </main>
-      <Footer />
+      <LandingFooter />
     </div>
   );
 }
 
 /**
- * The four feature cards; the sources and languages cards carry text chips.
+ * Problem framing: three pain points and the one-line answer. Qualitative only, no numbers.
  *
- * @returns The features section.
+ * @returns The section.
  */
-function Features() {
+function Problem() {
   const { t } = useTranslation();
   return (
-    <section className="lp-section" aria-labelledby="landing-features">
+    <section className="lp-section lp-section--tint" aria-labelledby="landing-problem">
       <div className="lp__inner">
         <div className="lp-section__head">
-          <p className="lp-kicker">GovAssist</p>
-          <h2 id="landing-features">{t("landing.features_title")}</h2>
+          <h2 id="landing-problem">{t("landing.problem_title")}</h2>
+          <p>{t("landing.problem_lead")}</p>
         </div>
-        <ul className="lp-features">
-          {FEATURES.map(({ n, Icon, tags }) => (
-            <li key={n} className="card lp-feature">
-              <span className="lp-feature__icon">
-                <Icon className="icon" aria-hidden="true" />
-              </span>
-              <h3>{t(`landing.f${String(n)}_title`)}</h3>
-              <p className="t-muted">{t(`landing.f${String(n)}`)}</p>
-              {tags === "sources" && (
-                <ul className="lp-tags">
-                  {SOURCE_TAGS.map((tag) => (
-                    <li key={tag}>{tag}</li>
-                  ))}
-                </ul>
-              )}
-              {tags === "languages" && (
-                <ul className="lp-tags">
-                  {LANGUAGES.map((lang) => (
-                    <li key={lang} lang={lang}>
-                      {t(`lang.name.${lang}`)}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
+        <ul className="lp-problem">
+          {PROBLEMS.map((n, index) => {
+            const Icon = PROBLEM_ICONS[index] ?? MapPinX;
+            return (
+              <li key={n} className="card">
+                <span className="lp-problem__icon">
+                  <Icon className="icon" aria-hidden="true" />
+                </span>
+                <h3>{t(`landing.p${String(n)}_title`)}</h3>
+                <p className="t-muted">{t(`landing.p${String(n)}`)}</p>
+              </li>
+            );
+          })}
         </ul>
+        <p className="lp-answer">
+          <CircleCheck className="icon" aria-hidden="true" />
+          {t("landing.problem_answer")}
+        </p>
       </div>
     </section>
   );
 }
 
 /**
- * Landing footer: brand and the not-official note, links, language menu (opens upwards), legal row.
+ * Popular-service tiles: each is one link that carries its example question to sign-up.
  *
- * @returns The footer.
+ * @returns The section.
  */
-function Footer() {
+function Services() {
   const { t } = useTranslation();
   return (
-    <footer className="lp-footer" data-lang-region>
+    <section
+      className="lp-section lp-section--tint"
+      id="services"
+      aria-labelledby="landing-services"
+      tabIndex={-1}
+    >
       <div className="lp__inner">
-        <div className="lp-footer__top">
-          <div className="lp-footer__brand">
-            <Wordmark to="/welcome" />
-            <p className="t-muted">{t("footer.tagline")}</p>
-            <p className="t-small t-muted">{t("app.not_official_long")}</p>
-          </div>
-          <nav className="lp-footer__nav" aria-label={t("app.about")}>
-            <Link to="/about">{t("app.about")}</Link>
-            <Link to="/about#privacy">{t("auth.privacy_link")}</Link>
-            <Link to="/about">{t("footer.sources")}</Link>
-          </nav>
-          <div>
-            <LanguageMenu up />
-          </div>
+        <div className="lp-section__head">
+          <h2 id="landing-services">{t("landing.services_title")}</h2>
+          <p>{t("landing.services_lead")}</p>
         </div>
-        <div className="lp-footer__legal">
-          <span className="lp-notofficial">
-            <Info className="icon" aria-hidden="true" />
-            {t("app.not_official")}
-          </span>
-          <span>{t("footer.thesis")}</span>
-        </div>
+        <ul className="lp-services">
+          {SERVICES.map(({ key, Icon }) => {
+            const question = t(`service.${key}_q`);
+            return (
+              <li key={key}>
+                <Link className="lp-service" to={CARRY_TO} onClick={() => savePendingQuestion(question)}>
+                  <span className="lp-service__icon">
+                    <Icon className="icon" aria-hidden="true" />
+                  </span>
+                  <span className="lp-service__title">{t(`service.${key}`)}</span>
+                  <span className="lp-service__q">{question}</span>
+                  <span className="lp-service__go">
+                    {t("landing.ask_submit")}
+                    <ArrowRight className="icon" aria-hidden="true" />
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-    </footer>
+    </section>
   );
 }

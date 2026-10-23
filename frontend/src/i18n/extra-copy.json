@@ -3,22 +3,16 @@
     "check_email": {
       "lead_no_email": "Hisobni tasdiqlash havolasini elektron pochtangizga yubordik. Uni oching."
     },
-    "error": {
-      "too_many_attempts": "Juda koʻp urinish boʻldi. Birozdan soʻng qayta urinib koʻring."
-    },
-    "landing": {
-      "f1": "Manzil, ish vaqti va xaritadagi joyi — har bir javobda."
+    "account": {
+      "menu_label": "Hisob menyusi"
     }
   },
   "en": {
     "check_email": {
       "lead_no_email": "We sent a confirmation link to your email. Open it to confirm your account."
     },
-    "error": {
-      "too_many_attempts": "Too many attempts. Try again a little later."
-    },
-    "landing": {
-      "f1": "Address, hours and map location in every answer."
+    "account": {
+      "menu_label": "Account menu"
     }
   }
 }

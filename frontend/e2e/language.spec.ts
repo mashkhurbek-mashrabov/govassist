@@ -63,7 +63,7 @@ test("landing: switch the language from the keyboard; the choice survives a relo
 
 test("app: the sidebar menu switches the UI and saves it to the profile", async ({ page }) => {
   await logInSeedUser(page);
-  if (isPhone(page)) await page.getByRole("button", { name: "Menyu" }).click();
+  if (isPhone(page)) await page.getByRole("button", { name: "Menyu", exact: true }).click();
   const sidebar = page.getByRole("complementary");
   await sidebar.getByRole("button", { name: /Tilni tanlash/ }).click();
   const saved = page.waitForResponse(
@@ -87,6 +87,8 @@ test("landing preview streams by itself, and shows the finished card under reduc
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/welcome");
   const preview = page.getByRole("figure");
+  // It only plays on screen (below the fold on phones).
+  await preview.scrollIntoViewIfNeeded();
   await expect(preview).toHaveAttribute("data-playing", "");
   const running = await page.evaluate(
     () =>

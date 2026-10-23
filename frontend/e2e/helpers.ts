@@ -83,3 +83,22 @@ export async function ask(page: Page, text: string): Promise<void> {
 export async function waitForFinal(page: Page, count = 1): Promise<void> {
   await expect(page.getByText("Javob foydali boʻldimi?")).toHaveCount(count, { timeout: STREAM_TIMEOUT_MS });
 }
+
+/**
+ * Click a landing header link: below 768 px the auth buttons live in the hamburger panel, so open it first.
+ *
+ * @param page The page.
+ * @param name Link name (e.g. "Kirish").
+ * @param menuLabel Accessible name of the hamburger in the current language.
+ */
+export async function clickLandingHeaderLink(page: Page, name: string, menuLabel: string): Promise<void> {
+  await page.getByRole("heading", { level: 1 }).waitFor();
+  const inBar = page.getByRole("banner").getByRole("link", { name, exact: true }).filter({ visible: true });
+  if ((await inBar.count()) === 0) await page.getByRole("button", { name: menuLabel }).click();
+  await page
+    .getByRole("banner")
+    .getByRole("link", { name, exact: true })
+    .filter({ visible: true })
+    .first()
+    .click();
+}

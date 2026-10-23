@@ -219,6 +219,18 @@ describe("chat", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Pasportni almashtirish" })).toBeInTheDocument();
   });
 
+  it("asks the question carried from the landing as the first question of a new chat, once", async () => {
+    sessionStorage.setItem("govassist.pendingQuestion", "Pasportimni qanday yangilayman?");
+    const { router } = renderApp("/");
+    await screen.findByRole("heading", { level: 2, name: "Pasportni almashtirish" }, { timeout: 5000 });
+    await waitForSettledAnswer();
+    expect(
+      screen.getByText("Pasportimni qanday yangilayman?", { selector: "li.msg-user p" }),
+    ).toBeInTheDocument();
+    expect(router.state.location.pathname).toMatch(/^\/c\//);
+    expect(sessionStorage.getItem("govassist.pendingQuestion")).toBeNull();
+  });
+
   it("stops a stream and keeps the partial cards for this view", async () => {
     server.use(partialThenHang());
     const user = userEvent.setup();
