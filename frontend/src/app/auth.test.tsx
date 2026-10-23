@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
@@ -21,11 +21,11 @@ describe("auth flows", () => {
   it("lands anonymous visitors on /welcome and keeps next through login", async () => {
     const user = userEvent.setup();
     const { router } = renderApp("/settings");
-    await screen.findByRole("heading", { level: 1, name: /Davlat xizmatini qanday olishni/ });
+    await screen.findByRole("heading", { level: 1, name: /Qaysi hujjat, qaysi idora/ });
     expect(router.state.location.pathname).toBe("/welcome");
     expect(router.state.location.search).toBe("?next=%2Fsettings");
 
-    await user.click(within(screen.getByRole("main")).getByRole("link", { name: "Kirish" }));
+    await user.click(screen.getByRole("link", { name: "Kirish" }));
     await screen.findByRole("heading", { name: "Hisobingizga kiring" });
     expect(router.state.location.search).toBe("?next=%2Fsettings");
 

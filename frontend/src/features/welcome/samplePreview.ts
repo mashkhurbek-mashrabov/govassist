@@ -5,7 +5,9 @@
 export const SAMPLE_PREVIEW = {
   lang: "uz-Latn",
   kind: "Davlat xizmati",
+  question: "Pasportimni qanday yangilayman?",
   title: "Pasportni almashtirish",
+  summary: "Pasportni almashtirish uchun ariza topshirasiz va tayyor hujjatni olasiz.",
   steps: [
     { text: "Arizani onlayn yoki Davlat xizmatlari markazida topshiring.", cite: 1 },
     { text: "Davlat bojini toʻlang.", cite: 1 },
@@ -13,5 +15,6 @@ export const SAMPLE_PREVIEW = {
   ],
   officeType: "Davlat xizmatlari markazi",
   badge: "Hozir ochiq · 18:00 gacha",
+  officeName: "NAMUNA Chilonzor tumani Davlat xizmatlari markazi",
   address: "NAMUNA koʻchasi, 1-uy, Chilonzor tumani",
 } as const;

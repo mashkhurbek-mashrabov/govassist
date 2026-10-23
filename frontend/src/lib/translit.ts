@@ -41,7 +41,16 @@ const LETTERS: Record<string, string> = {
 const PROTECTED =
   /\{[^}]+\}|\[[A-Z]+\]|\bGovAssist\b|\bGoogle(?: Gemini)?\b|\bCloudflare Turnstile\b|\bITPU\b|\S+@\S+|\b[\w-]+(?:\.[\w-]+)+\b/g;
 /** Keys whose values are endonyms (language names in their own script) and never transliterated. */
-const KEEP_KEYS = new Set(["lang.uz-Latn", "lang.uz-Cyrl", "lang.ru", "lang.en"]);
+const KEEP_KEYS = new Set([
+  "lang.uz-Latn",
+  "lang.uz-Cyrl",
+  "lang.ru",
+  "lang.en",
+  "lang.name.uz-Latn",
+  "lang.name.uz-Cyrl",
+  "lang.name.ru",
+  "lang.name.en",
+]);
 
 /**
  * Whether a character is a Latin letter.

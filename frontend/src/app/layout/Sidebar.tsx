@@ -5,6 +5,7 @@ import { NavLink } from "react-router";
 import { IconButton } from "../../components/ui/IconButton";
 import { LinkButton } from "../../components/ui/LinkButton";
 import { Wordmark } from "../../components/ui/Wordmark";
+import { LanguageMenu } from "../../features/language/LanguageMenu";
 import { HistoryList } from "../../features/history/HistoryList";
 
 /** Element id the top-bar menu button controls. */
@@ -58,6 +59,7 @@ export function Sidebar({ showHistory, onClose, closeRef }: SidebarProps) {
           <Info className="icon" aria-hidden="true" />
           <span>{t("app.about")}</span>
         </NavLink>
+        <LanguageMenu block up />
         <p className="footer-note sidebar__note">{t("app.not_official")}</p>
       </nav>
     </aside>
