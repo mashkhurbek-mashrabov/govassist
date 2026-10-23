@@ -99,19 +99,21 @@ export function SignupPage() {
           {...register("password")}
         />
         <div
-          className="turnstile"
+          className={TURNSTILE_SITE_KEY ? "turnstile turnstile--live" : "turnstile"}
           role="group"
           aria-label="Cloudflare Turnstile"
           aria-describedby={turnstileError ? TURNSTILE_ERROR_ID : undefined}
         >
-          <CircleCheck className="icon" aria-hidden="true" />
-          {TURNSTILE_SITE_KEY && (
+          {TURNSTILE_SITE_KEY ? (
             <TurnstileWidget
               key={turnstileRound}
               siteKey={TURNSTILE_SITE_KEY}
               language={i18n.language}
               onToken={setTurnstileToken}
             />
+          ) : (
+            // Placeholder slot (mocks, tests): the dashed box from the design.
+            <CircleCheck className="icon" aria-hidden="true" />
           )}
         </div>
         <p className="field__hint">{t("auth.turnstile_note")}</p>

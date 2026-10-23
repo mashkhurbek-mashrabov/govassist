@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
+import { turnstileSize } from "./turnstileSize";
 
 /** Cloudflare Turnstile script (explicit rendering). Allowed by the SPA's CSP. */
 const TURNSTILE_SCRIPT = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
@@ -67,6 +68,7 @@ export function TurnstileWidget({ siteKey, language, onToken }: TurnstileWidgetP
         widgetId = turnstile.render(container.current, {
           sitekey: siteKey,
           language,
+          size: turnstileSize(container.current.clientWidth),
           callback: (token: string) => tokenCallback.current(token),
           "expired-callback": () => tokenCallback.current(""),
         });
@@ -78,5 +80,5 @@ export function TurnstileWidget({ siteKey, language, onToken }: TurnstileWidgetP
     };
   }, [siteKey, language]);
 
-  return <div ref={container} />;
+  return <div ref={container} className="turnstile__widget" />;
 }
