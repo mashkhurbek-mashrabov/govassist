@@ -24,6 +24,13 @@ class Chunk(BaseModel):
         output_field=SearchVectorField(),
         db_persist=True,
     )
+    # The same index over the raw text, so the evaluation's normalize=off ablation is honest
+    # (query AND index unnormalized), not only a query-side switch (RQ3).
+    search_vector_raw = models.GeneratedField(
+        expression=SearchVector("text", config=SEARCH_CONFIG),
+        output_field=SearchVectorField(),
+        db_persist=True,
+    )
 
     class Meta:
         ordering = ["document", "order"]
@@ -39,6 +46,7 @@ class Chunk(BaseModel):
                 opclasses=["vector_cosine_ops"],
             ),
             GinIndex(name="chunk_search_vector_gin", fields=["search_vector"]),
+            GinIndex(fields=["search_vector_raw"], name="chunk_search_vector_raw_gin"),
         ]
 
     def __str__(self) -> str:
