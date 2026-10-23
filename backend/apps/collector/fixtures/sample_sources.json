@@ -5,5 +5,17 @@
  {"name": "my.gov.uz #913 Tugʻilganlik haqidagi guvohnomani olish", "start_url": "https://my.gov.uz/uz/service/913", "document_kind": "service_page", "publisher": "my.gov.uz"},
  {"name": "my.gov.uz #865 Tugʻilganlik haqida takroriy guvohnoma", "start_url": "https://my.gov.uz/uz/service/865", "document_kind": "service_page", "publisher": "my.gov.uz"},
  {"name": "lex.uz VM 129-son 06.03.2020 (ID-kartalar)", "start_url": "https://lex.uz/uz/docs/-4756929", "document_kind": "law", "publisher": "lex.uz"},
- {"name": "lex.uz Oila kodeksi 30.04.1998", "start_url": "https://lex.uz/uz/docs/-104720", "document_kind": "law", "publisher": "lex.uz"}
+ {"name": "lex.uz Oila kodeksi 30.04.1998", "start_url": "https://lex.uz/uz/docs/-104720", "document_kind": "law", "publisher": "lex.uz"},
+ {"name": "my.gov.uz #363 Yashash joyi bo‘yicha ro‘yxatdan o‘tkazish", "start_url": "https://my.gov.uz/uz/service/363", "document_kind": "service_page", "publisher": "my.gov.uz"},
+ {"name": "my.gov.uz #939 Turar-joy kadastr pasportini shakllantirish va davlat ro‘yxatidan o‘tkazish", "start_url": "https://my.gov.uz/uz/service/939", "document_kind": "service_page", "publisher": "my.gov.uz"},
+ {"name": "my.gov.uz #57 Biznesni ro'yxatdan o'tkazish", "start_url": "https://my.gov.uz/uz/service/57", "document_kind": "service_page", "publisher": "my.gov.uz"},
+ {"name": "my.gov.uz #1017 Bolalar nafaqasi yoki moddiy yordam tayinlash", "start_url": "https://my.gov.uz/uz/service/1017", "document_kind": "service_page", "publisher": "my.gov.uz"},
+ {"name": "my.gov.uz #177 Jamg‘arib boriladigan pensiya tizimiga hisobga qo‘yish", "start_url": "https://my.gov.uz/uz/service/177", "document_kind": "service_page", "publisher": "my.gov.uz"},
+ {"name": "my.gov.uz #172 Elektr tarmoqlariga ulanish uchun texnik shart (20 kVtgacha)", "start_url": "https://my.gov.uz/uz/service/172", "document_kind": "service_page", "publisher": "my.gov.uz"},
+ {"name": "my.gov.uz #173 Gaz tarmoqlariga ulanish uchun texnik shartlarni olish (1,2 MPa bosimgacha)", "start_url": "https://my.gov.uz/uz/service/173", "document_kind": "service_page", "publisher": "my.gov.uz"},
+ {"name": "lex.uz Mehnat kodeksi 28.10.2022", "start_url": "https://lex.uz/uz/docs/-6257288", "document_kind": "law", "publisher": "lex.uz"},
+ {"name": "lex.uz Fuqarolik kodeksi (birinchi qism) 21.12.1995", "start_url": "https://lex.uz/uz/docs/-111189", "document_kind": "law", "publisher": "lex.uz"},
+ {"name": "lex.uz Fuqarolik kodeksi (ikkinchi qism) 29.08.1996", "start_url": "https://lex.uz/uz/docs/-180552", "document_kind": "law", "publisher": "lex.uz"},
+ {"name": "lex.uz Ma'muriy javobgarlik to'g'risidagi kodeks 22.09.1994", "start_url": "https://lex.uz/uz/docs/-97664", "document_kind": "law", "publisher": "lex.uz"},
+ {"name": "lex.uz Jismoniy va yuridik shaxslarning murojaatlari to'g'risida (yangi tahrir, O'RQ-445, 11.09.2017)", "start_url": "https://lex.uz/uz/docs/-3336169", "document_kind": "law", "publisher": "lex.uz"}
 ]
