@@ -4,6 +4,7 @@ from pathlib import Path
 
 from django.db import models
 
+GEO_CACHE_KEY = "geo:{scope}:{lang}"
 GEO_CACHE_S = 60 * 60
 
 SOATO_FIXTURE = Path(__file__).parent / "fixtures" / "soato.json"
