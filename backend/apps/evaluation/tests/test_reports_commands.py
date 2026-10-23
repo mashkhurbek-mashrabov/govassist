@@ -196,7 +196,7 @@ def test_get_run_by_id_or_newest_name(questions: list[EvalQuestion]) -> None:
         get_run("missing")
 
 
-def fake_pipeline(*, judge: bool) -> tuple[Pipeline, Any]:
+def fake_pipeline(*, judge: bool, rewrite: bool) -> tuple[Pipeline, Any]:
     """The run_eval command's pipeline, faked (no Gemini client)."""
 
     async def aclose() -> None:

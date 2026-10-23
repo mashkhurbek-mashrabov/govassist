@@ -33,6 +33,10 @@ class Message(BaseModel):
     completion_tokens = models.PositiveIntegerField(null=True, blank=True)
     latency_ms = models.PositiveIntegerField(null=True, blank=True)
     retrieval_ms = models.PositiveIntegerField(null=True, blank=True)
+    retrieval_query = models.TextField(
+        blank=True,
+        help_text="Standalone rewrite used for retrieval; empty when the question was used.",
+    )
 
     class Meta:
         ordering = ["created_at"]

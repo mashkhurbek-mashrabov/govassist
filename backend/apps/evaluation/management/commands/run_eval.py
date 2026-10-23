@@ -11,16 +11,20 @@ from apps.evaluation.reports import write_run_report
 from apps.evaluation.runner import EvalConfig, Pipeline, run_eval
 
 
-def build_pipeline(*, judge: bool) -> tuple[Pipeline, Any]:
-    """Gemini embedder and generator on one client, plus the env judge when asked.
+def build_pipeline(*, judge: bool, rewrite: bool) -> tuple[Pipeline, Any]:
+    """Gemini embedder, generator and rewriter on one client, plus the env judge when asked.
 
     Args:
         judge: Use the judge from ``JUDGE_*`` settings.
+        rewrite: Give the run the follow-up query rewriter.
 
     Returns:
         The pipeline and the Gemini client (to close afterwards).
     """
-    from apps.chat.generator import GeminiAnswerGenerator  # noqa: PLC0415 (Gemini only here)
+    from apps.chat.generator import (  # noqa: PLC0415 (Gemini only here)
+        GeminiAnswerGenerator,
+        GeminiQueryRewriter,
+    )
     from apps.common.gemini import get_client  # noqa: PLC0415
     from apps.corpus.embeddings import GeminiEmbedder  # noqa: PLC0415
 
@@ -29,6 +33,7 @@ def build_pipeline(*, judge: bool) -> tuple[Pipeline, Any]:
         embedder=GeminiEmbedder(client),
         generator_factory=lambda: GeminiAnswerGenerator(client),
         judge=OpenAICompatibleJudge.from_settings() if judge else None,
+        rewriter=GeminiQueryRewriter(client) if rewrite else None,
     )
     return pipeline, client
 
@@ -36,7 +41,7 @@ def build_pipeline(*, judge: bool) -> tuple[Pipeline, Any]:
 class Command(QuestionSetCommand):
     """Run a question set through GovAssist with ablation switches; write the report."""
 
-    help = "Evaluate a question set (vector|keyword|hybrid, normalize on|off, rag on|off)."
+    help = "Evaluate a question set (mode, normalize, rag, rewrite switches)."
 
     def add_arguments(self, parser: CommandParser) -> None:
         """Declare the run name, question version and switches.
@@ -49,6 +54,7 @@ class Command(QuestionSetCommand):
         parser.add_argument("--mode", choices=MODES, default="hybrid")
         parser.add_argument("--normalize", choices=tuple(ON_OFF), default="on")
         parser.add_argument("--rag", choices=tuple(ON_OFF), default="on")
+        parser.add_argument("--rewrite", choices=tuple(ON_OFF), default="on")
         parser.add_argument("--prompt", default=settings.PROMPT_VERSION)
         parser.add_argument("--judge", choices=("none", "env"), default="none")
 
@@ -71,8 +77,11 @@ class Command(QuestionSetCommand):
             normalize=ON_OFF[options["normalize"]],
             rag=rag,
             prompt_version=options["prompt"],
+            rewrite=ON_OFF[options["rewrite"]],
         )
-        pipeline, client = build_pipeline(judge=options["judge"] == "env")
+        pipeline, client = build_pipeline(
+            judge=options["judge"] == "env", rewrite=ON_OFF[options["rewrite"]]
+        )
 
         async def go() -> Any:
             """Run on one event loop and close the Gemini client there."""

@@ -17,13 +17,16 @@ from pydantic import ValidationError
 from apps.accounts.models import User
 from apps.chat.api.serializers import serialize_message
 from apps.chat.citations import Citations, resolve_citations
-from apps.chat.constants import SMALLTALK, MessageErrorCode
-from apps.chat.generator import AnswerGenerator
+from apps.chat.constants import UNTITLED_TYPES, MessageErrorCode
+from apps.chat.generator import AnswerGenerator, QueryRewriter
 from apps.chat.limits import QuotaService
 from apps.chat.models import Conversation, Message, Retrieval
 from apps.chat.prompts import ContextBlock, Prompt, Turn, render_prompt
+from apps.chat.rewrite import standalone_query
 from apps.chat.schemas import Answer
+from apps.chat.selectors import earlier_answer_sources
 from apps.chat.services import open_turn
+from apps.chat.source_list import merge_sources, sources_answer, sources_request_language
 from apps.chat.sse import Event
 from apps.common.constants import MS_PER_S, Lang
 from apps.common.pii import scrub
@@ -59,6 +62,7 @@ class _Run:
 
     started: float
     retrieval_ms: int | None = None
+    retrieval_query: str = ""
     assistant: Message | None = None
     generator: AnswerGenerator | None = None
 
@@ -70,6 +74,9 @@ class _Context:
     hits: list[Hit]
     blocks: list[ContextBlock]
     sources: dict[str, dict[str, Any]]
+
+
+NO_CONTEXT = _Context(hits=[], blocks=[], sources={})
 
 
 def _label(rank: int) -> str:
@@ -194,15 +201,16 @@ def save_answer(
         for position, hit in enumerate(context.hits, start=1)
     )
     conversation = assistant.conversation
-    # The first real answer names the conversation; refusals and smalltalk ("Salom") never do.
+    # The first real answer names the conversation; refusals, smalltalk ("Salom") and source
+    # lists never do.
     earlier_answers = (
         conversation.messages.filter(
             role=Message.Role.ASSISTANT, status=Message.Status.COMPLETE, refused=False
         )
         .exclude(id=assistant.id)
-        .exclude(answer__answer_type=SMALLTALK)
+        .exclude(answer__answer_type__in=UNTITLED_TYPES)
     )
-    if not answer.bare and not earlier_answers.exists():
+    if answer.answer_type not in UNTITLED_TYPES and not earlier_answers.exists():
         conversation.title = answer.title
     conversation.save(update_fields=["title", "updated_at"])
     return assistant
@@ -217,11 +225,13 @@ class AnswerService:
         embedder: Embedder,
         generator_factory: Callable[[], AnswerGenerator],
         quota: QuotaService,
+        rewriter: QueryRewriter | None = None,
         searcher: Searcher = search,
         locator: Locator = locate,
         on_close: Callable[[], Awaitable[None]] | None = None,
     ) -> None:
         self._on_close = on_close
+        self._rewriter = rewriter
         self._embedder = embedder
         self._generator_factory = generator_factory
         self._quota = quota
@@ -275,10 +285,29 @@ class AnswerService:
             raise AnswerError("llm_unavailable", "The answer service is unavailable.") from exc
         return await sync_to_async(self._search)(question, lang, query_vector=vector)
 
+    async def _retrieval_query(self, question: Message, history: Sequence[Turn], run: _Run) -> str:
+        """The query to retrieve with: a standalone rewrite of a follow-up, else the question.
+
+        Its tokens count towards the global daily cap; the rewrite is kept on the run.
+        """
+        query = await standalone_query(
+            self._rewriter,
+            question=question.text,
+            language=Lang(question.language),
+            history=history,
+            timeout_s=settings.QUERY_REWRITE_TIMEOUT_S,
+        )
+        if self._rewriter is not None and history:
+            await self._quota.aadd_tokens(self._rewriter.usage.total)
+        run.retrieval_query = "" if query == question.text else query
+        return query
+
     async def _ground(
-        self, user: User, question: Message, run: _Run
+        self, user: User, question: Message, history: Sequence[Turn], run: _Run
     ) -> tuple[_Context, dict[str, Any] | None]:
         """Retrieve context and look up the office within ``CHAT_PREPARE_TIMEOUT_S``.
+
+        Follow-ups are retrieved with a standalone rewrite (issue #34).
 
         Raises:
             AnswerError: ``llm_timeout`` when the deadline passes; ``llm_unavailable`` when
@@ -287,7 +316,8 @@ class AnswerService:
         started = time.perf_counter()
         try:
             async with asyncio.timeout(settings.CHAT_PREPARE_TIMEOUT_S):
-                hits = await self._retrieve(question.text, Lang(question.language))
+                query = await self._retrieval_query(question, history, run)
+                hits = await self._retrieve(query, Lang(question.language))
                 run.retrieval_ms = int((time.perf_counter() - started) * MS_PER_S)
                 context = await sync_to_async(build_context)(hits)
                 office = await sync_to_async(self._locate)(
@@ -346,13 +376,12 @@ class AnswerService:
 
     async def _prompt(
         self,
-        conversation: Conversation,
         question: Message,
+        history: Sequence[Turn],
         context: _Context,
         office: dict[str, Any] | None,
     ) -> Prompt:
         """Render the versioned prompt with context, office type and history."""
-        history = await sync_to_async(recent_turns)(conversation, question)
         return render_prompt(
             version=settings.PROMPT_VERSION,
             language=Lang(question.language),
@@ -393,6 +422,7 @@ class AnswerService:
             "completion_tokens": usage.completion_tokens,
             "latency_ms": int((time.perf_counter() - run.started) * MS_PER_S),
             "retrieval_ms": run.retrieval_ms,
+            "retrieval_query": run.retrieval_query,
         }
         citations = resolve_citations(parsed, context.sources)
         if parsed.bare:
@@ -400,6 +430,26 @@ class AnswerService:
         saved = await sync_to_async(save_answer)(assistant, citations, context, office, details)
         await self._quota.aadd_tokens(usage.total)
         return saved
+
+    async def _sources_reply(
+        self, conversation: Conversation, question: Message, assistant: Message, run: _Run
+    ) -> Message | None:
+        """Answer "list the sources" from the earlier answers' citations (issue #35).
+
+        No corpus search and no LLM. Applies only when the conversation already has answers.
+
+        Returns:
+            The saved ``sources`` answer, or None when this is not such a request.
+        """
+        language = sources_request_language(question.text)
+        if language is None:
+            return None
+        earlier = await sync_to_async(earlier_answer_sources)(conversation, question)
+        if earlier is None:
+            return None
+        citations = sources_answer(language, merge_sources(earlier))
+        details = {"latency_ms": int((time.perf_counter() - run.started) * MS_PER_S)}
+        return await sync_to_async(save_answer)(assistant, citations, NO_CONTEXT, None, details)
 
     async def _events(
         self, user: User, conversation: Conversation | None, text: str, run: _Run
@@ -419,14 +469,20 @@ class AnswerService:
                 "assistant_message_id": str(assistant.id),
             },
         )
+        sources_reply = await self._sources_reply(conversation, question, assistant, run)
+        if sources_reply is not None:
+            yield Event("final", {"message": await sync_to_async(serialize_message)(sources_reply)})
+            yield Event("done", {})
+            return
         yield Event("status", {"stage": "searching"})
-        context, office = await self._ground(user, question, run)
+        history = await sync_to_async(recent_turns)(conversation, question)
+        context, office = await self._ground(user, question, history, run)
         yield Event("status", {"stage": "found", "source_count": len(context.blocks)})
         if office is not None:
             yield Event("office", office)
         yield Event("status", {"stage": "writing"})
 
-        prompt = await self._prompt(conversation, question, context, office)
+        prompt = await self._prompt(question, history, context, office)
         generator = run.generator = self._generator_factory()
         fragments: list[str] = []
         deltas = self._generate(generator, prompt, fragments)
@@ -475,6 +531,8 @@ class AnswerService:
         self, user: User, conversation: Conversation | None, text: str
     ) -> AsyncGenerator[Event]:
         """Answer one question as events: meta → status* → office? → delta* → final → done.
+
+        A request for the conversation's sources is answered meta → final → done.
 
         Any failure after ``meta`` becomes one ``error`` event and a failed message. A client
         disconnect stores the message as failed with ``error_code="stopped"`` and no answer.

@@ -1,5 +1,6 @@
 """Constants of the chat app (AGENTS.md: no constant values elsewhere in the app)."""
 
+import re
 from pathlib import Path
 
 from django.db import models
@@ -67,6 +68,62 @@ REFUSED_TYPES = frozenset({"not_found", "off_topic"})
 # Answers with only title, summary and follow-ups: no sources, no office (contract §5).
 BARE_TYPES = REFUSED_TYPES | {"smalltalk"}
 SMALLTALK = "smalltalk"
+# Built by the server from the conversation's citations, never by the model (contract v1.11).
+SOURCES = "sources"
+# Answer types that never name the conversation.
+UNTITLED_TYPES = BARE_TYPES | {SOURCES}
+
+# Follow-up rewriting (issue #34): a standalone retrieval query from the recent turns.
+REWRITE_PROMPT_VERSION = "rewrite-v1"
+REWRITE_TEMPERATURE = 0.0
+REWRITE_MAX_OUTPUT_TOKENS = 64
+REWRITE_MAX_CHARS = 300
+QUOTE_CHARS = "\"'«»“”„`"
+
+# "List the sources" requests (issue #35), matched on canonicalized text (lowercase, ʻ unified).
+# The matched noun also gives the answer language: short requests ("manbalar") are often
+# detected as another language.
+SOURCE_NOUNS: dict[Lang, re.Pattern[str]] = {
+    Lang.UZ_LATN: re.compile(r"\b(?:manba\w*|iqtibos\w*|havola\w*)"),
+    Lang.UZ_CYRL: re.compile(r"\b(?:манба\w*|ҳавола\w*|иқтибос\w*)"),
+    Lang.RU: re.compile(r"\b(?:источник\w*|ссылк\w*)"),
+    Lang.EN: re.compile(r"\b(?:sources?|references?|citations?)\b"),
+}
+SOURCE_REQUEST_CUES = re.compile(
+    r"\b(?:list|show|give|share|cite|provide|display|what|which|where|used?|tell"
+    r"|ko.?rsat\w*|ber\w*|sanab\w*|keltir\w*|yoz\w*|qaysi|foydalan\w*"
+    r"|кўрсат\w*|бер\w*|санаб\w*|келтир\w*|ёз\w*|қайси|фойдалан\w*"
+    r"|покаж\w*|перечисл\w*|дай\w*|дайте|укаж\w*|приведи\w*|каки\w*|откуда|использ\w*"
+    r"|назов\w*|список)\b"
+)
+# Service questions that use the same nouns ("sources of income", "daromad manbai").
+SOURCE_FALSE_FRIENDS = re.compile(
+    r"\b(?:income|revenue|funding|energy|water|daromad\w*|даромад\w*|доход\w*|энерг\w*)"
+)
+SOURCES_SHORT_REQUEST_WORDS = 3
+
+SOURCES_TEXT: dict[str, dict[str, str]] = {
+    Lang.UZ_LATN: {
+        "title": "Manbalar",
+        "found": "Bu suhbatdagi javoblarda foydalanilgan manbalar quyida keltirilgan.",
+        "empty": "Bu suhbatdagi javoblarda hali birorta manbaga havola qilinmagan.",
+    },
+    Lang.UZ_CYRL: {
+        "title": "Манбалар",
+        "found": "Бу суҳбатдаги жавобларда фойдаланилган манбалар қуйида келтирилган.",
+        "empty": "Бу суҳбатдаги жавобларда ҳали бирорта манбага ҳавола қилинмаган.",
+    },
+    Lang.RU: {
+        "title": "Источники",
+        "found": "Ниже перечислены источники, на которые ссылались ответы в этом разговоре.",
+        "empty": "В ответах этого разговора пока нет ссылок на источники.",
+    },
+    Lang.EN: {
+        "title": "Sources",
+        "found": "These are the sources cited by the answers in this conversation.",
+        "empty": "No sources have been cited in this conversation yet.",
+    },
+}
 
 GEMINI_UNSUPPORTED_KEYS = frozenset({"additionalProperties"})
 

@@ -283,6 +283,10 @@ GLOBAL_DAILY_TOKEN_CAP = env.int("GLOBAL_DAILY_TOKEN_CAP", default=2_000_000)
 # LLM_TIMEOUT_S; the stream lock outlives both (plus time to persist the answer).
 CHAT_PREPARE_TIMEOUT_S = env.int("CHAT_PREPARE_TIMEOUT_S", default=20)
 CHAT_EMBED_MAX_TRIES = env.int("CHAT_EMBED_MAX_TRIES", default=2)
+# Follow-ups are retrieved with a standalone rewrite (issue #34); the rewrite gets part of the
+# prepare budget and falls back to the question as asked.
+QUERY_REWRITE = env.bool("QUERY_REWRITE", default=True)
+QUERY_REWRITE_TIMEOUT_S = env.float("QUERY_REWRITE_TIMEOUT_S", default=5.0)
 STREAM_LOCK_TTL_S = env.int(
     "STREAM_LOCK_TTL_S", default=CHAT_PREPARE_TIMEOUT_S + LLM_TIMEOUT_S + 30
 )

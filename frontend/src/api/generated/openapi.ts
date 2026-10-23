@@ -333,7 +333,7 @@ export interface components {
             follow_up_questions: string[];
         };
         /** @enum {string} */
-        AnswerType: "service" | "legal" | "smalltalk" | "not_found" | "off_topic";
+        AnswerType: "service" | "legal" | "smalltalk" | "sources" | "not_found" | "off_topic";
         /** @description An assistant message: answer card, cited sources, office and status. */
         AssistantMessage: {
             /** Format: uuid */
