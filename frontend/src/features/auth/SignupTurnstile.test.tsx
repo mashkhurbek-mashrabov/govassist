@@ -3,12 +3,14 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { server } from "../../mocks/server";
 import { renderApp } from "../../test/render";
+import { FLEXIBLE_MIN_WIDTH_PX, turnstileSize } from "./turnstileSize";
 
 vi.mock("../../config", () => ({ TURNSTILE_SITE_KEY: "SAMPLE-site-key" }));
 
 /** Options the page passes to `turnstile.render`, one entry per rendered widget. */
 interface RenderOptions {
   callback: (token: string) => void;
+  size: string;
 }
 
 /** Signup with Turnstile: a failed submit spends the token, so the widget restarts for a fresh one. */
@@ -46,6 +48,8 @@ describe("SignupPage Turnstile", () => {
     const user = userEvent.setup();
     renderApp("/signup");
     await waitFor(() => expect(rendered).toHaveLength(1));
+    // jsdom lays nothing out (0 px wide), which is below the flexible minimum.
+    expect(rendered[0]?.size).toBe("compact");
     const submit = screen.getByRole("button", { name: "Hisob yaratish" });
     expect(submit).toBeDisabled();
     act(() => rendered[0]?.callback("SAMPLE-token-1"));
@@ -65,5 +69,13 @@ describe("SignupPage Turnstile", () => {
     await user.click(screen.getByRole("button", { name: "Hisob yaratish" }));
     await screen.findByRole("heading", { name: /pochtangizni tekshiring/i });
     expect(sentTokens).toEqual(["SAMPLE-token-1", "SAMPLE-token-2"]);
+  });
+});
+
+/** turnstileSize(): flexible when the column is wide enough, compact on narrow phones. */
+describe("turnstileSize", () => {
+  it("switches at the flexible minimum width", () => {
+    expect(turnstileSize(FLEXIBLE_MIN_WIDTH_PX)).toBe("flexible");
+    expect(turnstileSize(FLEXIBLE_MIN_WIDTH_PX - 1)).toBe("compact");
   });
 });
