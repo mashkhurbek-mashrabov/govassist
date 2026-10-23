@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "apps.corpus",
     "apps.retrieval",
     "apps.chat",
+    "apps.evaluation",
 ]
 
 MIDDLEWARE = [
@@ -244,6 +245,19 @@ STORAGES = {
 GEMINI_API_KEY = env.str("GEMINI_API_KEY", default="")
 GEMINI_MODEL = env.str("GEMINI_MODEL", default="gemini-3.8-flash")
 GEMINI_EMBEDDING_MODEL = env.str("GEMINI_EMBEDDING_MODEL", default="gemini-embedding-2")
+
+# --- Evaluation (plan §7) ----------------------------------------------------------
+# Results are written only by scripted runs (AGENTS.md research integrity).
+EVAL_RESULTS_DIR = env.str("EVAL_RESULTS_DIR", default=str(BASE_DIR.parent / "docs" / "results"))
+# USD per 1M tokens for the generator; 0 = not configured (cost is then reported as unknown).
+EVAL_PRICE_INPUT_PER_M = env.float("EVAL_PRICE_INPUT_PER_M", default=0.0)
+EVAL_PRICE_OUTPUT_PER_M = env.float("EVAL_PRICE_OUTPUT_PER_M", default=0.0)
+# The judge: an OpenAI-compatible endpoint from a different vendor than Gemini.
+JUDGE_BASE_URL = env.str("JUDGE_BASE_URL", default="")
+JUDGE_API_KEY = env.str("JUDGE_API_KEY", default="")
+JUDGE_MODEL = env.str("JUDGE_MODEL", default="")
+JUDGE_TIMEOUT_S = env.int("JUDGE_TIMEOUT_S", default=60)
+GIT_SHA = env.str("GIT_SHA", default="")
 EMBEDDING_DIM = env.int("EMBEDDING_DIM", default=768)
 EMBED_CONCURRENCY = env.int("EMBED_CONCURRENCY", default=8)
 EMBED_MAX_TRIES = env.int("EMBED_MAX_TRIES", default=5)

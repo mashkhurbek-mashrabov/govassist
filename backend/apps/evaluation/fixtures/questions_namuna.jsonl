@@ -1,0 +1,5 @@
+{"qid": "NAMUNA-001", "question": "ID-karta olish uchun qanday hujjatlar kerak?", "language": "uz-Latn", "script": "latn", "group_id": "NAMUNA-g1", "category": "service", "expected_office_type": "migration"}
+{"qid": "NAMUNA-002", "question": "ID-карта олиш учун қандай ҳужжатлар керак?", "language": "uz-Cyrl", "script": "cyrl", "group_id": "NAMUNA-g1", "category": "service", "expected_office_type": "migration"}
+{"qid": "NAMUNA-003", "question": "Где зарегистрировать брак?", "language": "ru", "script": "cyrl", "group_id": "NAMUNA-g2", "category": "office_routing", "expected_office_type": "civil_registry"}
+{"qid": "NAMUNA-004", "question": "What does the Labour Code say about annual paid leave?", "language": "en", "script": "latn", "group_id": "NAMUNA-g3", "category": "legal"}
+{"qid": "NAMUNA-005", "question": "Ertaga Toshkentda ob-havo qanday bo'ladi?", "language": "uz-Latn", "script": "latn", "group_id": "NAMUNA-g4", "category": "out_of_scope", "in_corpus": false}

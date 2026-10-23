@@ -78,21 +78,23 @@ def keyword_query(text: str) -> str:
     return " or ".join(text.split())
 
 
-def keyword_search(query_text: str, limit: int) -> list[_Ranked]:
-    """Top chunks by full-text rank over ``text_normalized``.
+def keyword_search(query_text: str, limit: int, *, raw: bool = False) -> list[_Ranked]:
+    """Top chunks by full-text rank over ``text_normalized`` (or the raw text).
 
     Args:
-        query_text: The (normalized) question.
+        query_text: The question (normalized unless ``raw``).
         limit: How many to return.
+        raw: Search the unnormalized index (``normalize=off`` ablation).
     """
+    field = "search_vector_raw" if raw else "search_vector"
     terms = keyword_query(query_text)
     if not terms:
         return []
     query = SearchQuery(terms, config=SEARCH_CONFIG, search_type="websearch")
     rows = (
         _live_chunks()
-        .filter(search_vector=query)
-        .annotate(score=SearchRank(F("search_vector"), query))
+        .filter(**{field: query})
+        .annotate(score=SearchRank(F(field), query))
         .order_by("-score", "id")
         .values_list("id", "document_id", "score")[:limit]
     )
@@ -150,7 +152,8 @@ def search(
         lang: Its detected ``Lang``.
         query_vector: The question embedding (required for vector and hybrid modes).
         mode: ``vector``, ``keyword`` or ``hybrid``.
-        normalize: Normalize the keyword query (Cyrillic→Latin, canonicalize).
+        normalize: Normalize the keyword query (Cyrillic→Latin, canonicalize) and search the
+            normalized index; False searches the raw query against the raw-text index.
         k: Final number of hits (default ``RAG_FINAL_K``).
 
     Returns:
@@ -167,7 +170,11 @@ def search(
         vector_search(query_vector or [], settings.RAG_TOP_K_VECTOR) if mode != "keyword" else []
     )
     query_text = normalize_for_search(query, lang) if normalize else query
-    keyword = keyword_search(query_text, settings.RAG_TOP_K_KEYWORD) if mode != "vector" else []
+    keyword = (
+        keyword_search(query_text, settings.RAG_TOP_K_KEYWORD, raw=not normalize)
+        if mode != "vector"
+        else []
+    )
 
     by_id = {item.chunk_id: item for item in (*keyword, *vector)}
     vector_scores = {item.chunk_id: item.score for item in vector}
