@@ -1,3 +1,4 @@
+from typing import Any
 from uuid import UUID
 
 from django.db.models import OuterRef, Prefetch, QuerySet, Subquery
@@ -39,6 +40,28 @@ def conversation_with_messages(user: User, conversation_id: UUID) -> Conversatio
         .prefetch_related(Prefetch("messages", queryset=messages))
         .first()
     )
+
+
+def earlier_answer_sources(conversation: Conversation, before: Message) -> list[list[Any]] | None:
+    """The stored ``sources`` of each completed answer before ``before``, oldest first.
+
+    Args:
+        conversation: The conversation.
+        before: The current user message.
+
+    Returns:
+        One list per earlier answer, or None when the conversation has no earlier answer.
+    """
+    answers = list(
+        conversation.messages.filter(
+            role=Message.Role.ASSISTANT,
+            status=Message.Status.COMPLETE,
+            created_at__lt=before.created_at,
+        )
+        .order_by("created_at")
+        .values_list("sources", flat=True)
+    )
+    return answers or None
 
 
 def assistant_message_of(user: User, message_id: UUID) -> Message | None:

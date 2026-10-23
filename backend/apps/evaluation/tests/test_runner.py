@@ -102,6 +102,7 @@ async def test_rag_run_scores_every_metric(
         "normalize": True,
         "rag": True,
         "prompt_version": "v3",
+        "rewrite": True,
     }
     assert eval_run.model_names["judge"] == "fake-judge"
 

@@ -16,8 +16,9 @@ from django.utils import timezone
 from pydantic import ValidationError
 
 from apps.chat.citations import resolve_citations
-from apps.chat.generator import AnswerGenerator
+from apps.chat.generator import AnswerGenerator, QueryRewriter
 from apps.chat.prompts import render_prompt
+from apps.chat.rewrite import standalone_query
 from apps.chat.schemas import Answer, Item, LawPoint
 from apps.chat.service import build_context
 from apps.common.constants import MS_PER_S, Lang
@@ -51,6 +52,7 @@ class EvalConfig:
     normalize: bool
     rag: bool
     prompt_version: str
+    rewrite: bool = True
 
 
 @dataclass(frozen=True)
@@ -60,6 +62,7 @@ class Pipeline:
     embedder: Embedder
     generator_factory: Callable[[], AnswerGenerator]
     judge: Judge | None = None
+    rewriter: QueryRewriter | None = None
     searcher: Callable[..., list[Hit]] = search
     locator: Callable[..., dict[str, Any] | None] = locate
 
@@ -81,14 +84,25 @@ def _cited_labels(answer: Answer) -> list[str]:
 
 
 async def _retrieve(question: EvalQuestion, config: EvalConfig, pipeline: Pipeline) -> list[Hit]:
-    """Hits for the question under the run's mode and normalization (none without RAG)."""
+    """Hits for the question under the run's mode and normalization (none without RAG).
+
+    The query goes through the same follow-up rewrite step as chat; questions without prior
+    turns are retrieved as asked.
+    """
     if not config.rag:
         return []
+    query = await standalone_query(
+        pipeline.rewriter if config.rewrite else None,
+        question=question.question,
+        language=Lang(question.language),
+        history=[],
+        timeout_s=settings.QUERY_REWRITE_TIMEOUT_S,
+    )
     vector = None
     if config.mode != "keyword":
-        vector = await pipeline.embedder.embed_query(question.question)
+        vector = await pipeline.embedder.embed_query(query)
     return await sync_to_async(pipeline.searcher)(
-        question.question,
+        query,
         question.language,
         query_vector=vector,
         mode=config.mode,

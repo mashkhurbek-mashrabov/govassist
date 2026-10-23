@@ -15,12 +15,13 @@ from apps.chat.constants import (
     FOLLOW_UPS_MAX,
     GEMINI_UNSUPPORTED_KEYS,
     REFUSED_TYPES,
+    SOURCES,
     STEPS_MAX,
     TITLE_MAX_CHARS,
 )
 
 type LangCode = Literal["uz-Latn", "uz-Cyrl", "ru", "en"]
-type AnswerType = Literal["service", "legal", "smalltalk", "not_found", "off_topic"]
+type AnswerType = Literal["service", "legal", "smalltalk", "sources", "not_found", "off_topic"]
 
 
 def _keep_property_order(schema: dict[str, Any]) -> None:
@@ -132,8 +133,13 @@ def gemini_response_schema() -> dict[str, Any]:
     Identical to ``Answer.model_json_schema()`` except ``additionalProperties`` (from
     ``extra="forbid"``), which Gemini refuses with 400 INVALID_ARGUMENT. The server still
     validates with the strict model.
+
+    ``sources`` is also left out of ``answer_type``: the server builds those answers from the
+    conversation's citations (contract v1.11), so the model can never choose it.
     """
     schema: dict[str, Any] = _without_unsupported(Answer.model_json_schema())
+    answer_type = schema["$defs"]["AnswerType"]
+    answer_type["enum"] = [value for value in answer_type["enum"] if value != SOURCES]
     return schema
 
 

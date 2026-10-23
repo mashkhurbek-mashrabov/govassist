@@ -9,8 +9,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from google.genai import errors
 
-from apps.chat.constants import PING
-from apps.chat.generator import FakeAnswerGenerator, GeminiAnswerGenerator, Usage
+from apps.chat.constants import PING, REWRITE_MAX_OUTPUT_TOKENS
+from apps.chat.generator import (
+    FakeAnswerGenerator,
+    GeminiAnswerGenerator,
+    GeminiQueryRewriter,
+    Usage,
+)
 from apps.chat.prompts import Prompt
 from apps.chat.sse import Event, format_event, sse_stream
 
@@ -146,3 +151,30 @@ async def test_gemini_generator_gives_up_after_retries() -> None:
     ):
         _ = [t async for t in GeminiAnswerGenerator(client).stream(PROMPT)]
     assert client.aio.models.generate_content_stream.await_count == 3
+
+
+async def test_gemini_rewriter_is_one_short_deterministic_call() -> None:
+    """The rewrite uses temperature 0, low thinking and at most 64 output tokens."""
+    client = MagicMock()
+    client.aio.models.generate_content = AsyncMock(return_value=_chunk("propiska boji", 30, 6, 2))
+    rewriter = GeminiQueryRewriter(client, model="m")
+    assert await rewriter.rewrite(PROMPT) == "propiska boji"
+    assert (rewriter.usage.prompt_tokens, rewriter.usage.completion_tokens) == (30, 8)
+    kwargs = client.aio.models.generate_content.call_args.kwargs
+    config = kwargs["config"]
+    assert (kwargs["model"], kwargs["contents"]) == ("m", PROMPT.user)
+    assert config.temperature == 0.0
+    assert config.max_output_tokens == REWRITE_MAX_OUTPUT_TOKENS
+    assert config.thinking_config.thinking_level == "LOW"
+    assert config.response_schema is None
+
+
+async def test_gemini_rewriter_handles_an_empty_reply() -> None:
+    """No text and no usage metadata give an empty reply (the caller falls back)."""
+    client = MagicMock()
+    client.aio.models.generate_content = AsyncMock(
+        return_value=SimpleNamespace(text=None, usage_metadata=None)
+    )
+    rewriter = GeminiQueryRewriter(client)
+    assert await rewriter.rewrite(PROMPT) == ""
+    assert rewriter.usage.total == 0

@@ -13,7 +13,13 @@ from django.db import connections
 from django.test import AsyncClient, override_settings
 
 from apps.accounts.models import User
-from apps.chat.generator import AnswerGenerator, FakeAnswerGenerator, Usage
+from apps.chat.generator import (
+    AnswerGenerator,
+    FakeAnswerGenerator,
+    FakeQueryRewriter,
+    QueryRewriter,
+    Usage,
+)
 from apps.chat.limits import QuotaService
 from apps.chat.models import Conversation, Message, Retrieval
 from apps.chat.prompts import Prompt
@@ -22,7 +28,7 @@ from apps.corpus.embeddings import FakeEmbedder
 from apps.corpus.models import Document
 from apps.geo.models import District
 from apps.offices.models import OfficeType
-from conftest import answer_json, make_office, make_user
+from conftest import answer_json, make_office, make_user, namuna_document
 
 pytestmark = pytest.mark.django_db(transaction=True)
 QUESTION = "Pasportni almashtirish uchun nima qilish kerak? Tel: +998 90 123 45 67"
@@ -34,6 +40,7 @@ class _Recorder:
     def __init__(self) -> None:
         self.factory: Callable[[], AnswerGenerator] = lambda: FakeAnswerGenerator(answer_json())
         self.embedder: Any = FakeEmbedder()
+        self.rewriter: QueryRewriter | None = None
         self.made: list[AnswerGenerator] = []
         self.closed = 0
 
@@ -54,6 +61,7 @@ class _Recorder:
             embedder=self.embedder,
             generator_factory=factory,
             quota=QuotaService(),
+            rewriter=self.rewriter,
             on_close=self._close,
         )
 
@@ -604,3 +612,90 @@ async def test_smalltalk_never_titles_the_conversation(
     await _ask(client, conversation_id=str(conversation.id))
     await conversation.arefresh_from_db()
     assert conversation.title == "NAMUNA pasport"
+
+
+PROPISKA_TEXT = "NAMUNA doimiy propiska uchun ariza beriladi va davlat boji toʻlanadi."
+COST_QUESTION = "How much does it cost?"
+
+
+async def test_follow_up_retrieves_with_the_standalone_rewrite(
+    client: AsyncClient, recorder: _Recorder, passport_doc: Document
+) -> None:
+    """Propiska answer, then "How much does it cost?" retrieves the propiska service (#34)."""
+    propiska = await sync_to_async(namuna_document)(PROPISKA_TEXT, slug="propiska")
+    rewriter = FakeQueryRewriter("doimiy propiska davlat boji qancha")
+    recorder.rewriter = rewriter
+    first = await _ask(client, text="Doimiy propiska qanday rasmiylashtiriladi?")
+    assert rewriter.prompts == []  # no history: no rewrite, no extra latency
+    conversation_id = first[0][1]["conversation_id"]
+
+    second = await _ask(client, conversation_id=conversation_id, text=COST_QUESTION)
+    assert len(rewriter.prompts) == 1
+    assert "User: Doimiy propiska qanday rasmiylashtiriladi?" in rewriter.prompts[0].user
+    message = second[-2][1]["message"]
+    assert message["sources"][0]["url"] == propiska.url
+    answer_prompt = recorder.made[1].prompts[0].user  # type: ignore[attr-defined]
+    assert answer_prompt.rstrip().endswith(COST_QUESTION)  # the model sees the user's words
+    stored = await Message.objects.aget(id=message["id"])
+    assert stored.retrieval_query == "doimiy propiska davlat boji qancha"
+    question = await Message.objects.aget(id=second[0][1]["user_message_id"])
+    assert question.text == COST_QUESTION
+
+
+async def test_failed_rewrite_falls_back_to_the_question(
+    client: AsyncClient, recorder: _Recorder, passport_doc: Document
+) -> None:
+    """A broken rewriter never breaks the answer; nothing is stored as the rewrite."""
+    recorder.rewriter = FakeQueryRewriter(RuntimeError("Gemini down"))
+    first = await _ask(client)
+    second = await _ask(client, conversation_id=first[0][1]["conversation_id"])
+    message = second[-2][1]["message"]
+    assert message["status"] == "complete"
+    stored = await Message.objects.aget(id=message["id"])
+    assert stored.retrieval_query == ""
+
+
+async def test_list_the_sources_uses_earlier_citations(
+    client: AsyncClient, recorder: _Recorder, passport_doc: Document
+) -> None:
+    """Meta → final → done, built from earlier citations without search or the LLM (#35)."""
+    first = await _ask(client)
+    conversation_id = first[0][1]["conversation_id"]
+    await _ask(client, conversation_id=conversation_id)  # cites the same source again
+    recorder.embedder = None  # any search would fail
+    events = await _ask(client, conversation_id=conversation_id, text="Manbalarni ko'rsating")
+
+    assert [name for name, _ in events] == ["meta", "final", "done"]
+    assert len(recorder.made) == 2  # no generator for the sources answer
+    message = events[1][1]["message"]
+    assert message["answer"]["answer_type"] == "sources"
+    assert message["answer"]["title"] == "Manbalar"
+    assert (message["refused"], message["office"]) == (False, None)
+    assert [(s["id"], s["url"]) for s in message["sources"]] == [("S1", passport_doc.url)]
+    conversation = await Conversation.objects.aget(id=conversation_id)
+    assert conversation.title == "NAMUNA pasport"
+
+
+async def test_list_the_sources_when_nothing_was_cited(
+    client: AsyncClient, recorder: _Recorder, passport_doc: Document
+) -> None:
+    """After a refusal there is nothing to list: empty sources and a summary that says so."""
+    recorder.factory = lambda: FakeAnswerGenerator(answer_json(answer_type="not_found"))
+    first = await _ask(client)
+    events = await _ask(
+        client, conversation_id=first[0][1]["conversation_id"], text="Покажи источники"
+    )
+    message = events[1][1]["message"]
+    assert message["answer"]["answer_type"] == "sources"
+    assert message["answer"]["language"] == "ru"
+    assert message["sources"] == []
+    assert message["answer"]["summary"] == "В ответах этого разговора пока нет ссылок на источники."
+
+
+async def test_sources_request_without_earlier_answers_is_a_normal_question(
+    client: AsyncClient, recorder: _Recorder, passport_doc: Document
+) -> None:
+    """In a new conversation "list the sources" goes through the normal answer path."""
+    events = await _ask(client, text="List the sources")
+    assert "delta" in [name for name, _ in events]
+    assert events[-2][1]["message"]["answer"]["answer_type"] == "service"

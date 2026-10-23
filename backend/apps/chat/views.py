@@ -7,7 +7,7 @@ from pydantic import ValidationError
 from apps.accounts.models import User
 from apps.accounts.selectors import ais_email_verified
 from apps.chat.constants import SSE_HEADERS
-from apps.chat.generator import GeminiAnswerGenerator
+from apps.chat.generator import GeminiAnswerGenerator, GeminiQueryRewriter
 from apps.chat.limits import QuotaService
 from apps.chat.schemas import ChatRequest
 from apps.chat.service import AnswerService
@@ -26,10 +26,10 @@ from apps.corpus.embeddings import GeminiEmbedder
 
 
 def build_answer_service() -> AnswerService:
-    """Wire the production collaborators (Gemini embedder and generator, Redis quotas).
+    """Wire the production collaborators (Gemini embedder, rewriter, generator; Redis quotas).
 
-    Embedder and generator share one Gemini client, closed by the service when the stream
-    ends (or by the view when the request fails before streaming).
+    They share one Gemini client, closed by the service when the stream ends (or by the view
+    when the request fails before streaming). ``QUERY_REWRITE=false`` turns the rewriter off.
     """
     client = get_client()
     return AnswerService(
@@ -38,6 +38,7 @@ def build_answer_service() -> AnswerService:
         ),
         generator_factory=lambda: GeminiAnswerGenerator(client),
         quota=QuotaService(),
+        rewriter=GeminiQueryRewriter(client) if settings.QUERY_REWRITE else None,
         on_close=lambda: aclose_client(client),
     )
 
