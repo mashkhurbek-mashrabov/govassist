@@ -95,6 +95,39 @@
 
   Phone-first, AA contrast, fast (no heavy images; SVG/CSS only), every value a token.
 
+## 3b. Design v1.3: welcome page that sells (author feedback, 2026-10-23)
+
+The author tried v1.2 live: the landing "is still poor". It must show **why people should choose GovAssist** and **how it differs from any chatbot**.
+
+- **"GovAssist vs an ordinary chatbot" section**, a clear side-by-side:
+
+  | Ordinary chatbot | GovAssist |
+  |---|---|
+  | Answers from memory or web pages | Answers only from official documents (lex.uz, my.gov.uz), every step cited |
+  | Says "go to the office" | The exact office in your district: address, hours, map |
+  | May invent fees or deadlines | Says "I don't know" instead of guessing |
+  | Weak in Uzbek, ignores the script | Uzbek Latin, Uzbek Cyrillic, Russian, English |
+  | No idea how fresh its information is | Shows the date every source was fetched |
+
+  No invented statistics.
+- **Problem framing:** going to the wrong office wastes a day. Qualitative only.
+- **Popular services grid** with icons: passport/ID, birth certificate, marriage, driving licence, property, business registration, pension, utilities. Each tile leads to sign-up with that question prefilled.
+- **Hero:** an "ask" box ("Savolingizni yozing…") that carries the question through sign-up.
+- **Preview example translated** into all 4 languages (today it stays Uzbek).
+- **Header:**
+  - logo;
+  - anchor navigation (How it works · Why GovAssist · Services · FAQ);
+  - language menu;
+  - "Kirish" + a "Roʻyxatdan oʻtish" button;
+  - sticky glass; a hamburger on phones.
+- **Footer:**
+  - columns: product, sources, legal (about, privacy);
+  - language menu;
+  - "© 2026 GovAssist";
+  - the "not an official government service" pill;
+  - **remove "ITPU magistratura dissertatsiyasi loyihasi".**
+- **Visual reference my.gov.uz:** **take inspiration** from its information architecture and clean style: the service-category tiles with simple icons, the prominent search, and the popular-services lists. **Don't copy** its branding, emblem, logo, colour identity or icon assets (copyright, and a look-alike of an official portal would mislead citizens). Keep the GovAssist identity, Lucide icons, and the "not official" note.
+
 ## 4. Screens
 
 Routes match `03-frontend-plan.md`. Each screen gets mobile (375) and desktop (1280) layouts, plus every state listed.
