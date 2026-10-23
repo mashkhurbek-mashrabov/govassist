@@ -130,14 +130,30 @@ def test_unchanged_pages_skip_the_pipeline() -> None:
 
 
 def test_failure_marks_job_failed_and_reraises() -> None:
-    """A pipeline error fails the job with its message, and the page is not marked seen."""
+    """A fetch that fails outright fails the job with its message; nothing is stored."""
+    import httpx  # noqa: PLC0415
+
+    class Down(FakeFetcher):
+        """Every request fails like a dead network."""
+
+        def fetch(self, url: str) -> FetchResult:
+            """Fail."""
+            raise httpx.ConnectError("network down")
+
     source = _source()
-    with pytest.raises(RuntimeError, match="pipeline broke"):
-        _crawl(source, FakeFetcher(SITE), RecordingPipeline(fail=True))
+    with pytest.raises(httpx.ConnectError, match="network down"):
+        _crawl(source, Down({}), RecordingPipeline())
     job = CrawlJob.objects.get(source=source)
     assert job.status == CrawlJob.Status.FAILED
-    assert job.error == "RuntimeError: pipeline broke"
+    assert job.error == "ConnectError: network down"
     assert job.finished_at is not None
+    assert not RawPage.objects.exists()
+
+
+def test_a_failing_pipeline_skips_the_page_and_stores_nothing() -> None:
+    """A pipeline error no longer fails the job: the page is skipped and not marked seen."""
+    job = _crawl(_source(), FakeFetcher(SITE), RecordingPipeline(fail=True))
+    assert (job.status, job.pages_fetched, job.pages_skipped) == (CrawlJob.Status.DONE, 1, 1)
     assert not RawPage.objects.exists()
 
 
@@ -203,3 +219,45 @@ def test_crawl_command_skips_the_other_sources_of_a_blocked_host(
     assert started == [blocked.name, other_host.name]
     assert "NAMUNA 2: not started: example.org blocked us" in capsys.readouterr().err
     assert same_host.name not in started
+
+
+class ExplodingOnPipeline(RecordingPipeline):
+    """Fails on one URL like a parser or Gemini bug; records the others."""
+
+    def process(
+        self, source: CrawlSource, page: ParsedPage, *, url: str, fetched_at: datetime
+    ) -> None:
+        """Fail on docs/1."""
+        if url.endswith("/docs/1"):
+            msg = "NAMUNA bug"
+            raise ValueError(msg)
+        self.urls.append(url)
+
+
+def test_one_bad_page_does_not_abort_the_job(caplog: pytest.LogCaptureFixture) -> None:
+    """The failing page is logged and skipped, not stored; the rest of the crawl goes on."""
+    site = {START: _page("/docs/1", "/docs/3"), **{k: v for k, v in SITE.items() if k != START}}
+    source = _source(allowed_url_pattern=r"/docs/", max_pages=10)
+    pipeline = ExplodingOnPipeline()
+    job = _crawl(source, FakeFetcher(site), pipeline)
+    assert job.status == CrawlJob.Status.DONE
+    assert pipeline.urls == [START, "https://example.org/docs/3"]
+    assert job.pages_skipped == 1
+    assert not RawPage.objects.filter(url="https://example.org/docs/1").exists()
+    assert "Page failed" in caplog.text
+
+
+def test_a_database_error_still_fails_the_job() -> None:
+    """Infrastructure errors are not per-page problems: the job fails loudly."""
+    from django.db import OperationalError  # noqa: PLC0415
+
+    class DbDown(RecordingPipeline):
+        """Raises like a lost database."""
+
+        def process(self, *args: object, **kwargs: object) -> None:
+            """Fail."""
+            msg = "the connection is closed"
+            raise OperationalError(msg)
+
+    with pytest.raises(OperationalError):
+        _crawl(_source(), FakeFetcher(SITE), DbDown())

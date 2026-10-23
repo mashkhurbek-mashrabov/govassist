@@ -35,6 +35,11 @@ class _Recorder:
         self.factory: Callable[[], AnswerGenerator] = lambda: FakeAnswerGenerator(answer_json())
         self.embedder: Any = FakeEmbedder()
         self.made: list[AnswerGenerator] = []
+        self.closed = 0
+
+    async def _close(self) -> None:
+        """Count how often the service released its client."""
+        self.closed += 1
 
     def build(self) -> AnswerService:
         """Return a service wired with fakes."""
@@ -46,7 +51,10 @@ class _Recorder:
             return generator
 
         return AnswerService(
-            embedder=self.embedder, generator_factory=factory, quota=QuotaService()
+            embedder=self.embedder,
+            generator_factory=factory,
+            quota=QuotaService(),
+            on_close=self._close,
         )
 
 
@@ -465,7 +473,11 @@ def test_chat_embedder_is_latency_bound() -> None:
 
     from apps.chat.views import build_answer_service  # noqa: PLC0415
 
-    with patch("apps.chat.views.GeminiEmbedder") as embedder, patch("apps.chat.views.QuotaService"):
+    with (
+        patch("apps.chat.views.get_client"),
+        patch("apps.chat.views.GeminiEmbedder") as embedder,
+        patch("apps.chat.views.QuotaService"),
+    ):
         build_answer_service()
     assert embedder.call_args.kwargs == {"max_tries": 2, "honor_server_delay": False}
 
@@ -505,3 +517,50 @@ async def test_prompt_office_label_uses_the_question_language(
     assert office["office_type"]["label"] == "Центр госуслуг"
     prompt = recorder.made[0].prompts[0]  # type: ignore[attr-defined]
     assert "«Davlat xizmatlari markazi»" in prompt.system
+
+
+async def test_the_gemini_client_is_closed_after_the_stream(
+    client: AsyncClient, recorder: _Recorder, passport_doc: Document
+) -> None:
+    """A finished answer releases the client exactly once."""
+    events = await _ask(client)
+    assert events[-1][0] == "done"
+    assert recorder.closed == 1
+
+
+async def test_the_gemini_client_is_closed_when_prepare_fails(
+    client: AsyncClient, recorder: _Recorder
+) -> None:
+    """A problem+json before streaming (unknown conversation) still releases the client."""
+    response = await client.post(
+        "/api/v1/chat",
+        {"text": QUESTION, "conversation_id": "0190f000-0000-7000-8000-000000000000"},
+        "application/json",
+    )
+    assert response.status_code == 404
+    assert recorder.closed == 1
+
+
+def test_build_answer_service_shares_one_client_and_closes_both_halves() -> None:
+    """Embedder and generator get the same client; on_close closes async then sync."""
+    import asyncio as aio  # noqa: PLC0415
+    from unittest.mock import AsyncMock, MagicMock, patch  # noqa: PLC0415
+
+    from apps.chat.views import build_answer_service  # noqa: PLC0415
+
+    fake = MagicMock()
+    fake.aio.aclose = AsyncMock()
+    with (
+        patch("apps.chat.views.get_client", return_value=fake),
+        patch("apps.chat.views.GeminiEmbedder") as embedder,
+        patch("apps.chat.views.GeminiAnswerGenerator") as generator,
+        patch("apps.chat.views.QuotaService"),
+    ):
+        service = build_answer_service()
+        service._generator_factory()
+        aio.run(service.aclose())
+        aio.run(service.aclose())  # a second call is a no-op
+    assert embedder.call_args.args == (fake,)
+    assert generator.call_args.args == (fake,)
+    fake.aio.aclose.assert_awaited_once()
+    fake.close.assert_called_once()

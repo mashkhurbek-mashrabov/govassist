@@ -181,3 +181,36 @@ def test_fuzzy_district_match_is_flagged(office_type: OfficeType, district: Dist
     OfficePipeline(extractor).process(source, _page("NAMUNA"), url=URL, fetched_at=NOW)
     flags = dict(Office.objects.values_list("name", "needs_review"))
     assert flags == {"NAMUNA aniq": False, "NAMUNA taxminiy": True}
+
+
+def test_gemini_is_never_called_inside_a_transaction(
+    office_type: OfficeType, district: District
+) -> None:
+    """Extractor and classifier run with no transaction open (no locks held over HTTP)."""
+    from django.db import connection  # noqa: PLC0415
+
+    seen: list[bool] = []
+
+    class Extractor(FakeOfficeExtractor):
+        """Records whether a transaction is open."""
+
+        def extract(self, text: str) -> list[OfficeCandidate]:
+            """Record, then return one office."""
+            seen.append(connection.in_atomic_block)
+            return [_candidate()]
+
+    class Classifier(FakeOfficeTypeClassifier):
+        """Records whether a transaction is open."""
+
+        def classify(self, text: str, codes: object) -> str | None:
+            """Record, then suggest nothing."""
+            seen.append(connection.in_atomic_block)
+            return None
+
+    in_test_transaction = connection.in_atomic_block  # pytest-django wraps each test
+    OfficePipeline(Extractor()).process(
+        _source(kind="office", office_type=office_type), _page("NAMUNA"), url=URL, fetched_at=NOW
+    )
+    DocumentPipeline(Classifier()).process(_source(), _page(), url=URL, fetched_at=NOW)
+    assert seen == [in_test_transaction, in_test_transaction]
+    assert Office.objects.count() == 1

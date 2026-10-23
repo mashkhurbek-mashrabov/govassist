@@ -145,13 +145,13 @@ class DocumentPipeline:
     def __init__(self, classifier: OfficeTypeClassifier) -> None:
         self._classifier = classifier
 
-    @transaction.atomic
     def process(
         self, source: CrawlSource, page: ParsedPage, *, url: str, fetched_at: datetime
     ) -> None:
-        """Create or update the Document for ``url``.
+        """Create or update the Document for ``url``, then suggest its office type.
 
-        Changed text sends an approved document back to review and drops its chunks.
+        Changed text sends an approved document back to review and drops its chunks. The
+        Gemini suggestion runs after the document is committed, never inside a transaction.
 
         Args:
             source: The crawl source.
@@ -159,6 +159,16 @@ class DocumentPipeline:
             url: The page's final URL (the Document key).
             fetched_at: When it was fetched.
         """
+        document = self._store(source, page, url=url, fetched_at=fetched_at)
+        if document.kind == DocumentKind.SERVICE_PAGE:
+            self._suggest_office_type(document, page.text)
+
+    @staticmethod
+    @transaction.atomic
+    def _store(
+        source: CrawlSource, page: ParsedPage, *, url: str, fetched_at: datetime
+    ) -> Document:
+        """Upsert the Document row (one transaction, no network calls)."""
         text_hash = hashlib.sha256(page.text.encode()).hexdigest()
         document, created = Document.objects.get_or_create(
             url=url,
@@ -178,8 +188,7 @@ class DocumentPipeline:
         document.text, document.text_hash = page.text, text_hash
         document.corpus_version = settings.CORPUS_VERSION
         document.save()
-        if document.kind == DocumentKind.SERVICE_PAGE:
-            self._suggest_office_type(document, page.text)
+        return document
 
     def _suggest_office_type(self, document: Document, text: str) -> None:
         """Store the classifier's suggestion as an unconfirmed ServiceOffice."""
@@ -239,11 +248,13 @@ class OfficePipeline:
                 return True
         return False
 
-    @transaction.atomic
     def process(
         self, source: CrawlSource, page: ParsedPage, *, url: str, fetched_at: datetime
     ) -> None:
         """Create pending offices for every in-scope, matchable, new candidate on the page.
+
+        The candidates are extracted first (the Gemini fallback is a network call); only the
+        writes run in a transaction.
 
         Args:
             source: An office source (``office_type`` is required by its model).
@@ -258,9 +269,22 @@ class OfficePipeline:
         if office_type is None:
             msg = f"Office source {source.id} has no office_type."
             raise ValueError(msg)
+        self._store(source, office_type, self._candidates(page), url=url, fetched_at=fetched_at)
+
+    @transaction.atomic
+    def _store(
+        self,
+        source: CrawlSource,
+        office_type: OfficeType,
+        candidates: list[OfficeCandidate],
+        *,
+        url: str,
+        fetched_at: datetime,
+    ) -> None:
+        """Filter, match, dedupe and create the offices (one transaction, no network calls)."""
         name_pattern = re.compile(source.office_name_pattern, re.IGNORECASE)
         scope = list(source.office_regions.all())
-        for candidate in self._candidates(page):
+        for candidate in candidates:
             if not name_pattern.search(candidate.name):
                 logger.info("Office skipped: name pattern", extra={"office": candidate.name})
                 continue
