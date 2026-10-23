@@ -180,7 +180,7 @@
   .wordmark {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-1);
     min-height: var(--size-touch-min);
     color: var(--color-text);
     text-decoration: none;
@@ -189,18 +189,22 @@
     letter-spacing: var(--letter-spacing-tight);
   }
   .wordmark__mark {
-    width: var(--size-icon-lg);
-    height: var(--size-icon-lg);
-    border-radius: var(--radius-sm);
-    background: var(--gradient-brand);
-    color: var(--color-on-primary);
-    box-shadow: var(--shadow-primary);
-    display: inline-grid;
-    place-items: center;
+    flex: none;
+    width: var(--size-logo);
+    height: var(--size-logo);
   }
-  .wordmark__mark .icon {
-    width: var(--size-icon-sm);
-    height: var(--size-icon-sm);
+
+  /* Logo mark (brand/logo-mark.svg drawn inline): gradient stops come from tokens, so dark theme lightens them. */
+  .logo-mark {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .logo-mark__start {
+    stop-color: var(--color-logo-start);
+  }
+  .logo-mark__end {
+    stop-color: var(--color-logo-end);
   }
   .wordmark:hover {
     color: var(--color-text);
