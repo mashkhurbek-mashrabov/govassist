@@ -42,6 +42,9 @@ server {
     # SSE: no buffering or caching, long reads (contract §4).
     location = /api/v1/chat {
         proxy_pass $backend;
+        # Pass the backend's "X-Accel-Buffering: no" on, so a proxy in front of us (a host's
+        # main nginx / Nginx Proxy Manager) streams the SSE answer instead of buffering it.
+        proxy_pass_header X-Accel-Buffering;
         proxy_buffering off;
         proxy_cache off;
         proxy_read_timeout 300s;
