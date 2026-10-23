@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 
 from django.conf import settings
+from django.db import DatabaseError
 from django.utils import timezone
 
 from apps.collector.constants import CRAWLER_BLOCKED_STATUS
@@ -129,16 +130,28 @@ class Crawler:
     def _visit(
         self, source: CrawlSource, job: CrawlJob, url: str, fetched_at: datetime
     ) -> list[str]:
-        """Fetch, store, parse and process one page; return the links to follow."""
+        """Fetch, store, parse and process one page; return the links to follow.
+
+        A page that fails to parse or process is logged with its traceback, counted as
+        skipped and not stored (so the next crawl tries it again); the job goes on. A refusal
+        (``HostBlockedError``, raised by :meth:`_fetch`) and database errors still stop the job.
+        """
         page = self._fetch(job, url)
         if page is None:
             return []
         job.pages_fetched += 1
-        parsed = parse(page)
-        if not self._force and _is_unchanged(page):
-            self._skip(job, url, "unchanged")
-        else:
-            self._pipeline.process(source, parsed, url=page.final_url, fetched_at=fetched_at)
+        try:
+            parsed = parse(page)
+            if not self._force and _is_unchanged(page):
+                self._skip(job, url, "unchanged")
+            else:
+                self._pipeline.process(source, parsed, url=page.final_url, fetched_at=fetched_at)
+        except DatabaseError:
+            raise
+        except Exception as exc:
+            logger.exception("Page failed", extra={"url": url})
+            self._skip(job, url, f"failed: {type(exc).__name__}")
+            return []
         _store_raw(source, job, page)
         return self._follow(source, parsed)
 
