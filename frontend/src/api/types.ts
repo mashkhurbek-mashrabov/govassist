@@ -46,8 +46,8 @@ export type Suggestion = Schemas["Suggestion"];
 /** Item in the history list. */
 export type ConversationSummary = Schemas["ConversationSummary"];
 
-/** A full conversation with its messages. Schema gap (contract v1.11): messages may carry `sources`. */
-export type Conversation = Omit<Schemas["Conversation"], "messages"> & { readonly messages: Message[] };
+/** A full conversation with its messages. */
+export type Conversation = Schemas["Conversation"];
 
 /** A user's question as stored (PII already scrubbed). */
 export type UserMessage = Schemas["UserMessage"];
@@ -58,22 +58,17 @@ export type AssistantStatus = Schemas["StatusEnum"];
 /** Why a stored assistant message failed (`"stopped"`: the user pressed Stop). */
 export type AssistantErrorCode = Schemas["MessageErrorCodeEnum"];
 
-/**
- * An assistant answer as stored.
- * Schema gap (contract v1.11): until the schema is regenerated, the generated `answer` lacks `sources`.
- */
-export type AssistantMessage = Omit<Schemas["AssistantMessage"], "answer"> & {
-  readonly answer: Answer | null;
-};
+/** An assistant answer as stored. */
+export type AssistantMessage = Schemas["AssistantMessage"];
 
 /** Any message in a conversation. */
-export type Message = UserMessage | AssistantMessage;
+export type Message = Schemas["Message"];
 
 /** Thumbs up/down feedback on an assistant message. */
 export type Feedback = Schemas["Feedback"];
 
 /** Answer kinds (contract §5). */
-export type AnswerType = Schemas["AnswerType"] | "sources"; // Schema gap: contract v1.11 `sources`
+export type AnswerType = Schemas["AnswerType"];
 
 /** A cited text item. `source_ids` refer to `Source.id` (`S1`…). */
 export type Item = Schemas["Item"];
@@ -82,7 +77,7 @@ export type Item = Schemas["Item"];
 export type LawPoint = Schemas["LawPoint"];
 
 /** Structured answer (contract §5, `answer.schema.json`). Field order is fixed so the summary streams first. */
-export type Answer = Omit<GeneratedAnswer, "answer_type"> & { answer_type: AnswerType }; // Schema gap: v1.11
+export type Answer = GeneratedAnswer;
 
 /** A cited corpus document. */
 export type Source = Schemas["Source"];
