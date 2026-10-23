@@ -231,6 +231,21 @@ describe("chat", () => {
     expect(sessionStorage.getItem("govassist.pendingQuestion")).toBeNull();
   });
 
+  it("lists the conversation's sources when asked (contract v1.11)", async () => {
+    const user = userEvent.setup();
+    renderApp(`/c/${SEED_CONVERSATION}`);
+    await screen.findByRole("heading", { level: 2, name: "Pasportni almashtirish" });
+    await ask(user, "Manbalarni koʻrsating");
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "NAMUNA: Ushbu suhbat manbalari" }),
+    ).toBeInTheDocument();
+    await waitForSettledAnswer();
+    const answers = document.querySelectorAll("li.assistant");
+    const last = answers[answers.length - 1] as HTMLElement;
+    expect(within(last).getByRole("link", { name: /NAMUNA xizmat sahifasi/ })).toBeInTheDocument();
+    expect(within(last).getByRole("link", { name: /NAMUNA nizom/ })).toBeInTheDocument();
+  });
+
   it("stops a stream and keeps the partial cards for this view", async () => {
     server.use(partialThenHang());
     const user = userEvent.setup();

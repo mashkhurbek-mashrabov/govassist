@@ -1,7 +1,16 @@
-import { Compass, Scale } from "lucide-react";
+import { BookOpen, Compass, Scale, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "../../components/ui/Skeleton";
 import type { PartialAnswer } from "./answerTypes";
+
+/** Kind badge per answer type (the refused and smalltalk types use their own cards). */
+const KINDS: Partial<Record<string, { Icon: LucideIcon; key: string }>> & {
+  service: { Icon: LucideIcon; key: string };
+} = {
+  service: { Icon: Compass, key: "answer.kind_service" },
+  legal: { Icon: Scale, key: "answer.kind_legal" },
+  sources: { Icon: BookOpen, key: "answer.kind_sources" },
+};
 
 /** Props of {@link AnswerHeader}. */
 interface AnswerHeaderProps {
@@ -19,13 +28,12 @@ interface AnswerHeaderProps {
  */
 export function AnswerHeader({ answer, streaming, typing }: AnswerHeaderProps) {
   const { t } = useTranslation();
-  const legal = answer.answer_type === "legal";
-  const Icon = legal ? Scale : Compass;
+  const { Icon, key } = KINDS[answer.answer_type ?? "service"] ?? KINDS.service;
   return (
     <header className="answer-head">
       <p className="answer-head__kind t-small">
         <Icon className="icon" aria-hidden="true" />
-        {t(legal ? "answer.kind_legal" : "answer.kind_service")}
+        {t(key)}
       </p>
       {answer.title ? <h2>{answer.title}</h2> : streaming && <Skeleton width="title" />}
       {answer.summary ? (

@@ -62,6 +62,18 @@ describe("useChatStream", () => {
     expect(result.current.turn?.office).toBeNull();
   });
 
+  it("renders a final-only stream (meta → final → done) for a sources answer (contract v1.11)", async () => {
+    const { result } = mountStream();
+    act(() => result.current.send("List the sources", "c0000000-0000-4000-8000-000000000001"));
+    await waitFor(() => expect(result.current.turn?.isStreaming).toBe(false));
+    const turn = result.current.turn;
+    expect(turn?.failure).toBeNull();
+    expect(turn?.partialAnswer).toBeNull();
+    expect(turn?.finalMessage?.answer?.answer_type).toBe("sources");
+    expect(turn?.finalMessage?.sources.map((source) => source.id)).toEqual(["S1", "S2"]);
+    expect(turn?.office).toBeNull();
+  });
+
   it("does not report a new conversation when continuing one", async () => {
     const onStarted = vi.fn();
     const { result } = mountStream(onStarted);

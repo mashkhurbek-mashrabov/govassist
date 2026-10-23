@@ -278,3 +278,85 @@ export function scenarioFor(text: string): Scenario {
   const lower = text.trim().toLowerCase();
   return RULES.find(([pattern]) => pattern.test(lower))?.[1] ?? PASSPORT;
 }
+
+/** "List the sources" requests per question language (contract v1.11). */
+const SOURCES_REQUESTS: [RegExp, Answer["language"]][] = [
+  [/manbalar(ni|i)?\b/u, "uz-Latn"],
+  [/источник/u, "ru"],
+  [/\bsources\b/u, "en"],
+];
+
+/** NAMUNA title and summaries of a `sources` answer per language: with and without earlier citations. */
+const SOURCES_TEXT: Record<Answer["language"], { title: string; some: string; none: string }> = {
+  "uz-Latn": {
+    title: "NAMUNA: Ushbu suhbat manbalari",
+    some: "NAMUNA: Bu suhbatdagi javoblar quyidagi manbalarga asoslangan.",
+    none: "NAMUNA: Bu suhbatda hali hech qanday manbaga tayanilmagan.",
+  },
+  "uz-Cyrl": {
+    title: "NAMUNA: Ушбу суҳбат манбалари",
+    some: "NAMUNA: Бу суҳбатдаги жавоблар қуйидаги манбаларга асосланган.",
+    none: "NAMUNA: Бу суҳбатда ҳали ҳеч қандай манбага таянилмаган.",
+  },
+  ru: {
+    title: "NAMUNA: Источники этого разговора",
+    some: "NAMUNA: Ответы в этом разговоре основаны на этих источниках.",
+    none: "NAMUNA: В этом разговоре пока не было ссылок на источники.",
+  },
+  en: {
+    title: "NAMUNA: Sources of this conversation",
+    some: "NAMUNA: The answers in this conversation are based on these sources.",
+    none: "NAMUNA: Nothing has been cited in this conversation yet.",
+  },
+};
+
+/**
+ * Whether a question asks for the conversation's sources, and in which language.
+ *
+ * @param text The question.
+ * @returns The answer language, or `null` for any other question.
+ */
+export function sourcesRequestLanguage(text: string): Answer["language"] | null {
+  const lower = text.trim().toLowerCase();
+  return SOURCES_REQUESTS.find(([pattern]) => pattern.test(lower))?.[1] ?? null;
+}
+
+/**
+ * The `sources` answer (contract v1.11): title and one sentence, every other field empty.
+ *
+ * @param language Question language.
+ * @param cited How many earlier sources the conversation has.
+ * @returns The answer.
+ */
+export function sourcesAnswer(language: Answer["language"], cited: number): Answer {
+  const text = SOURCES_TEXT[language];
+  return {
+    ...SAMPLE_OFF_TOPIC_ANSWER,
+    answer_type: "sources",
+    language,
+    title: text.title,
+    summary: cited > 0 ? text.some : text.none,
+    follow_up_questions: [],
+  };
+}
+
+/**
+ * The documents a conversation's earlier answers cited: deduplicated by URL, in order of first citation,
+ * relabelled `S1..Sn` (contract v1.11).
+ *
+ * @param messages The conversation so far.
+ * @returns The sources.
+ */
+export function earlierSources(messages: readonly { role: string; sources?: Source[] }[]): Source[] {
+  const seen = new Set<string>();
+  const out: Source[] = [];
+  for (const message of messages) {
+    if (message.role !== "assistant") continue;
+    for (const source of message.sources ?? []) {
+      if (seen.has(source.url)) continue;
+      seen.add(source.url);
+      out.push({ ...source, id: `S${String(out.length + 1)}` });
+    }
+  }
+  return out;
+}

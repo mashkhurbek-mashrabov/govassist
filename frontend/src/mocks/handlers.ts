@@ -15,8 +15,8 @@ import { LANGUAGES } from "../i18n";
 import { currentUser, db, newUser, sampleAssistantMessage, saveDb, WRONG_PASSWORD } from "./db";
 import { SAMPLE_DISTRICTS, SAMPLE_SOURCE_SUMMARIES, SAMPLE_REGIONS, SAMPLE_SUGGESTIONS } from "./fixtures";
 import { localizeMe, localizeOffice, localizePlace } from "./localize";
-import { scenarioFor } from "./scenarios";
-import { errorFrames, raceFrame, sseResponse, successFrames } from "./sse";
+import { earlierSources, scenarioFor, sourcesAnswer, sourcesRequestLanguage } from "./scenarios";
+import { errorFrames, finalOnlyFrames, raceFrame, sseResponse, successFrames } from "./sse";
 
 /** CSRF token the mock "Django" sets and expects back. */
 export const MOCK_CSRF_TOKEN = "mock-csrf-token";
@@ -439,7 +439,12 @@ async function chat(request: Request, me: Me) {
     user_message_id: crypto.randomUUID(),
     assistant_message_id: crypto.randomUUID(),
   };
-  const scenario = scenarioFor(text);
+  // Contract v1.11: "list the sources" is answered from this conversation's earlier citations.
+  const sourcesLanguage = sourcesRequestLanguage(text);
+  const cited = sourcesLanguage ? earlierSources(conversation.messages) : [];
+  const scenario = sourcesLanguage
+    ? { answer: sourcesAnswer(sourcesLanguage, cited.length), sources: cited, office: null }
+    : scenarioFor(text);
   const office = scenario.office && localizeOffice(scenario.office, me.ui_language);
   const final: AssistantMessage = {
     ...sampleAssistantMessage(meta.assistant_message_id),
@@ -461,8 +466,12 @@ async function chat(request: Request, me: Me) {
   saveDb();
 
   if (text.includes("#error")) return sseResponse(errorFrames(meta));
-  const earlyOffice = scenario.earlyOffice ? localizeOffice(scenario.earlyOffice, me.ui_language) : office;
-  return sseResponse(successFrames(meta, final, earlyOffice), {
+  const earlyOffice =
+    "earlyOffice" in scenario && scenario.earlyOffice
+      ? localizeOffice(scenario.earlyOffice, me.ui_language)
+      : office;
+  const frames = sourcesLanguage ? finalOnlyFrames(meta, final) : successFrames(meta, final, earlyOffice);
+  return sseResponse(frames, {
     onComplete: () => {
       Object.assign(stored, final);
       // Contract v1.4: the first successful answer's title replaces the question-based title.

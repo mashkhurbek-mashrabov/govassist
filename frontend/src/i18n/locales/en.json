@@ -294,7 +294,8 @@
     "source_kind_office": "Office list",
     "followups": "You can also ask",
     "not_found_help": "Try different words, or pick one of these topics.",
-    "off_topic_help": "I answer questions about public services and the laws of Uzbekistan."
+    "off_topic_help": "I answer questions about public services and the laws of Uzbekistan.",
+    "kind_sources": "Sources"
   },
   "feedback": {
     "question": "Was this helpful?",
