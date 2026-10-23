@@ -106,7 +106,7 @@ Colour is never the only signal: badges carry text ("Hozir ochiq", "Yopiq"), err
 
 Page gutter `--layout-gutter`: 16 px on phones, 24 px from 768 px. Content widths: chat 760 px, settings/about 720 px, auth 440 px, landing 1152 px, landing FAQ 720 px (`--layout-prose-narrow`).
 
-Component sizes added in v1.2: `--size-lang-code` (2.5ch, fixed width of the UZ / ЎЗ / RU / EN code so the language button never changes width), `--size-popover` (256 px, language popover), `--size-lang-card` (72 px, minimum height of a language card). `--z-popover` (35) puts the popover and the phone sheet above the sticky header and below dialogs. Card padding 16 px on phones, 20/24 px from 768 px. Gap between answer cards 16 px; between messages 24 px.
+Component sizes added in v1.2: `--size-lang-code` (2.5ch, fixed width of the UZ / ЎЗ / RU / EN code in the sidebar's block language button; the compact button is globe-only since v1.3), `--size-popover` (256 px, language popover), `--size-lang-card` (72 px, minimum height of a language card). `--z-popover` (35) puts the popover and the phone sheet above the sticky header and below dialogs. Card padding 16 px on phones, 20/24 px from 768 px. Gap between answer cards 16 px; between messages 24 px.
 
 ## 5. Radius (3 steps)
 

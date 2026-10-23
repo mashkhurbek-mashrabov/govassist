@@ -101,6 +101,8 @@
             if (code) code.textContent = item.getAttribute("data-code");
             var label = menu.querySelector(".lang-menu__label");
             if (label) label.textContent = item.getAttribute("data-name");
+            var current = menu.querySelector(".lang-menu__current");
+            if (current) { current.textContent = item.getAttribute("data-name"); current.lang = lang; }
           }
         });
       });

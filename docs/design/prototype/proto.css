@@ -592,6 +592,8 @@ a:hover { color: var(--color-link-hover); }
 .lang-menu__btn[aria-expanded="true"] .icon:last-child { transform: rotate(180deg); }
 .lang-menu__btn .icon:last-child { width: var(--size-icon-sm); height: var(--size-icon-sm); transition: transform var(--motion-duration-fast) var(--motion-ease-standard); }
 .lang-menu__code { display: inline-block; min-width: var(--size-lang-code); text-align: center; font-variant-numeric: tabular-nums; letter-spacing: var(--letter-spacing-normal); }
+/* Compact (header, footer, auth): the globe only, 44 × 44; the current language is in the accessible name. */
+.lang-menu__btn--icon { justify-content: center; min-width: var(--size-touch-min); padding: var(--space-2); }
 .lang-menu--block, .lang-menu--block .lang-menu__btn { width: 100%; }
 .lang-menu--block .lang-menu__btn { justify-content: flex-start; box-shadow: none; }
 .lang-menu--block .lang-menu__label { flex: 1; text-align: left; }

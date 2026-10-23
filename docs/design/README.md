@@ -77,6 +77,7 @@ The author tried v1.2 live: the landing "is still poor". It must show why people
 | Header | Logo, language, Kirish | Logo · anchor nav (How it works · Why GovAssist · Services · FAQ) · language · Kirish + Roʻyxatdan oʻtish · hamburger below 1280 px |
 | Footer | Brand, 3 links, thesis line | Brand + language · Product / Sources / Legal columns · "© 2026 GovAssist" + the "not official" pill. **Thesis line removed** |
 | Copy | `landing.f1` promised the office phone | Office copy drops "telefon" (phones are not in the data), also in `chat.help_3`; the v1.2 feature keys are removed; `error.too_many_attempts` is added (generic auth 429) |
+| Language button | Globe + code (UZ) + chevron | **Globe only** (author: "keep only icon"), 44 × 44; the current language is in its accessible name. The sidebar keeps its labelled block variant |
 | Fixes | The phone language sheet's scrim stayed on screen after closing (it was looked up inside the menu after moving to `<body>`) | `flow.js` caches the moved parts and restores them in order |
 
 ## v1.2: before → after
