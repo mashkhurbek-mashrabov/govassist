@@ -17,7 +17,7 @@ from pydantic import ValidationError
 from apps.accounts.models import User
 from apps.chat.api.serializers import serialize_message
 from apps.chat.citations import Citations, resolve_citations
-from apps.chat.constants import MessageErrorCode
+from apps.chat.constants import SMALLTALK, MessageErrorCode
 from apps.chat.generator import AnswerGenerator
 from apps.chat.limits import QuotaService
 from apps.chat.models import Conversation, Message, Retrieval
@@ -194,10 +194,15 @@ def save_answer(
         for position, hit in enumerate(context.hits, start=1)
     )
     conversation = assistant.conversation
-    earlier_answers = conversation.messages.filter(
-        role=Message.Role.ASSISTANT, status=Message.Status.COMPLETE, refused=False
-    ).exclude(id=assistant.id)
-    if not answer.refused and not earlier_answers.exists():
+    # The first real answer names the conversation; refusals and smalltalk ("Salom") never do.
+    earlier_answers = (
+        conversation.messages.filter(
+            role=Message.Role.ASSISTANT, status=Message.Status.COMPLETE, refused=False
+        )
+        .exclude(id=assistant.id)
+        .exclude(answer__answer_type=SMALLTALK)
+    )
+    if not answer.bare and not earlier_answers.exists():
         conversation.title = answer.title
     conversation.save(update_fields=["title", "updated_at"])
     return assistant
@@ -399,8 +404,8 @@ class AnswerService:
             "retrieval_ms": run.retrieval_ms,
         }
         citations = resolve_citations(parsed, context.sources)
-        if parsed.refused:
-            office = None  # contract v1.7: the early office event was provisional
+        if parsed.bare:
+            office = None  # contract v1.7/v1.10: the early office event was provisional
         saved = await sync_to_async(save_answer)(assistant, citations, context, office, details)
         await self._quota.aadd_tokens(usage.total)
         return saved

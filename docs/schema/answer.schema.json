@@ -4,6 +4,7 @@
       "enum": [
         "service",
         "legal",
+        "smalltalk",
         "not_found",
         "off_topic"
       ],

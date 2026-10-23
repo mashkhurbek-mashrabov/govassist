@@ -11,6 +11,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, RootModel, field_validator, model_validator
 
 from apps.chat.constants import (
+    BARE_TYPES,
     FOLLOW_UPS_MAX,
     GEMINI_UNSUPPORTED_KEYS,
     REFUSED_TYPES,
@@ -19,7 +20,7 @@ from apps.chat.constants import (
 )
 
 type LangCode = Literal["uz-Latn", "uz-Cyrl", "ru", "en"]
-type AnswerType = Literal["service", "legal", "not_found", "off_topic"]
+type AnswerType = Literal["service", "legal", "smalltalk", "not_found", "off_topic"]
 
 
 def _keep_property_order(schema: dict[str, Any]) -> None:
@@ -89,21 +90,26 @@ class Answer(OrderedModel):
         return value[:limit] if isinstance(value, list) else value
 
     @model_validator(mode="after")
-    def _refusals_are_bare(self) -> Self:
-        """``not_found``/``off_topic`` keep only title, summary and follow-ups.
+    def _bare_answers_are_bare(self) -> Self:
+        """``smalltalk``, ``not_found`` and ``off_topic`` keep only title, summary, follow-ups.
 
         Returns:
             The answer with every other field emptied.
         """
-        if self.answer_type in REFUSED_TYPES:
+        if self.answer_type in BARE_TYPES:
             self.steps, self.documents, self.law_points = [], [], []
             self.fee = self.processing_time = None
         return self
 
     @property
     def refused(self) -> bool:
-        """True for ``not_found`` and ``off_topic`` answers."""
+        """True for ``not_found`` and ``off_topic`` answers (``smalltalk`` is answered)."""
         return self.answer_type in REFUSED_TYPES
+
+    @property
+    def bare(self) -> bool:
+        """True for answers without sources or an office card (refusals and ``smalltalk``)."""
+        return self.answer_type in BARE_TYPES
 
 
 def _without_unsupported(node: Any) -> Any:
