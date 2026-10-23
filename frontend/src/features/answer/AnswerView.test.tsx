@@ -229,6 +229,70 @@ describe("AnswerView", () => {
       screen.getByText("Qayerga borish kerak", { selector: "h3" }).closest(".office-leave"),
     ).toHaveAttribute("inert");
   });
+
+  it("renders a sources answer: badge, title, summary and the earlier citations (contract v1.11)", () => {
+    const answer: Answer = {
+      ...SAMPLE_OFF_TOPIC_ANSWER,
+      answer_type: "sources",
+      title: "NAMUNA: Ushbu suhbat manbalari",
+      summary: "NAMUNA: manbalar quyida.",
+      follow_up_questions: [],
+    };
+    render(
+      <AnswerView
+        answer={answer}
+        sources={SAMPLE_SOURCES}
+        office={null}
+        messageId="m"
+        streaming={false}
+        complete
+      />,
+      { wrapper: queryWrapper(testQueryClient()) },
+    );
+    expect(document.querySelector(".answer-head__kind")).toHaveTextContent("Manbalar");
+    expect(
+      screen.getByRole("heading", { level: 2, name: "NAMUNA: Ushbu suhbat manbalari" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("NAMUNA: manbalar quyida.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /NAMUNA xizmat sahifasi/ })).toHaveAttribute(
+      "href",
+      "https://my.gov.uz/",
+    );
+    expect(screen.getByRole("link", { name: /NAMUNA nizom/ })).toBeInTheDocument();
+    expect(screen.queryByText(/yuridik maslahat emas/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Qayerga borish kerak" })).not.toBeInTheDocument();
+  });
+
+  it("shows only the summary when nothing was cited yet", () => {
+    const answer: Answer = {
+      ...SAMPLE_OFF_TOPIC_ANSWER,
+      answer_type: "sources",
+      title: "NAMUNA: Ushbu suhbat manbalari",
+      summary: "NAMUNA: hali manba yoʻq.",
+      follow_up_questions: [],
+    };
+    render(
+      <AnswerView answer={answer} sources={[]} office={null} messageId="m" streaming={false} complete />,
+      {
+        wrapper: queryWrapper(testQueryClient()),
+      },
+    );
+    expect(screen.getByText("NAMUNA: hali manba yoʻq.")).toBeInTheDocument();
+    expect(screen.queryAllByRole("link")).toHaveLength(0);
+    expect(screen.getAllByRole("heading").map((heading) => heading.textContent)).toEqual([
+      "NAMUNA: Ushbu suhbat manbalari",
+    ]);
+  });
+
+  it("withdraws the early office when the answer turns out to be a sources list", () => {
+    const { rerender } = render(streamingView({}, SAMPLE_OFFICE), {
+      wrapper: queryWrapper(testQueryClient()),
+    });
+    rerender(streamingView({ answer_type: "sources" }, SAMPLE_OFFICE));
+    expect(
+      screen.getByText("Qayerga borish kerak", { selector: "h3" }).closest(".office-leave"),
+    ).toHaveAttribute("inert");
+  });
 });
 
 /** nextSkeleton(): at most one block ahead of the text. */

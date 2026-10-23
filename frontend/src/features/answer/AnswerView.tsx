@@ -35,7 +35,8 @@ interface AnswerViewProps {
 /**
  * An answer (partial or final) in schema order for its type (screens 8–11). Text is always plain text.
  * Sources, disclaimer, feedback and follow-ups are added below the content on `final`, so nothing moves.
- * A refused or smalltalk answer withdraws an early office card with an exit animation (contract v1.7, v1.10).
+ * A refused, smalltalk or sources answer withdraws an early office card with an exit animation (contract v1.7,
+ * v1.10, v1.11). A `sources` answer lists the conversation's earlier citations.
  *
  * @param props Answer, sources, office, message id, streaming flag, feedback slot, ask callback.
  * @returns The answer blocks.
@@ -59,8 +60,9 @@ export function AnswerView({
   const shared = { index, messageId };
   const refused = type === "not_found" || type === "off_topic";
   const smalltalk = type === "smalltalk";
-  // Contract v1.7/v1.10: a refused or smalltalk answer withdraws the early office card, which animates out.
-  const officeSlot = useLeavingOffice(refused || smalltalk ? null : office);
+  const sourcesList = type === "sources";
+  // Contract v1.7/v1.10/v1.11: a refused, smalltalk or sources answer withdraws the early office card.
+  const officeSlot = useLeavingOffice(refused || smalltalk || sourcesList ? null : office);
   const officeCard = officeSlot.office && (
     <div
       className={officeSlot.leaving ? "office-leave" : "office-slot"}
@@ -88,6 +90,19 @@ export function AnswerView({
         <SmalltalkCard answer={answer} onAsk={done ? onAsk : undefined} />
         {officeCard}
         {done && feedback}
+      </>
+    );
+  }
+
+  // Contract v1.11: the conversation's earlier citations; no corpus search, so no office or disclaimer.
+  if (sourcesList) {
+    return (
+      <>
+        <AnswerHeader answer={answer} streaming={streaming} typing={growing === "summary"} />
+        {officeCard}
+        {complete && <SourcesCard sources={sources} messageId={messageId} />}
+        {done && feedback}
+        {done && <FollowUps questions={answer.follow_up_questions} onAsk={onAsk} />}
       </>
     );
   }
