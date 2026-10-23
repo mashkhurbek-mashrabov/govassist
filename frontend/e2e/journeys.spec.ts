@@ -231,7 +231,7 @@ test("the phone drawer is modal: Tab stays in the sidebar, Esc returns focus to 
 }) => {
   test.skip((page.viewportSize()?.width ?? 0) >= 1280, "the sidebar is persistent on desktop");
   await logInSeedUser(page);
-  const menu = page.getByRole("button", { name: "Menyu" });
+  const menu = page.getByRole("button", { name: "Menyu", exact: true });
   await menu.click();
   await expect(page.getByRole("button", { name: "Yopish" })).toBeFocused();
   for (let step = 0; step < 15; step += 1) {

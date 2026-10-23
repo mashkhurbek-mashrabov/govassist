@@ -408,5 +408,8 @@
     "title": "Something broke",
     "lead": "Reload the page. If it keeps happening, come back a little later.",
     "reload": "Reload page"
+  },
+  "account": {
+    "menu_label": "Account menu"
   }
 }

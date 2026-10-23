@@ -2936,6 +2936,53 @@
   }
 
   /* App additions (not in the prototype stylesheet) -------------------------------- */
+  /* Account menu (approved addition to v1.3): an avatar button that reuses the language menu's list. */
+  .avatar-btn {
+    flex: none;
+    width: var(--size-touch-min);
+    height: var(--size-touch-min);
+    display: inline-grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--gradient-brand);
+    color: var(--color-on-primary);
+    font: inherit;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--letter-spacing-normal);
+    cursor: pointer;
+    box-shadow: var(--shadow-1);
+  }
+  .avatar-btn:focus-visible {
+    outline: var(--size-focus-ring) solid var(--color-focus-ring);
+    outline-offset: var(--size-focus-offset);
+  }
+  .account-menu__panel .lang-menu__item {
+    grid-template-columns: var(--size-icon) minmax(0, 1fr);
+    text-decoration: none;
+  }
+  .account-menu__panel .lang-menu__item .icon {
+    visibility: visible;
+    color: var(--color-text-muted);
+  }
+  .account-menu__who {
+    display: grid;
+    gap: var(--space-half);
+    min-width: 0;
+    padding: var(--space-2) var(--space-3) var(--space-3);
+    border-bottom: var(--size-border) solid var(--color-border-subtle);
+    margin-bottom: var(--space-1);
+  }
+  .account-menu__name {
+    font-weight: var(--font-weight-semibold);
+  }
+  .account-menu__email {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--text-small-size);
+    color: var(--color-text-muted);
+  }
   /* A live Turnstile widget fills the column (flexible size); the dashed box is only the placeholder. */
   .turnstile--live {
     max-width: none;

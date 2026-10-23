@@ -408,5 +408,8 @@
     "title": "Nimadir buzildi",
     "lead": "Sahifani yangilang. Muammo takrorlansa, birozdan soʻng qayta kiring.",
     "reload": "Sahifani yangilash"
+  },
+  "account": {
+    "menu_label": "Hisob menyusi"
   }
 }

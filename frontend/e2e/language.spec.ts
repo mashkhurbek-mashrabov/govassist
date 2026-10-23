@@ -63,7 +63,7 @@ test("landing: switch the language from the keyboard; the choice survives a relo
 
 test("app: the sidebar menu switches the UI and saves it to the profile", async ({ page }) => {
   await logInSeedUser(page);
-  if (isPhone(page)) await page.getByRole("button", { name: "Menyu" }).click();
+  if (isPhone(page)) await page.getByRole("button", { name: "Menyu", exact: true }).click();
   const sidebar = page.getByRole("complementary");
   await sidebar.getByRole("button", { name: /Tilni tanlash/ }).click();
   const saved = page.waitForResponse(

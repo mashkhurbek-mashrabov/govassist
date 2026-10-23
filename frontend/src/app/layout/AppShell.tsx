@@ -7,6 +7,7 @@ import { useViewer } from "../../api/queries";
 import type { Me } from "../../api/types";
 import { IconButton } from "../../components/ui/IconButton";
 import { signedOutPath } from "../guards";
+import { AccountMenu } from "./AccountMenu";
 import { MeContext } from "./meContext";
 import { OfflineBanner } from "./OfflineBanner";
 import { Sidebar, SIDEBAR_ID } from "./Sidebar";
@@ -118,6 +119,7 @@ function Shell({ me }: ShellProps) {
             <Link className="icon-btn topbar__new" to="/" aria-label={t("chat.new")}>
               <SquarePen className="icon" aria-hidden="true" />
             </Link>
+            <AccountMenu />
           </header>
           <OfflineBanner />
           <Outlet />
