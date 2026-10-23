@@ -114,3 +114,16 @@ async def call_with_retries[T](
                 raise
             await asyncio.sleep(server_delay or backoff_delay(attempt))
     raise AssertionError  # unreachable: the loop returns or raises
+
+
+async def aclose_client(client: genai.Client) -> None:
+    """Close both halves of a Gemini client (async pool first, then the sync one).
+
+    Each client owns httpx connection pools; closing them at the end of a request keeps
+    long-running processes from leaking sockets.
+
+    Args:
+        client: A client from :func:`get_client`.
+    """
+    await client.aio.aclose()
+    client.close()
