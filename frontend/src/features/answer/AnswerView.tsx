@@ -10,6 +10,7 @@ import { FollowUps } from "./FollowUps";
 import { LawPointsCard } from "./LawPointsCard";
 import { NotFoundCard } from "./NotFoundCard";
 import { OfficeCard } from "./OfficeCard";
+import { SmalltalkCard } from "./SmalltalkCard";
 import { SourcesCard } from "./SourcesCard";
 import { nextSkeleton } from "./skeleton";
 import { StepsCard } from "./StepsCard";
@@ -34,7 +35,7 @@ interface AnswerViewProps {
 /**
  * An answer (partial or final) in schema order for its type (screens 8–11). Text is always plain text.
  * Sources, disclaimer, feedback and follow-ups are added below the content on `final`, so nothing moves.
- * A refused answer withdraws an early office card with an exit animation (contract v1.7).
+ * A refused or smalltalk answer withdraws an early office card with an exit animation (contract v1.7, v1.10).
  *
  * @param props Answer, sources, office, message id, streaming flag, feedback slot, ask callback.
  * @returns The answer blocks.
@@ -57,8 +58,9 @@ export function AnswerView({
   const done = complete && !streaming;
   const shared = { index, messageId };
   const refused = type === "not_found" || type === "off_topic";
-  // Contract v1.7: a refused answer withdraws the early office card, which animates out.
-  const officeSlot = useLeavingOffice(refused ? null : office);
+  const smalltalk = type === "smalltalk";
+  // Contract v1.7/v1.10: a refused or smalltalk answer withdraws the early office card, which animates out.
+  const officeSlot = useLeavingOffice(refused || smalltalk ? null : office);
   const officeCard = officeSlot.office && (
     <div
       className={officeSlot.leaving ? "office-leave" : "office-slot"}
@@ -75,6 +77,16 @@ export function AnswerView({
         <NotFoundCard answer={answer} onAsk={done ? onAsk : undefined} />
         {officeCard}
         <Disclaimer />
+        {done && feedback}
+      </>
+    );
+  }
+
+  if (smalltalk) {
+    return (
+      <>
+        <SmalltalkCard answer={answer} onAsk={done ? onAsk : undefined} />
+        {officeCard}
         {done && feedback}
       </>
     );
