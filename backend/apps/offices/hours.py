@@ -3,7 +3,7 @@
 import logging
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 from apps.offices.constants import TIME_REGEX
 
@@ -32,28 +32,6 @@ class WorkingHours(BaseModel):
         alias="break",
         description="Lunch or shift break window",
     )
-
-
-def clean_working_hours(raw: list[Any]) -> list[dict[str, Any]]:
-    """Validate and clean raw working hours entries.
-
-    Drops invalid items after logging a warning. Never infers or invents
-    missing fields.
-
-    Args:
-        raw: List of unstructured or extracted working hours objects/dicts.
-
-    Returns:
-        List of JSON-serializable dictionaries matching contract §5.
-    """
-    cleaned: list[dict[str, Any]] = []
-    for item in raw:
-        try:
-            validated = WorkingHours.model_validate(item)
-            cleaned.append(validated.model_dump(by_alias=True))
-        except ValidationError as exc:
-            logger.warning("Dropping invalid working hours entry: %s (%s)", item, exc)
-    return cleaned
 
 
 WORKING_HOURS_LIST = TypeAdapter(list[WorkingHours])

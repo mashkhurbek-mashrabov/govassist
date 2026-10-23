@@ -1,12 +1,11 @@
 """Tests for working hours validation and cleaning."""
 
-import logging
 from typing import Any
 
 import pytest
 from pydantic import ValidationError
 
-from apps.offices.hours import BreakTime, WorkingHours, clean_working_hours
+from apps.offices.hours import BreakTime, WorkingHours
 
 NAMUNA_WORKING_HOURS_DATA: dict[str, Any] = {
     "days": ["mon", "tue", "wed", "thu", "fri"],
@@ -71,22 +70,3 @@ def test_break_time_invalid_format() -> None:
     """Verifies BreakTime regex enforcement."""
     with pytest.raises(ValidationError):
         BreakTime(start="12:60", end="13:00")
-
-
-def test_clean_working_hours(caplog: pytest.LogCaptureFixture) -> None:
-    """Verifies that valid rows are kept and invalid rows are dropped with warning."""
-    raw = [
-        NAMUNA_WORKING_HOURS_DATA,
-        {"days": ["invalid_day"], "open": "09:00", "close": "18:00"},
-        NAMUNA_HOURS_NO_BREAK_DATA,
-        {"days": ["mon"], "open": "24:00", "close": "18:00"},
-    ]
-    with caplog.at_level(logging.WARNING):
-        cleaned = clean_working_hours(raw)
-
-    assert len(cleaned) == 2
-    assert cleaned[0]["days"] == ["mon", "tue", "wed", "thu", "fri"]
-    assert cleaned[0]["break"] == {"start": "13:00", "end": "14:00"}
-    assert cleaned[1]["days"] == ["sat"]
-    assert cleaned[1]["break"] is None
-    assert "Dropping invalid working hours entry" in caplog.text
