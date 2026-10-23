@@ -1,16 +1,17 @@
 import { expect, test } from "@playwright/test";
 import {
+  STREAM_TIMEOUT_MS,
   ask,
+  clickLandingHeaderLink,
   emailedPath,
   expectAccessible,
   logInSeedUser,
-  STREAM_TIMEOUT_MS,
   waitForFinal,
 } from "./helpers";
 
 /** J1–J6 from docs/design/screens.md on the mock build, at 375 and 1440 (projects). */
 
-test("J1 · new user: landing → sign up → verify → onboarding → streamed answer → 👍 → follow-up", async ({
+test("J1 · new user: landing question → sign up → verify → onboarding → that question streams → 👍 → follow-up", async ({
   page,
 }) => {
   await page.goto("/");
@@ -18,8 +19,13 @@ test("J1 · new user: landing → sign up → verify → onboarding → streamed
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Qaysi hujjat, qaysi idora/);
   await expectAccessible(page);
 
-  await page.getByRole("main").getByRole("link", { name: "Roʻyxatdan oʻtish" }).first().click();
+  // v1.3: ask on the landing; the question is carried to sign-up in sessionStorage, never in the URL.
+  await page.getByRole("textbox", { name: /Savolingizni yozing/ }).fill("Pasportimni qanday yangilayman?");
+  await page.getByRole("button", { name: "Soʻrash" }).click();
   await expect(page.getByRole("heading", { name: "Roʻyxatdan oʻting" })).toBeVisible();
+  await expect(page).toHaveURL(/\/signup$/);
+  await expect(page.getByText("Savolingiz saqlandi")).toBeVisible();
+  await expect(page.locator("q.carried__q")).toHaveText("Pasportimni qanday yangilayman?");
   await page.getByLabel("Elektron pochta").fill(`j1-${Date.now()}@example.com`);
   await page.getByLabel("Parol", { exact: true }).fill("Namuna-parol-123");
   await expect(page.getByText("kuchli")).toBeVisible();
@@ -44,9 +50,8 @@ test("J1 · new user: landing → sign up → verify → onboarding → streamed
   await expectAccessible(page);
   await page.getByRole("button", { name: "Saqlash va boshlash" }).click();
 
-  await expect(page.getByRole("heading", { level: 1, name: /Salom!/ })).toBeVisible();
-  await expectAccessible(page);
-  await page.getByRole("button", { name: "Pasportimni qanday yangilayman?" }).click();
+  // The carried question is the first chat message, sent by itself.
+  await expect(page.locator("li.msg-user")).toHaveText(/Pasportimni qanday yangilayman\?/);
   await expect(
     page
       .getByRole("status")
@@ -57,7 +62,7 @@ test("J1 · new user: landing → sign up → verify → onboarding → streamed
   await expect(page.getByRole("region", { name: "Qayerga borish kerak" })).toBeVisible();
   await waitForFinal(page);
   await expect(page.getByRole("heading", { name: "Manbalar" })).toBeVisible();
-  await expect(page.getByLabel("Savolingiz")).toBeFocused();
+  expect(await page.evaluate(() => sessionStorage.getItem("govassist.pendingQuestion"))).toBeNull();
   await expectAccessible(page);
 
   await page.getByRole("button", { name: "Ha, foydali" }).click();
@@ -71,7 +76,7 @@ test("J2 · returning user: log in → Cyrillic labour-law question → legal an
   page,
 }) => {
   await page.goto("/welcome");
-  await page.getByRole("banner").getByRole("link", { name: "Kirish" }).click();
+  await clickLandingHeaderLink(page, "Kirish", "Menyuni ochish");
   await logInSeedUser(page);
   await ask(page, "NAMUNA: Йиллик меҳнат таътили ҳақида қонунда нима дейилган?");
   await waitForFinal(page);
@@ -204,7 +209,7 @@ test("J6 · history → delete → Russian UI → change password → log out �
   await expect(page).toHaveURL(/\/welcome$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Какие документы, какое учреждение/);
 
-  await page.getByRole("banner").getByRole("link", { name: "Войти" }).click();
+  await clickLandingHeaderLink(page, "Войти", "Открыть меню");
   await page.getByRole("link", { name: "Забыли пароль?" }).click();
   await expect(page.getByRole("heading", { name: "Восстановление пароля" })).toBeVisible();
   await page.getByLabel("Электронная почта").fill("namuna@example.com");

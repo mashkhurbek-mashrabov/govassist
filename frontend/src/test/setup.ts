@@ -17,6 +17,7 @@ afterEach(async () => {
   server.resetHandlers();
   // A test that switches the UI language must not leak it into the next one.
   localStorage.clear();
+  sessionStorage.clear();
   await i18n.changeLanguage(DEFAULT_LANGUAGE);
 });
 afterAll(() => server.close());

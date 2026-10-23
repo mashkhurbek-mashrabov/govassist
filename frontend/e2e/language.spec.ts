@@ -87,6 +87,8 @@ test("landing preview streams by itself, and shows the finished card under reduc
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/welcome");
   const preview = page.getByRole("figure");
+  // It only plays on screen (below the fold on phones).
+  await preview.scrollIntoViewIfNeeded();
   await expect(preview).toHaveAttribute("data-playing", "");
   const running = await page.evaluate(
     () =>

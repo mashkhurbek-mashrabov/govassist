@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircleCheck } from "lucide-react";
+import { CircleCheck, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -13,6 +13,7 @@ import { FieldError } from "../../components/ui/FieldError";
 import { PasswordField } from "../../components/ui/PasswordField";
 import { TextField } from "../../components/ui/TextField";
 import { TURNSTILE_SITE_KEY } from "../../config";
+import { readPendingQuestion } from "../../lib/pendingQuestion";
 import { authErrorInfo } from "./authErrors";
 import { FormSummary } from "./FormSummary";
 import { GoogleLoginButton } from "./GoogleLoginButton";
@@ -32,6 +33,8 @@ const TURNSTILE_ERROR_ID = "turnstile-error";
 export function SignupPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  // A question carried from the landing (screens.md → Sign up → question); it is asked after onboarding.
+  const [carried] = useState(readPendingQuestion);
   const [turnstileToken, setTurnstileToken] = useState("");
   // Turnstile tokens are single-use and the backend spends one even when validation fails, so every
   // failed submit remounts the widget (new key) for a fresh challenge.
@@ -76,6 +79,12 @@ export function SignupPage() {
         <h1>{t("signup.title")}</h1>
         <p className="t-muted">{t("signup.lead")}</p>
       </div>
+      {carried && (
+        <Alert icon={MessageSquare} title={t("signup.carried_title")}>
+          <q className="carried__q">{carried}</q>
+          <p>{t("signup.carried_text")}</p>
+        </Alert>
+      )}
       <FormSummary show={hasFieldErrors} />
       {serverError && <Alert tone="danger">{t(serverError)}</Alert>}
       <GoogleLoginButton />
