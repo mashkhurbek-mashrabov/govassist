@@ -36,6 +36,19 @@ database; none are committed to this repository.
 | https://www.goldenpages.uz/uz/ | GoldenPages (goldenpages.uz) | Present. `*` group disallows among others `*.html`, `*/search/*`, `*/maps/*`, `*/rubplaces/*`, `*/mapcompany/*`, `*&region=*`, `*?Print`, `*&tab=*`, `*/sm/*`, `*/person/*`. `/uz/rubrics/?Id=N`, `&Page=N` and `/uz/company/?Id=N` are allowed. Wildcard rules are matched per RFC 9309 (`apps/collector/robots.py`) | No terms-of-use page found on the homepage | From the page's schema.org `LocalBusiness` JSON-LD: name, street address (region and district parsed from it, or the district from the name), coordinates; working hours and lunch from the schedule table; the page's "Yangilangan" date as `data_as_of`. **Phone: not stored** (masked on the page behind "Show phone number"; no reveal endpoint is called, and the unmasked FAQ JSON-LD is not used) |
 | https://www.yellowpages.uz/uz/ | Yellow Pages Uzbekistan (yellowpages.uz) | Present. Disallows `*?key=`, `*pagesize=`, `/user/`, `/account/`, `/norma/`, `/content/`, `/data/`; sitemap at `/sitemap.xml`. `/uz/rubrika/…` and `/uz/korxona/…` are allowed | No terms-of-use page found on the homepage (a privacy policy exists at `/uz/privacy/privacy-policy-2`) | Second source / cross-check: name, address, coordinates from `LocalBusiness` JSON-LD. No hours (not structured), **no phone** (same rule). Its addresses sometimes label Tashkent city "Toshkent viloyati"; the district settles the region. Duplicates of goldenpages offices (same type and district, and the same address, name or a spot within 150 m) are skipped. Only the first page of each listing (15 entries) is read: further pages load through a JavaScript API, which is not called |
 
+**goldenpages.uz blocked automated access; it is no longer crawled.**
+
+| Date (UTC) | Status | What happened |
+|---|---|---|
+| 2026-10-22 13:26 | HTTP 403 | After about 45 requests that day (about 30 of them hand sampling at 1 request/1.5 s, then a crawl at 1 request/s), four company pages and then the listing itself answered 403. Crawling stopped. |
+| 2026-10-22 15:14 | HTTP 200 | One probe after a pause of almost 2 hours; crawling resumed at 1 request/10 s. |
+| 2026-10-23 04:42 | HTTP 403 | Blocked automated access again during the Samarqand tax rubric, after the Samarqand khokimiyat rubric (18 pages) at 1 request/10 s. The job stopped at the first 403 (`HostBlockedError`). |
+
+goldenpages is not retried: no other User-Agent, headers, IP, proxy, browser or session is
+used to get around the block. Offices already stored from it stay pending for review. What it
+did not yield (tax in Samarqand, FHDYo, migration, cadastre in Samarqand) needs another
+source, preferably an official one.
+
 Rubrics crawled (scope: Tashkent city + Samarqand viloyati):
 
 | Office type | goldenpages rubric (`/uz/rubrics/?Id=`) | Region scope | Name filter | yellowpages (`/uz/rubrika/…`) |
