@@ -1,6 +1,6 @@
-# GovAssist design system v1.2
+# GovAssist design system v1.3
 
-**Status: Approved** (v1.2: language menu and a new landing, `01-design-plan.md` §3a; approved by the author and merged as PR #14 on 2026-10-22). v1.1 (Lucide icons, glass, gradients, UX polish) was approved and merged as PR #5 on 2026-10-22. v1 was approved at gate G2 on 2026-10-22 (PR #1). See `docs/plans/00-main-plan.md` §5. **Lane:** Design, Sevara (Claude). **Plan:** [`01-design-plan.md`](../plans/01-design-plan.md). **Contract:** v1.5.
+**Status: In review** (v1.3: the welcome page that sells, `01-design-plan.md` §3b). v1.2 (language menu and a new landing) was approved and merged as PR #14 on 2026-10-22. v1.1 (Lucide icons, glass, gradients, UX polish) was approved and merged as PR #5 on 2026-10-22. v1 was approved at gate G2 on 2026-10-22 (PR #1). See `docs/plans/00-main-plan.md` §5. **Lane:** Design, Sevara (Claude). **Plan:** [`01-design-plan.md`](../plans/01-design-plan.md). **Contract:** v1.5.
 
 A calm, phone-first, WCAG 2.2 AA design for GovAssist: landing, auth, onboarding, chat with live-streaming answer cards, the office card, history, settings and about, plus **six clickable end-to-end journeys (J1–J6)**. It is deliberately **not** styled like a government site: warm neutral greys with one indigo accent, a plain wordmark, no emblem and no flag colours. "Rasmiy davlat xizmati emas" (*Not an official government service*) and the answer disclaimer are on every relevant screen.
 
@@ -15,16 +15,16 @@ A calm, phone-first, WCAG 2.2 AA design for GovAssist: landing, auth, onboarding
 | [`components.md`](components.md) | Every component: anatomy, variants, states, tokens, a11y; OfficeCard rules; streaming behaviour; journey playback |
 | [`screens.md`](screens.md) | All 17 screens (0–16): purpose, layout per breakpoint, components, states, copy keys, contract fields; then the journeys table |
 | [`copy.md`](copy.md) | UI strings in uz-Latn + en with length budgets, plus the **error code → copy key** map (contract §1, §2, §4) |
-| [`icons/`](icons/) | The 42 Lucide icons used, copied unchanged from `lucide-static` 1.61.0, plus the ISC licence. `tokens.mjs --check` fails if an inline icon differs from these files |
+| [`icons/`](icons/) | The 51 Lucide icons used, copied unchanged from `lucide-static` 1.61.0, plus the ISC licence. `tokens.mjs --check` fails if an inline icon differs from these files |
 | [`fonts/`](fonts/) | Inter 5.3.0, 400 + 600, latin / latin-ext / cyrillic / cyrillic-ext WOFF2, `inter.css`, OFL licence |
 | [`prototype/index.html`](prototype/index.html) | Every screen and state: one file per screen with a state bar, plus `components.html` and `type.html` (glyphs + long-string test) |
 | [`prototype/journeys.html`](prototype/journeys.html) | Start page for **J1–J6**; each journey is one file (`j1.html` … `j6.html`), 91 linked steps in total |
 | [`prototype/flow.js`](prototype/flow.js) | The one shared script: the LanguageMenu (popover / bottom sheet, keyboard, in-place switch), step navigation, form submits, timed streaming playback (Pause; text jumps under reduced motion), `?shot` mode for screenshots |
-| [`screenshots/`](screenshots/) | 170 PNGs (85 states × 375×812 and 1440×900) + `glyph-proof.png` |
+| [`screenshots/`](screenshots/) | 174 PNGs (87 states × 375×812 and 1440×900) + `glyph-proof.png` |
 | [`screenshots/journeys/`](screenshots/journeys/) | Every journey step in order at 375×812 (`J1-01-landing.png` …), J2 and J6 also at 1440×900: 118 PNGs |
 | [`screenshots/glass/`](screenshots/glass/) | Glass chrome over scrolled content, each next to its two solid fallbacks (`prefers-reduced-transparency` and no `backdrop-filter`): 15 PNGs |
 | [`shoot.cjs`](shoot.cjs) | Playwright script that makes all screenshots and runs the audits below |
-| **Design canvas** | [claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM](https://claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM): 47 artboards, one row per journey (J1, J2, J3, J4, J5, J6, J6 part 2, other screens). v1.2 adds a phone bottom-sheet board and a desktop landing board with a working language popover, and updates the landing, sign up, log in, onboarding language, settings and Russian landing boards; the other boards keep the v1.1 stylesheet, which v1.2 only extends with a title note each; phone boards 390 wide, chat/history/settings boards 1440 wide for J2 and J6. Primary buttons are prototype links between artboards; streaming boards play their stages by themselves (Replay). The canvas is private until shared from its Share menu |
+| **Design canvas** | [claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM](https://claude.ai/artifact/HUejpbC6LwuZPH67qn8EwM): 47 artboards, one row per journey (J1, J2, J3, J4, J5, J6, J6 part 2, other screens) with a title note each. Phone boards are 390 wide; chat, history and settings boards are 1440 wide for J2 and J6. v1.3 rebuilds the landing boards (phone, desktop, Russian and the language-sheet board) and adds the carried question to sign up. Primary buttons are prototype links between artboards; streaming boards play their stages by themselves (Replay). The canvas is private until shared from its Share menu |
 
 ## How to use it
 
@@ -63,6 +63,21 @@ The author asked for "one icon package, not similar, glass effect, better UI/UX"
 | Depth | Two simple shadows, grey card borders | Three-layer shadows, a softer 7 % card edge, a white → stone-50 card surface, a brand-gradient edge on the office card, a violet glow under primary actions |
 | Screenshots | 25 MB | Palette PNG (256 colours, dithered) via `shoot.cjs`: 18 MB for more shots |
 
+## v1.3: before → after
+
+The author tried v1.2 live: the landing "is still poor". It must show why people should choose GovAssist and how it differs from any chatbot (`01-design-plan.md` §3b).
+
+| Area | v1.2 (before) | v1.3 (after) |
+|---|---|---|
+| Main action | Sign up + "See how it works" buttons | An **ask box** in the hero ("Savolingizni yozing…" + Soʻrash) plus three popular-question chips. The question is kept for sign-up (sessionStorage, never the URL) and shown on Sign up ("Savolingiz saqlandi") |
+| Why GovAssist | 4 generic feature cards | A **problem** section (wrong office, a missing document, outdated advice; qualitative) and a **GovAssist vs ordinary chatbot** table: official cited sources, the exact office, "I don't know" instead of guessing, 4 languages, source fetch dates. It becomes stacked cards on phones |
+| Services | None | **8 popular-service tiles** with Lucide icons (passport/ID, birth certificate, marriage, driving licence, property, business, pension, utilities). Each carries its example question to sign-up. The structure is inspired by my.gov.uz (search first, category tiles), with none of its branding |
+| Preview | Always in Uzbek Latin | Translated into the UI language (uz-Latn, uz-Cyrl, ru, en); office name and address stay as stored |
+| Header | Logo, language, Kirish | Logo · anchor nav (How it works · Why GovAssist · Services · FAQ) · language · Kirish + Roʻyxatdan oʻtish · hamburger below 1280 px |
+| Footer | Brand, 3 links, thesis line | Brand + language · Product / Sources / Legal columns · "© 2026 GovAssist" + the "not official" pill. **Thesis line removed** |
+| Copy | `landing.f1` promised the office phone | Office copy drops "telefon" (phones are not in the data), also in `chat.help_3`; the v1.2 feature keys are removed; `error.too_many_attempts` is added (generic auth 429) |
+| Fixes | The phone language sheet's scrim stayed on screen after closing (it was looked up inside the menu after moving to `<body>`) | `flow.js` caches the moved parts and restores them in order |
+
 ## v1.2: before → after
 
 The author: "the changing language is bad … also make prettier the landing page" (`01-design-plan.md` §3a).
@@ -78,7 +93,7 @@ The author: "the changing language is bad … also make prettier the landing pag
 
 ## Review checklist (`01-design-plan.md` §8)
 
-- [x] Every screen and state in §4 is present in `screens.md`, the prototype and the screenshots. *(17 screens incl. the landing, 85 states, 170 state screenshots.)*
+- [x] Every screen and state in §4 is present in `screens.md`, the prototype and the screenshots. *(17 screens incl. the landing, 87 states, 174 state screenshots.)*
 - [x] All answer types (service, legal, not_found, off_topic), every office variant (district, region, none, no office, unknown hours/phone) and the streaming stages (searching → found → office early → summary → steps → documents → fee/time → final, plus stopped) are designed.
 - [x] Data shown matches `docs/contract.md` field by field, and nothing needs data the API doesn't provide. *(Field mapping per screen in `screens.md`; v1.1/v1.2 additions used: `has_password`, resend-verification, `/sources`, `error_code`, `scope`, auth error codes, retry keeps both attempts.)*
 - [x] Contrast table passes AA, targets ≥ 44 px, focus states visible, reduced-motion variant defined. *(`design-system.md` §3 and §7; audits above.)*
@@ -92,12 +107,16 @@ The author: "the changing language is bad … also make prettier the landing pag
 - [x] The landing page exists. J1 includes a second turn in the same thread. J2 shows a full legal answer. J3 shows a Russian answer.
 - [x] Streaming plays by itself in the journeys, with a reduced-motion variant. *(`flow.js` timers + Pause; under reduced motion the text appears at once. Canvas streaming boards play on their own.)*
 - [x] `screenshots/journeys/` has every step of every journey. *(91 steps at 375; J2 and J6 also at 1440.)*
-- [x] (v1.1) Every icon is a real Lucide icon from one pinned `lucide-static` version, and the inventory is in `components.md`. *(1.61.0; 42 icons in `icons/`; enforced by `tokens.mjs --check`, which also caught the old hand-drawn menu icon in a negative test.)*
+- [x] (v1.1) Every icon is a real Lucide icon from one pinned `lucide-static` version, and the inventory is in `components.md`. *(1.61.0; 51 icons in `icons/`; enforced by `tokens.mjs --check`, which also caught the old hand-drawn menu icon in a negative test.)*
 - [x] (v1.1) Glass is on the listed chrome only, AA passes on glass, and the solid fallbacks for no-`backdrop-filter` and reduced transparency are designed and screenshotted. *(`design-system.md` §8a worst-case contrast table; `screenshots/glass/`.)*
 - [x] (v1.1) A UX polish pass is done, with a before/after list in the README. *(Above. Includes the "prettier, a little gradient, professional" round: restrained indigo → violet gradient tokens with AA on every stop, `design-system.md` §8b.)*
 
 - [x] (v1.2) Every language `<select>` is replaced by the LanguageMenu (popover; bottom sheet on phones) or LanguageCards, with the menu-button keyboard pattern, 44 px targets and no layout shift; states documented in `components.md`. *(`welcome.html#lang-open`, `components.html`; axe and target audits clean at both sizes.)*
 - [x] (v1.2) The landing has the mesh hero with gradient headline and two CTAs, the auto-playing streaming preview (static under reduced motion), 4 features with text-only source chips (no logos), How it works, FAQ, CTA band and footer with the "not official" note; SVG/CSS only, every value a token. *(`welcome.html`, screenshots at 375 and 1440 in four languages; mesh contrast in `design-system.md` §8b.)*
+
+- [x] (v1.3) The landing shows why GovAssist and not any chatbot: the problem framing (qualitative, no statistics), the 5-row comparison, 8 service tiles that carry their question to sign-up, and the hero ask box that carries the question through sign-up. *(`welcome.html`, `signup.html#question`, J1 steps 1–2.)*
+- [x] (v1.3) The preview is translated into all 4 languages. The header has the anchor nav, the language menu, Kirish + Roʻyxatdan oʻtish, and a phone hamburger. The footer has columns, © 2026 and the "not official" pill, and no thesis line. *(`welcome.html#uz-Cyrl|ru|en|menu-open`, screenshots at 375 and 1440.)*
+- [x] (v1.3) my.gov.uz was used for structure only: no emblem, logo, colour identity or icon assets. All new icons are Lucide (`components.md` → Icon inventory).
 
 ## Open questions
 

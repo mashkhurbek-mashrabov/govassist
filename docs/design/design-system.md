@@ -1,4 +1,4 @@
-# GovAssist design system v1.2
+# GovAssist design system v1.3
 
 Foundations for every screen. Values live in [`tokens.css`](tokens.css) (source) and [`tokens.json`](tokens.json) (derived). This page explains them; it never redefines them.
 
@@ -150,7 +150,7 @@ Two helper shadows: `--shadow-glass` (the soft drop under glass bars) and `--sha
 
 **One package: Lucide, pinned to `lucide-static` 1.61.0** (ISC licence, [lucide.dev](https://lucide.dev)). The frontend uses **`lucide-react` 1.61.0**, the same version, so names and shapes match exactly.
 
-- The exact SVG files are copied unchanged into [`icons/`](icons/) (42 icons + `LICENSE.txt`). The prototype inlines their children verbatim; nothing is redrawn.
+- The exact SVG files are copied unchanged into [`icons/`](icons/) (51 icons + `LICENSE.txt`). The prototype inlines their children verbatim; nothing is redrawn.
 - `node docs/design/tokens.mjs --check` fails if any inline icon in the prototype differs from a file in `icons/`. The Google "G" is the one non-Lucide mark (class `icon--brand`, see components.md → Button).
 - Drawing: 24 px grid, 2 px stroke, round caps and joins, `currentColor`, shown at 20 px (`--size-icon`), 16 px (`--size-icon-sm`) or 24 px (`--size-icon-lg`).
 - Every icon is either next to a visible label (and `aria-hidden="true"`) or inside an icon button with an `aria-label`.

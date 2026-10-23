@@ -8,7 +8,13 @@
  *   [data-lang-variant="ru"]  a translated copy of a region; the one matching the chosen language is shown
  *   [data-lang-region]        cross-fades while the language switches
  *   [data-lang-status]        polite live region that announces the change
- *   window.GovAssistLang.set(lang, {instant}) / .open(menuElement) for gallery states and screenshots.
+ *   window.GovAssistLang.set(lang, {instant}) / .open(menuElement) / .closeAll() for gallery states and screenshots.
+ *
+ * Landing (v1.3):
+ *   <form data-ask-form action="signup.html" [data-go]>  keeps the typed question, then goes to sign-up
+ *   [data-ask="question"]                                 chips and service tiles keep their question on click
+ *   [data-carried] [data-carried-text]                    sign-up banner, shown when a question is waiting
+ *   [data-nav-toggle] aria-controls="panel-id"            phone menu (Esc closes, a link inside closes it)
  *
  * Markup it understands:
  *   <section class="flow-step" id="x" data-title="…" [data-auto="ms"]>  one step; the URL hash picks the step
@@ -30,8 +36,10 @@
 
   /** On phones the sheet and its scrim move to <body>, so no glass ancestor (backdrop-filter) can trap the fixed sheet. */
   function portal(menu, on) {
-    var parts = [menu.querySelector(".lang-menu__scrim"), menu.querySelector('[role="menu"]')];
-    parts.forEach(function (el) {
+    // Cached: once moved to <body>, the parts are no longer inside the menu.
+    var parts = menu.__parts || (menu.__parts = [menu.querySelector(".lang-menu__scrim"), menu.querySelector('[role="menu"]')]);
+    // Restore in reverse, so each part's saved next sibling is already back home.
+    (on ? parts : parts.slice().reverse()).forEach(function (el) {
       if (on && phone.matches) {
         el.__home = el.__home || { parent: el.parentNode, next: el.nextSibling };
         el.setAttribute("data-portal", "");
@@ -144,7 +152,67 @@
     });
   });
 
-  window.GovAssistLang = { set: setLang, open: open };
+  /** Closes every open language menu without moving focus (gallery state changes). */
+  function closeAll() { menus.forEach(function (menu) { close(menu, true); }); }
+
+  window.GovAssistLang = { set: setLang, open: open, closeAll: closeAll };
+})();
+
+(function () {
+  "use strict";
+
+  // The landing's question waits in sessionStorage until sign-up; it never goes into the URL.
+  var QUESTION_KEY = "govassist.pendingQuestion";
+
+  /** @param {string} question Keeps the question for sign-up and shows it in any carried-question banner. */
+  function keep(question) {
+    try { sessionStorage.setItem(QUESTION_KEY, question); } catch (err) { /* storage off: the banner just stays hidden */ }
+    render();
+  }
+
+  /** Fills and shows [data-carried] banners when a question is waiting. */
+  function render() {
+    var question = "";
+    try { question = sessionStorage.getItem(QUESTION_KEY) || ""; } catch (err) { question = ""; }
+    if (!question) return;
+    document.querySelectorAll("[data-carried]").forEach(function (banner) {
+      banner.querySelector("[data-carried-text]").textContent = question;
+      banner.hidden = false;
+    });
+  }
+
+  document.addEventListener("submit", function (e) {
+    var form = e.target.closest("form[data-ask-form]");
+    if (!form) return;
+    e.preventDefault();
+    keep(form.querySelector("textarea").value.trim());
+    if (!form.hasAttribute("data-go")) location.href = form.getAttribute("action");
+  });
+
+  document.addEventListener("click", function (e) {
+    var ask = e.target.closest("[data-ask]");
+    if (ask) keep(ask.getAttribute("data-ask"));
+    var toggle = e.target.closest("[data-nav-toggle]");
+    if (toggle) { setNav(toggle, toggle.getAttribute("aria-expanded") !== "true"); return; }
+    var link = e.target.closest(".lp-nav-panel a");
+    if (link) setNav(document.querySelector('[aria-controls="' + link.closest(".lp-nav-panel").id + '"]'), false);
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    var open = document.querySelector('[data-nav-toggle][aria-expanded="true"]');
+    if (open) { setNav(open, false); open.focus(); }
+  });
+
+  /** Opens or closes the phone menu panel that a toggle controls. @param {HTMLElement} toggle @param {boolean} on */
+  function setNav(toggle, on) {
+    if (!toggle) return;
+    toggle.setAttribute("aria-expanded", String(on));
+    document.getElementById(toggle.getAttribute("aria-controls")).hidden = !on;
+  }
+
+  window.addEventListener("hashchange", render);
+  render();
 })();
 
 (function () {
