@@ -42,5 +42,12 @@ describe("latnToCyrl", () => {
     expect(transliterateTree({ lang: { "uz-Latn": "Oʻzbekcha (lotin)", label: "Til" } })).toEqual({
       lang: { "uz-Latn": "Oʻzbekcha (lotin)", label: "Тил" },
     });
+    expect(
+      transliterateTree({
+        lang: { name: { en: "English", "uz-Latn": "Oʻzbekcha" }, hint_latin: "Lotin yozuvi" },
+      }),
+    ).toEqual({
+      lang: { name: { en: "English", "uz-Latn": "Oʻzbekcha" }, hint_latin: "Лотин ёзуви" },
+    });
   });
 });

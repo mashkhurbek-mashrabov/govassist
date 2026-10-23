@@ -5,6 +5,9 @@
     },
     "error": {
       "too_many_attempts": "Juda koʻp urinish boʻldi. Birozdan soʻng qayta urinib koʻring."
+    },
+    "landing": {
+      "f1": "Manzil, ish vaqti va xaritadagi joyi — har bir javobda."
     }
   },
   "en": {
@@ -13,6 +16,9 @@
     },
     "error": {
       "too_many_attempts": "Too many attempts. Try again a little later."
+    },
+    "landing": {
+      "f1": "Address, hours and map location in every answer."
     }
   }
 }

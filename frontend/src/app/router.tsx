@@ -32,15 +32,16 @@ export function appRoutes(client: QueryClient): RouteObject[] {
       errorElement: <RouteError />,
       children: [
         {
+          // The landing brings its own header and footer (design v1.2).
+          path: "/welcome",
+          loader: guard(client, "guest"),
+          lazy: async () => ({
+            Component: (await import("../features/welcome/WelcomePage")).WelcomePage,
+          }),
+        },
+        {
           element: <AuthLayout />,
           children: [
-            {
-              path: "/welcome",
-              loader: guard(client, "guest"),
-              lazy: async () => ({
-                Component: (await import("../features/welcome/WelcomePage")).WelcomePage,
-              }),
-            },
             {
               path: "/signup",
               loader: guard(client, "guest"),

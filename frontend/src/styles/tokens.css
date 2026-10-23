@@ -148,6 +148,14 @@
   --gradient-hero: linear-gradient(160deg, var(--palette-indigo-50) 0%, var(--palette-violet-50) 45%, var(--palette-white) 100%); /* landing hero and chat greeting panels */
   --gradient-card: linear-gradient(180deg, var(--palette-white) 0%, var(--palette-neutral-50) 100%);            /* content cards: a barely visible lift */
 
+  /* Landing hero mesh (v1.2): overlapping soft blobs in the two brand hues plus a warm accent. */
+  --gradient-mesh:
+    radial-gradient(28rem 22rem at 12% 18%, var(--palette-indigo-200), transparent 70%),
+    radial-gradient(26rem 20rem at 88% 8%, var(--palette-violet-100), transparent 70%),
+    radial-gradient(30rem 22rem at 70% 90%, var(--palette-indigo-100), transparent 70%),
+    radial-gradient(22rem 18rem at 6% 96%, var(--palette-amber-50), transparent 70%),
+    linear-gradient(180deg, var(--palette-indigo-50), var(--palette-white));
+
   /* Page backdrop: soft colour washes so the glass has something to frost. */
   --gradient-page:
     radial-gradient(40rem 28rem at 0% 0%, var(--palette-indigo-100), transparent 70%),
@@ -161,6 +169,8 @@
   --font-weight-semibold: 600;
 
   /* Sizes are mobile values; the md block below raises the large ones. */
+  --text-display-xl-size: 2.5rem; /* 40: landing headline */
+  --text-display-xl-line: 1.1;
   --text-display-size: 1.75rem;   /* 28 */
   --text-display-line: 1.25;
   --text-h1-size: 1.5rem;         /* 24 */
@@ -178,6 +188,7 @@
   --text-caption-size: 0.8125rem; /* 13, labels on badges and counters only */
   --text-caption-line: 1.4;
   --letter-spacing-tight: -0.01em;
+  --letter-spacing-tighter: -0.025em; /* display-xl only */
   --letter-spacing-normal: 0;
 
   /* 4. Space (4 px base) ---------------------------------------------------- */
@@ -217,6 +228,7 @@
   --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
   --motion-press-scale: 0.98; /* buttons and chips shrink a little while pressed */
+  --motion-duration-preview: 9000ms; /* one loop of the landing's streaming-answer preview */
 
   /* 8. Sizes ----------------------------------------------------------------- */
   --size-touch-min: 2.75rem;    /* 44: every interactive target */
@@ -235,6 +247,9 @@
   --size-tile-min: 15rem;       /* 240: FactsRow tiles wrap below this */
   --size-swatch-min: 9rem;      /* 144: token gallery only */
   --size-turnstile-width: 18.75rem;  /* 300: Cloudflare Turnstile widget */
+  --size-lang-code: 2.5ch;           /* fixed width of the UZ / ЎЗ / RU / EN code, so the button never shifts */
+  --size-popover: 16rem;             /* 256: language menu popover */
+  --size-lang-card: 4.5rem;          /* 72: large language radio cards (onboarding, settings) */
   --size-turnstile-height: 4.0625rem; /* 65 */
 
   /* 9. Layout ----------------------------------------------------------------- */
@@ -242,6 +257,7 @@
   --layout-auth-max: 27.5rem;   /* 440 */
   --layout-page-max: 45rem;     /* 720: settings, about */
   --layout-landing-max: 72rem;  /* 1152: landing page */
+  --layout-prose-narrow: 45rem; /* 720: FAQ column */
   --layout-sidebar: 18.5rem;    /* 296 */
   --layout-topbar: 3.5rem;      /* 56 */
   --layout-gutter: var(--space-4);
@@ -250,6 +266,7 @@
   /* 10. Layers ---------------------------------------------------------------- */
   --z-sticky: 10;
   --z-drawer: 30;
+  --z-popover: 35;
   --z-dialog: 40;
   --z-toast: 50;
 }
@@ -257,6 +274,7 @@
 /* Larger headings and wider gutters from md (768 px). */
 @media (min-width: 768px) {
   :root {
+    --text-display-xl-size: 3.75rem; /* 60 */
     --text-display-size: 2.25rem; /* 36 */
     --text-h1-size: 1.875rem;     /* 30 */
     --text-h2-size: 1.375rem;     /* 22 */

@@ -103,7 +103,7 @@ function Shell({ me }: ShellProps) {
         <Sidebar showHistory={me.profile_complete} onClose={closeDrawer} closeRef={closeRef} />
         <div className="scrim scrim--drawer" aria-hidden="true" onClick={closeDrawer} />
         {/* The open drawer is modal: the top bar, page and composer behind the scrim are inert. */}
-        <div className="main-col" inert={drawerOpen}>
+        <div className="main-col" inert={drawerOpen} data-lang-region>
           <header className="topbar">
             <IconButton
               ref={menuRef}

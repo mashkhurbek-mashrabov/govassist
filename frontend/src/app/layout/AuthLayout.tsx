@@ -1,38 +1,28 @@
 import { useTranslation } from "react-i18next";
-import { Link, Outlet, useMatch } from "react-router";
-import type { Lang } from "../../api/types";
-import { LanguageSelect } from "../../components/ui/LanguageSelect";
-import { LinkButton } from "../../components/ui/LinkButton";
+import { Link, Outlet } from "react-router";
 import { Wordmark } from "../../components/ui/Wordmark";
+import { LanguageMenu } from "../../features/language/LanguageMenu";
 import { OfflineBanner } from "./OfflineBanner";
 
 /**
- * Layout for signed-out pages (screens 0–6, 16): wordmark + language switch, one column, footer with the
- * "not official" note. The landing page gets a wider column and a "Log in" link in the header.
+ * Layout for signed-out pages (screens 1–6, 16): wordmark + language menu, one column, footer with the
+ * "not official" note. The landing page has its own layout (`WelcomePage`).
  *
  * @returns The layout.
  */
 export function AuthLayout() {
-  const { t, i18n } = useTranslation();
-  const isLanding = useMatch("/welcome") !== null;
+  const { t } = useTranslation();
   return (
-    <div className={isLanding ? "auth landing" : "auth"}>
+    <div className="auth">
       <a className="skip-link" href="#main">
         {t("app.skip_to_main")}
       </a>
       <header className="auth__header">
         <Wordmark to="/" />
-        <div className="row-actions">
-          <LanguageSelect value={i18n.language as Lang} onChange={(lang) => void i18n.changeLanguage(lang)} />
-          {isLanding && (
-            <LinkButton variant="ghost" small to="/login">
-              {t("landing.login")}
-            </LinkButton>
-          )}
-        </div>
+        <LanguageMenu />
       </header>
       <OfflineBanner />
-      <main className={isLanding ? "landing__main" : "auth__main"} id="main">
+      <main className="auth__main" id="main" data-lang-region>
         <Outlet />
       </main>
       <footer className="auth__footer">

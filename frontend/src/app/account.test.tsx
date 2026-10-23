@@ -38,10 +38,11 @@ describe("account pages", () => {
   it("switches the app language at once and localizes place names", async () => {
     const user = userEvent.setup();
     renderApp("/settings");
-    await user.selectOptions(await screen.findByRole("combobox", { name: "Ilova tili" }), "ru");
+    await user.click(await screen.findByRole("radio", { name: /Русский/ }));
     expect(await screen.findByRole("heading", { name: "Настройки", level: 1 })).toBeInTheDocument();
     expect(document.documentElement.lang).toBe("ru");
-    expect(db.users[SEED_EMAIL]?.ui_language).toBe("ru");
+    expect(screen.getByRole("radio", { name: /Русский/ })).toBeChecked();
+    await waitFor(() => expect(db.users[SEED_EMAIL]?.ui_language).toBe("ru"));
   });
 
   it("saves the area as region + district together", async () => {

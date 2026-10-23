@@ -7,8 +7,10 @@ import { useMe } from "../../app/layout/meContext";
 import { Alert } from "../../components/ui/Alert";
 import { Button } from "../../components/ui/Button";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
-import { LanguageSelect } from "../../components/ui/LanguageSelect";
+import { isLang } from "../../i18n";
 import { TextField } from "../../components/ui/TextField";
+import { LanguageCards } from "../language/LanguageCards";
+import { useSwitchLanguage } from "../language/switchLanguage";
 import { PlaceFields, type Place } from "../onboarding/PlaceFields";
 import { placeErrors, serverPlaceErrors } from "../onboarding/placeErrors";
 import { ChangePasswordForm } from "./ChangePasswordForm";
@@ -20,9 +22,22 @@ import { ChangePasswordForm } from "./ChangePasswordForm";
  * @returns The page.
  */
 export function SettingsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const me = useMe();
-  const update = useUpdateMe();
+  const switchTo = useSwitchLanguage();
+  // The chosen card is checked at once; the text follows after the short fade, PATCH /me in the background.
+  const [chosen, setChosen] = useState<Lang | null>(null);
+  const current = chosen ?? (isLang(i18n.language) ? i18n.language : me.ui_language);
+
+  /**
+   * Check the card now and switch the UI language.
+   *
+   * @param lang The chosen language.
+   */
+  const chooseLanguage = (lang: Lang) => {
+    setChosen(lang);
+    void switchTo(lang).then(() => setChosen(null));
+  };
   return (
     <main className="page" id="main">
       <h1>{t("settings.title")}</h1>
@@ -30,12 +45,7 @@ export function SettingsPage() {
         <h2 className="t-h3" id="settings-language">
           {t("settings.language")}
         </h2>
-        <LanguageSelect
-          look="field"
-          label={t("settings.language")}
-          value={me.ui_language}
-          onChange={(lang: Lang) => update.mutate({ ui_language: lang })}
-        />
+        <LanguageCards value={current} onChange={chooseLanguage} legend={t("settings.language")} />
       </section>
       <PlaceCard initial={{ regionId: me.region?.id ?? null, districtId: me.district?.id ?? null }} />
       <UsageCard quota={me.quota} />

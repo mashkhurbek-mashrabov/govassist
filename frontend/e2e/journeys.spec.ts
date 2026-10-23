@@ -15,10 +15,10 @@ test("J1 · new user: landing → sign up → verify → onboarding → streamed
 }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/welcome$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Davlat xizmatini qanday olishni/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Qaysi hujjat, qaysi idora/);
   await expectAccessible(page);
 
-  await page.getByRole("main").getByRole("link", { name: "Roʻyxatdan oʻtish" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Roʻyxatdan oʻtish" }).first().click();
   await expect(page.getByRole("heading", { name: "Roʻyxatdan oʻting" })).toBeVisible();
   await page.getByLabel("Elektron pochta").fill(`j1-${Date.now()}@example.com`);
   await page.getByLabel("Parol", { exact: true }).fill("Namuna-parol-123");
@@ -71,7 +71,7 @@ test("J2 · returning user: log in → Cyrillic labour-law question → legal an
   page,
 }) => {
   await page.goto("/welcome");
-  await page.getByRole("main").getByRole("link", { name: "Kirish" }).click();
+  await page.getByRole("banner").getByRole("link", { name: "Kirish" }).click();
   await logInSeedUser(page);
   await ask(page, "NAMUNA: Йиллик меҳнат таътили ҳақида қонунда нима дейилган?");
   await waitForFinal(page);
@@ -190,7 +190,8 @@ test("J6 · history → delete → Russian UI → change password → log out �
   await expect(page.getByRole("main").getByText("NAMUNA suhbat 3")).toHaveCount(0);
 
   await page.goto("/settings");
-  await page.getByRole("combobox", { name: "Ilova tili" }).selectOption("ru");
+  await page.getByRole("radio", { name: /Русский/ }).click();
+  await expect(page.getByRole("radio", { name: /Русский/ })).toBeChecked();
   await expect(page.getByRole("heading", { level: 1, name: "Настройки" })).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("lang", "ru");
   await expectAccessible(page);
@@ -201,11 +202,9 @@ test("J6 · history → delete → Russian UI → change password → log out �
   await expect(page.getByText("Пароль изменён.")).toBeVisible();
   await page.getByRole("button", { name: "Выйти" }).click();
   await expect(page).toHaveURL(/\/welcome$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    /Узнайте, как получить государственную услугу/,
-  );
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Какие документы, какое учреждение/);
 
-  await page.getByRole("main").getByRole("link", { name: "Войти" }).click();
+  await page.getByRole("banner").getByRole("link", { name: "Войти" }).click();
   await page.getByRole("link", { name: "Забыли пароль?" }).click();
   await expect(page.getByRole("heading", { name: "Восстановление пароля" })).toBeVisible();
   await page.getByLabel("Электронная почта").fill("namuna@example.com");

@@ -7,7 +7,8 @@ import type { Lang } from "../../api/types";
 import { HOME_PATH, signedOutPath } from "../../app/guards";
 import { Alert } from "../../components/ui/Alert";
 import { Button } from "../../components/ui/Button";
-import { LANGUAGES } from "../../i18n";
+import { LanguageCards } from "../language/LanguageCards";
+import { switchLanguage } from "../language/switchLanguage";
 import { PlaceFields, type Place } from "./PlaceFields";
 import { placeErrors, serverPlaceErrors, type PlaceErrors } from "./placeErrors";
 
@@ -45,7 +46,7 @@ export function OnboardingPage() {
    */
   const chooseLanguage = (next: Lang) => {
     setLang(next);
-    void i18n.changeLanguage(next);
+    void switchLanguage(next);
   };
 
   /** Validate and save, then start chatting. */
@@ -74,20 +75,7 @@ export function OnboardingPage() {
             <h1>{t("onboarding.lang_title")}</h1>
             <p className="t-muted">{t("onboarding.lang_lead")}</p>
           </div>
-          <fieldset className="form fieldset-reset">
-            <legend className="sr-only">{t("lang.label")}</legend>
-            {LANGUAGES.map((option) => (
-              <label key={option} className="radio-card">
-                <input
-                  type="radio"
-                  name="lang"
-                  checked={lang === option}
-                  onChange={() => chooseLanguage(option)}
-                />
-                <span lang={option}>{t(`lang.${option}`)}</span>
-              </label>
-            ))}
-          </fieldset>
+          <LanguageCards value={lang} onChange={chooseLanguage} />
           <Button variant="primary" block onClick={() => setStep(2)}>
             {t("common.next")}
           </Button>
