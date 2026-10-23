@@ -78,6 +78,8 @@ jobs:
           docker run -d --name web -p 8080:8080 govassist-web:ci
           for attempt in 1 2 3 4 5; do curl -fsS http://localhost:8080/healthz && break; sleep 1; done
           curl -fsS http://localhost:8080/some/spa/route | grep -q '<div id="root">'
+          curl -fsS -o /dev/null -w '%{content_type}' http://localhost:8080/manifest.webmanifest | grep -q '^application/manifest+json'
+          curl -fsS -o /dev/null http://localhost:8080/favicon.ico
           docker rm -f web
       - name: Proxy keeps the host and port (allauth builds the OAuth redirect_uri from it)
         run: |

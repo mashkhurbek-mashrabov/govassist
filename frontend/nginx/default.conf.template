@@ -68,6 +68,14 @@ server {
         proxy_pass $backend;
     }
 
+    # The web manifest needs its own type (nginx's mime.types has no .webmanifest).
+    location = /manifest.webmanifest {
+        include /etc/nginx/snippets/security-headers.conf;
+        types {}
+        default_type application/manifest+json;
+        add_header Cache-Control "no-cache" always;
+    }
+
     # Hashed build assets never change.
     location /assets/ {
         include /etc/nginx/snippets/security-headers.conf;
