@@ -2,7 +2,7 @@ import { Check, Lock, LogOut, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeleteAccount, useLogout, useUpdateMe } from "../../api/queries";
-import type { Quota } from "../../api/types";
+import type { Lang, Quota } from "../../api/types";
 import { useMe } from "../../app/layout/meContext";
 import { Alert } from "../../components/ui/Alert";
 import { Button } from "../../components/ui/Button";
@@ -25,8 +25,19 @@ export function SettingsPage() {
   const { t, i18n } = useTranslation();
   const me = useMe();
   const switchTo = useSwitchLanguage();
-  // The cards follow the active language, so they change at once (the PATCH /me follows in the background).
-  const current = isLang(i18n.language) ? i18n.language : me.ui_language;
+  // The chosen card is checked at once; the text follows after the short fade, PATCH /me in the background.
+  const [chosen, setChosen] = useState<Lang | null>(null);
+  const current = chosen ?? (isLang(i18n.language) ? i18n.language : me.ui_language);
+
+  /**
+   * Check the card now and switch the UI language.
+   *
+   * @param lang The chosen language.
+   */
+  const chooseLanguage = (lang: Lang) => {
+    setChosen(lang);
+    void switchTo(lang).then(() => setChosen(null));
+  };
   return (
     <main className="page" id="main">
       <h1>{t("settings.title")}</h1>
@@ -34,11 +45,7 @@ export function SettingsPage() {
         <h2 className="t-h3" id="settings-language">
           {t("settings.language")}
         </h2>
-        <LanguageCards
-          value={current}
-          onChange={(lang) => void switchTo(lang)}
-          legend={t("settings.language")}
-        />
+        <LanguageCards value={current} onChange={chooseLanguage} legend={t("settings.language")} />
       </section>
       <PlaceCard initial={{ regionId: me.region?.id ?? null, districtId: me.district?.id ?? null }} />
       <UsageCard quota={me.quota} />

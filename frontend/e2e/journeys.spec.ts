@@ -190,7 +190,8 @@ test("J6 · history → delete → Russian UI → change password → log out �
   await expect(page.getByRole("main").getByText("NAMUNA suhbat 3")).toHaveCount(0);
 
   await page.goto("/settings");
-  await page.getByRole("radio", { name: /Русский/ }).check();
+  await page.getByRole("radio", { name: /Русский/ }).click();
+  await expect(page.getByRole("radio", { name: /Русский/ })).toBeChecked();
   await expect(page.getByRole("heading", { level: 1, name: "Настройки" })).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("lang", "ru");
   await expectAccessible(page);
@@ -201,11 +202,9 @@ test("J6 · history → delete → Russian UI → change password → log out �
   await expect(page.getByText("Пароль изменён.")).toBeVisible();
   await page.getByRole("button", { name: "Выйти" }).click();
   await expect(page).toHaveURL(/\/welcome$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    /Узнайте, как получить государственную услугу/,
-  );
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Какие документы, какое учреждение/);
 
-  await page.getByRole("main").getByRole("link", { name: "Войти" }).click();
+  await page.getByRole("banner").getByRole("link", { name: "Войти" }).click();
   await page.getByRole("link", { name: "Забыли пароль?" }).click();
   await expect(page.getByRole("heading", { name: "Восстановление пароля" })).toBeVisible();
   await page.getByLabel("Электронная почта").fill("namuna@example.com");
