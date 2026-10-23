@@ -8,6 +8,7 @@ from apps.common.admin import BaseAdmin
 class ConversationAdmin(BaseAdmin):
     """Conversations (user text is already PII-scrubbed)."""
 
+    list_select_related = ("user",)
     list_display = ("title", "user", "language", "updated_at")
     search_fields = ("title",)
 
@@ -16,6 +17,7 @@ class ConversationAdmin(BaseAdmin):
 class MessageAdmin(BaseAdmin):
     """Messages with run metadata for debugging and evaluation."""
 
+    list_select_related = ("conversation",)
     list_display = (
         "conversation",
         "role",
@@ -32,5 +34,6 @@ class MessageAdmin(BaseAdmin):
 class FeedbackAdmin(BaseAdmin):
     """Thumbs up/down from users."""
 
+    list_select_related = ("message",)
     list_display = ("message", "rating", "created_at")
     list_filter = ("rating",)

@@ -199,7 +199,8 @@ class HostRateLimiter:
 class RobotsPolicy:
     """robots.txt per host, fetched once with the crawler's User-Agent (RFC 9309 matching).
 
-    Missing robots.txt (4xx) or an unreachable host allow crawling; a 5xx disallows it.
+    RFC 9309: a missing robots.txt (4xx) allows crawling; a 5xx or an unreachable host
+    disallows it (the site may be overloaded, and its rules are unknown).
     """
 
     def __init__(self, client: httpx.Client | None = None) -> None:
@@ -212,8 +213,8 @@ class RobotsPolicy:
         try:
             response = self._client.get(f"{parts.scheme}://{parts.netloc}/robots.txt")
         except httpx.TransportError:
-            logger.warning("robots.txt unreachable, allowing", extra={"host": parts.netloc})
-            return True
+            logger.warning("robots.txt unreachable, disallowing", extra={"host": parts.netloc})
+            return False
         if response.status_code >= HTTP_SERVER_ERROR:
             return False
         if response.status_code >= HTTP_CLIENT_ERROR or response.status_code in REDIRECT_STATUS:

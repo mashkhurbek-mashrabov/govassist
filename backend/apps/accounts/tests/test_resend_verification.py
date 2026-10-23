@@ -54,3 +54,46 @@ def test_rate_limit_is_per_real_client_ip(client_count: int) -> None:
             client = APIClient(REMOTE_ADDR="172.18.0.5", HTTP_X_REAL_IP=f"203.0.113.{index + 1}")
             statuses = [client.post(URL, {"email": "a@example.com"}).status_code for _ in range(4)]
             assert statuses == [204, 204, 204, 429]
+
+
+def test_one_email_per_address_within_allauths_cooldown(api: APIClient) -> None:
+    """Allauth's per-email limit: a second request for the same address sends nothing."""
+    make_user("pending@example.com", verified=False)
+    assert api.post(URL, {"email": "pending@example.com"}).status_code == 204
+    assert api.post(URL, {"email": "PENDING@example.com"}).status_code == 204
+    assert len(mail.outbox) == 1
+
+
+def test_every_email_is_queued_the_same_way(
+    api: APIClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Known, unknown and verified emails all cost one queued job (no timing difference)."""
+    make_user("pending@example.com", verified=False)
+    make_user("done@example.com", verified=True)
+    queued: list[str] = []
+
+    class Recorder:
+        """Stands in for the task; remembers what was queued."""
+
+        def enqueue(self, email: str) -> None:
+            """Queue nothing; record the email."""
+            queued.append(email)
+
+    monkeypatch.setattr("apps.accounts.tasks.send_verification_email", Recorder())
+    for email in ("pending@example.com", "nobody@example.com", "done@example.com"):
+        assert api.post(URL, {"email": email}).status_code == 204
+    assert queued == ["pending@example.com", "nobody@example.com", "done@example.com"]
+    assert not mail.outbox  # nothing was sent inside the request
+
+
+def test_the_task_sends_only_to_unverified_addresses() -> None:
+    """The background job decides; it sends one link to an unverified address only."""
+    from apps.accounts.services import send_verification_email  # noqa: PLC0415
+
+    make_user("pending@example.com", verified=False)
+    make_user("done@example.com", verified=True)
+    assert send_verification_email("Pending@example.com") is True
+    assert send_verification_email("done@example.com") is False
+    assert send_verification_email("nobody@example.com") is False
+    assert len(mail.outbox) == 1
+    assert "/verify-email/" in str(mail.outbox[0].body)

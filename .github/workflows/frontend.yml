@@ -79,6 +79,21 @@ jobs:
           for attempt in 1 2 3 4 5; do curl -fsS http://localhost:8080/healthz && break; sleep 1; done
           curl -fsS http://localhost:8080/some/spa/route | grep -q '<div id="root">'
           docker rm -f web
+      - name: Proxy keeps the host and port (allauth builds the OAuth redirect_uri from it)
+        run: |
+          docker network create webtest
+          docker run -d --name backend --network webtest python:3.13-alpine python -c '
+          from http.server import BaseHTTPRequestHandler, HTTPServer
+          class Echo(BaseHTTPRequestHandler):
+              def do_GET(self):
+                  body = ("%s|%s" % (self.headers.get("Host"), self.headers.get("X-Forwarded-Host"))).encode()
+                  self.send_response(200); self.end_headers(); self.wfile.write(body)
+          HTTPServer(("0.0.0.0", 8000), Echo).serve_forever()'
+          docker run -d --name web --network webtest -p 8081:8080 -e BACKEND_HOST=backend:8000 govassist-web:ci
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do curl -fsS http://localhost:8081/api/echo && break; sleep 1; done
+          test "$(curl -fsS http://localhost:8081/api/echo)" = "localhost:8081|localhost:8081"
+          test "$(curl -fsS http://localhost:8081/accounts/echo)" = "localhost:8081|localhost:8081"
+          docker rm -f web backend
       - name: Trivy scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:

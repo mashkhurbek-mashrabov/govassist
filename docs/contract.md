@@ -191,7 +191,7 @@ A keep-alive comment `: ping` is sent every 15 s.
 |---|---|---|
 | `meta` | `{"conversation_id": uuid, "user_message_id": uuid, "assistant_message_id": uuid}` | Always first. A new conversation is created when `conversation_id` was null |
 | `status` | `{"stage": "searching" \| "found" \| "writing", "source_count": int?}` | For the progress line. Can repeat |
-| `office` | `OfficeMatch` | At most once, before the first `delta`. Sent only when a retrieved service maps to an office type. It is **provisional**: if the final answer is refused (`not_found` / `off_topic`), `final.message.office` is `null`, and the UI removes the early card. Stored history has no office for refused answers either |
+| `office` | `OfficeMatch` | At most once, before the first `delta`. Sent only when a retrieved service maps to an office type. It is **provisional**: if the final answer is refused (`not_found` / `off_topic`) or `smalltalk`, `final.message.office` is `null`, and the UI removes the early card. Stored history has no office for refused answers either |
 | `delta` | `{"text": "<raw JSON fragment>"}` | Concatenate all fragments to get a growing, partial `Answer` JSON. Parse it with a partial-JSON parser |
 | `final` | `{"message": Message (assistant)}` | Validated answer, resolved `sources`, `office`, `refused`. **Replaces** the live-parsed answer |
 | `error` | `{"code": "llm_unavailable" \| "llm_timeout" \| "invalid_answer" \| "quota_exceeded" \| "stream_in_progress" \| "internal_error", "message": str, "scope"?: "user" \| "global"}` | The assistant message is stored with `status: "failed"` and `error_code` = `code`. `scope` is present only for `quota_exceeded` |
@@ -239,7 +239,7 @@ The same schema is sent to Gemini as `response_schema` and validated with Pydant
 type Lang = "uz-Latn" | "uz-Cyrl" | "ru" | "en";
 
 interface Answer {
-  answer_type: "service" | "legal" | "not_found" | "off_topic";
+  answer_type: "service" | "legal" | "smalltalk" | "not_found" | "off_topic";
   language: Lang;                 // language/script of the user's question
   title: string;                  // ≤ 80 chars
   summary: string;                // 1–2 plain sentences
@@ -258,6 +258,8 @@ interface LawPoint { quote: string; explanation: string; source_ids: string[] }
 Rules:
 
 - `not_found` / `off_topic`: only `title`, `summary` and optionally `follow_up_questions`. Every other array is empty and the nullable fields are null.
+- `smalltalk`: greetings, thanks, and questions about GovAssist itself ("what can you do?"). A short, friendly `summary` in the question's language that says what GovAssist helps with, plus `follow_up_questions` (2–3 example service questions). Same empty fields as `not_found`, and no sources. It is **not** refused (`refused: false`), and `office` is `null`.
+- No answer may mention "the provided context/information" or other internals. `not_found` says plainly that GovAssist has no information on this yet.
 - `source_ids` refer to the context labels `S1..Sn`. In `final`, unknown IDs are **removed**, and an item can end up with `source_ids: []`, which the UI shows without a citation badge.
 - `office` is **not** part of `Answer`. Office data comes only from the database (`OfficeMatch`).
 - The disclaimer is static UI text per language, not model output.
@@ -402,6 +404,7 @@ The example values below are layout placeholders for design and mocks. Never pre
 - `SourceSummary.last_fetched_at` is nullable.*
 *Contract v1.5, 2026-10-22: office localization. Type, district and region labels follow `ui_language`; office name and address are shown as stored.*
 *Contract v1.6, 2026-10-22: SSE `error` code `stream_in_progress`. It can arrive as the only event, with no `meta`, when the lock race is lost.*
+*Contract v1.10, 2026-10-23: new `answer_type` `smalltalk` (greetings, thanks, "what can you do?"): a friendly summary + example questions, no sources, not refused, no office. No answer may mention internal "context".*
 *Contract v1.7, 2026-10-22: the early `office` event is provisional. On refused answers (`not_found` / `off_topic`), `final.message.office` is `null`, and stored history has no office.*
 *Contract v1.8, 2026-10-22: auth codes `invalid_password_reset` and `enter_current_password`; the allauth 429 has no `errors` array (from the frontend review).*
 *Contract v1.9, 2026-10-22: confirmed allauth 65.20 codes, `invalid_or_expired_key` and `required`/`invalid`; unverified login is a 401 pending flow; a reset request for an unknown email returns 200.*

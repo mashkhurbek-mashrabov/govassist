@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import time
-from collections.abc import AsyncGenerator, Callable, Sequence
+from collections.abc import AsyncGenerator, Awaitable, Callable, Sequence
 from dataclasses import dataclass
 from itertools import pairwise
 from typing import Any
@@ -12,18 +12,18 @@ from uuid import UUID
 from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.db import transaction
-from django.utils import timezone
 from pydantic import ValidationError
 
 from apps.accounts.models import User
 from apps.chat.api.serializers import serialize_message
 from apps.chat.citations import Citations, resolve_citations
-from apps.chat.constants import TITLE_FROM_QUESTION_CHARS, MessageErrorCode
+from apps.chat.constants import MessageErrorCode
 from apps.chat.generator import AnswerGenerator
 from apps.chat.limits import QuotaService
 from apps.chat.models import Conversation, Message, Retrieval
 from apps.chat.prompts import ContextBlock, Prompt, Turn, render_prompt
 from apps.chat.schemas import Answer
+from apps.chat.services import open_turn
 from apps.chat.sse import Event
 from apps.common.constants import MS_PER_S, Lang
 from apps.common.pii import scrub
@@ -214,7 +214,9 @@ class AnswerService:
         quota: QuotaService,
         searcher: Searcher = search,
         locator: Locator = locate,
+        on_close: Callable[[], Awaitable[None]] | None = None,
     ) -> None:
+        self._on_close = on_close
         self._embedder = embedder
         self._generator_factory = generator_factory
         self._quota = quota
@@ -252,23 +254,8 @@ class AnswerService:
     async def _open_turn(
         self, user: User, conversation: Conversation | None, text: str, lang: Lang
     ) -> tuple[Conversation, Message, Message]:
-        """Create the conversation (if new), the user message and the streaming answer."""
-        if conversation is None:
-            title = text[:TITLE_FROM_QUESTION_CHARS].strip()
-            conversation = await Conversation.objects.acreate(user=user, language=lang, title=title)
-        else:
-            conversation.updated_at = timezone.now()
-            await conversation.asave(update_fields=["updated_at"])
-        question = await Message.objects.acreate(
-            conversation=conversation, role=Message.Role.USER, text=text, language=lang
-        )
-        assistant = await Message.objects.acreate(
-            conversation=conversation,
-            role=Message.Role.ASSISTANT,
-            status=Message.Status.STREAMING,
-            language=lang,
-        )
-        return conversation, question, assistant
+        """Create the conversation (if new), question and streaming answer in one transaction."""
+        return await sync_to_async(open_turn)(user, conversation, text, lang)
 
     async def _retrieve(self, question: str, lang: Lang) -> list[Hit]:
         """Embed the question and run hybrid search.
@@ -464,7 +451,31 @@ class AnswerService:
         yield Event("final", {"message": await sync_to_async(serialize_message)(saved)})
         yield Event("done", {})
 
+    async def aclose(self) -> None:
+        """Release the collaborators' resources (the Gemini client) once; safe to repeat."""
+        on_close, self._on_close = self._on_close, None
+        if on_close is not None:
+            await on_close()
+
     async def answer(
+        self, user: User, conversation: Conversation | None, text: str
+    ) -> AsyncGenerator[Event]:
+        """Stream :meth:`_answer` and always release the collaborators afterwards.
+
+        Args:
+            user: The signed-in user who passed :meth:`prepare`.
+            conversation: The conversation to continue, or None.
+            text: The raw question (scrubbed before anything else).
+        """
+        events = self._answer(user, conversation, text)
+        try:
+            async for event in events:
+                yield event
+        finally:
+            await events.aclose()
+            await self.aclose()
+
+    async def _answer(
         self, user: User, conversation: Conversation | None, text: str
     ) -> AsyncGenerator[Event]:
         """Answer one question as events: meta → status* → office? → delta* → final → done.

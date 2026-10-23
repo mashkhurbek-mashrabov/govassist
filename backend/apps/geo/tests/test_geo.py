@@ -1,8 +1,13 @@
 """Tests for the geo endpoints and SOATO seeding."""
 
+from collections.abc import Callable
+from typing import Any
+
 import pytest
 from rest_framework.test import APIClient
 
+from apps.common.constants import Lang
+from apps.geo import selectors
 from apps.geo.models import District, Region
 from apps.geo.services import seed_geo
 
@@ -45,3 +50,25 @@ def test_districts_of_unknown_region_is_404(api: APIClient) -> None:
     response = api.get("/api/v1/geo/regions/1/districts")
     assert response.status_code == 404
     assert response.json()["code"] == "not_found"
+
+
+def test_names_follow_ui_language_right_after_patch_me(
+    auth_api: APIClient, district: District
+) -> None:
+    """The cache is per language: switching ui_language shows the new names at once."""
+    url = f"/api/v1/geo/regions/{district.region_id}/districts"
+    assert auth_api.patch("/api/v1/me", {"ui_language": "ru"}, format="json").status_code == 200
+    assert auth_api.get(url).json() == [{"id": district.id, "name": "Тестовый район"}]
+    response = auth_api.patch("/api/v1/me", {"ui_language": "uz-Cyrl"}, format="json")
+    assert response.status_code == 200
+    assert auth_api.get(url).json() == [{"id": district.id, "name": "Тест тумани"}]
+
+
+def test_places_are_cached_per_language(
+    district: District, django_assert_num_queries: Callable[[int], Any]
+) -> None:
+    """A second read in the same language hits the cache, not the database."""
+    first = selectors.region_places(Lang.EN)
+    with django_assert_num_queries(0):
+        assert selectors.region_places(Lang.EN) == first
+    assert selectors.region_places(Lang.RU) != first

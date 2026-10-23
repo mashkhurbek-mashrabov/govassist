@@ -2574,6 +2574,17 @@
   }
 
   /* App additions (not in the prototype stylesheet) -------------------------------- */
+  /* A live Turnstile widget fills the column (flexible size); the dashed box is only the placeholder. */
+  .turnstile--live {
+    max-width: none;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+  .turnstile__widget {
+    width: 100%;
+    min-width: 0;
+  }
   /* The landing preview only plays while it is on screen (set by LandingPreview). */
   .lp-preview:not([data-playing]) [class*="pp-"] {
     animation-play-state: paused;

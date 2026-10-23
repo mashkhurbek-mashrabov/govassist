@@ -7,10 +7,9 @@ from rest_framework.views import APIView
 from apps.common.i18n import resolve_lang
 from apps.geo import selectors
 from apps.geo.api.serializers import PlaceSerializer
-from apps.geo.api.views.shared import LANG_PARAM, cached_get
+from apps.geo.api.views.shared import LANG_PARAM
 
 
-@cached_get
 class RegionListView(APIView):
     """Public list of regions with localized names."""
 
@@ -25,7 +24,4 @@ class RegionListView(APIView):
         Args:
             request: The incoming request.
         """
-        data = PlaceSerializer(
-            selectors.regions(), many=True, context={"lang": resolve_lang(request)}
-        ).data
-        return Response(data)
+        return Response(selectors.region_places(resolve_lang(request)))

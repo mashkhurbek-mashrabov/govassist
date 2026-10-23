@@ -34,6 +34,7 @@ class CrawlSourceAdmin(BaseAdmin):
 class CrawlJobAdmin(BaseAdmin):
     """Crawl runs and their outcome (read-only)."""
 
+    list_select_related = ("source",)
     list_display = ("source", "status", "pages_fetched", "pages_skipped", "started_at")
     list_filter = ("status",)
     readonly_fields = (

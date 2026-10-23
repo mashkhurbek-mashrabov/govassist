@@ -6,7 +6,7 @@ Foundations for every screen. Values live in [`tokens.css`](tokens.css) (source)
 
 1. **Clarity over decoration.** One primary action per screen. Plain words, short lines, no imagery.
 2. **Trust is visible.** Facts carry citation badges. Office cards show "Maʼlumot … holatiga" and a source link. The disclaimer sits under every answer.
-3. **Calm and neutral, not official.** No state emblem, no flag colours (blue/white/green/red bands), no my.gov.uz look. The brand is a plain **GovAssist** wordmark with a neutral speech-bubble mark. "Rasmiy davlat xizmati emas" appears under the chat input, in the sidebar, in every auth footer and on About.
+3. **Calm and neutral, not official.** No state emblem, no flag colours (blue/white/green/red bands), no my.gov.uz look. The brand is the **GovAssist** wordmark with the author's mark (a speech bubble that ends in a map pin, with a check; indigo to violet gradient; see components.md, Logo). "Rasmiy davlat xizmati emas" appears under the chat input, in the sidebar, in every auth footer and on About.
 4. **Accessible by default.** WCAG 2.2 AA; see §9.
 5. **Phone-first.** Designed at 375 px, then 768 px and 1280 px+.
 6. **Fast.** Self-hosted Inter, two weights, about 160 KB of WOFF2 for all four subsets (the browser downloads only the subsets a page uses). No images, no icon font.

@@ -44,7 +44,8 @@ class ConversationDetailView(APIView):
     """One conversation with its messages; delete removes it."""
 
     def _conversation(self, request: Request, conversation_id: UUID) -> Conversation:
-        """Load the user's conversation or raise 404."""
+        """Load the user's conversation or raise 404 (dead ``streaming`` answers expired first)."""
+        services.expire_stale_streams(conversation_id=conversation_id)
         conversation = selectors.conversation_with_messages(request.user, conversation_id)  # type: ignore[arg-type]
         if conversation is None:
             raise NotFound

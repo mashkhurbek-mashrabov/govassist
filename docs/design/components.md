@@ -20,6 +20,41 @@ Every motion uses `--motion-*` tokens and stops under `prefers-reduced-motion`.
 
 ## Basics
 
+### Logo and wordmark
+The author's design (`brand/logo-source.jpeg`), redrawn as clean SVG from primitives rather than auto-traced: one ring with a speech tail, a map-pin point under it, and a check inside. It means "your question, answered, and the place to go". Files are in [`brand/`](brand/), and [`prototype/brand.html`](prototype/brand.html) shows them all.
+
+| File | Use |
+|---|---|
+| `logo-mark.svg` | The mark with its gradient (`#4647D5` → `#9B44F3`, horizontal; tokens `--palette-logo-indigo` / `--palette-logo-violet`). From 48 px up. |
+| `favicon.svg` | The **small cut**: thicker ring and check, wider pin gap. For 16–32 px and for the wordmark. It switches to lighter stops in `prefers-color-scheme: dark`. |
+| `logo-mark-mono.svg` | One colour (`currentColor`; ink `#1C1917` when used as an image). For one-colour print and stamps. |
+| `logo-lockup.svg` | Mark + "GovAssist" in Inter SemiBold, outlined (no font needed). |
+| `favicon.ico` | 16, 32, 48 (PNG inside ICO) for old browsers. |
+| `apple-touch-icon.png` | 180, white full bleed (iOS rounds the corners). |
+| `icon-192.png`, `icon-512.png` | PWA "any" icons: the mark on a white rounded square. |
+| `icon-512-maskable.png` | PWA maskable: white full bleed, the mark inside the central 80 % safe circle. |
+| `proof-small-sizes.png` | Legibility proof: the favicon at 16 / 24 / 32 px on light and dark, real size and 8× zoom. |
+
+- **Why a white tile for the app icons:**
+  - the source is drawn on white;
+  - white keeps both gradient ends at 3:1 or better on any wallpaper or tab colour (the indigo end is only 2.6:1 on dark grey);
+  - a gradient tile would need a second, white mark and lose the gradient identity.
+- **Wordmark** `.wordmark`: the small-cut mark in a `--size-logo` (32 px) box, a `--space-1` gap, then "GovAssist" in the h3 size, semibold.
+  - In the prototype the mark is inline SVG, and its stops come from `--color-logo-start` / `--color-logo-end`. Dark theme maps them to `--palette-indigo-300` / `--palette-logo-violet-light`.
+  - React: one `<LogoMark />` component, with unique gradient and mask ids per instance (`useId`).
+- **Sizes:** minimum 16 px (`--size-logo-min`), and only the small cut there. Use the small cut up to 32 px and the regular mark from 48 px.
+- **Clear space:** at least twice the ring's stroke width around the mark (about 1/8 of its height). In the lockup, keep the gap as drawn.
+- **Contrast** (graphic, 3:1):
+  - light: 6.73 / 4.65 on white, 6.44 / 4.45 on neutral-50;
+  - dark: 9.17 / 9.50 on neutral-950 with the light stops. The light-theme indigo would be 2.94 there, which is why dark uses other stops.
+- **Don't:**
+  - recolour it outside the two gradients and the mono version;
+  - rotate, stretch or outline it;
+  - put the gradient mark on a busy photo or on the brand gradient;
+  - add the state emblem, flag colours or my.gov.uz styling;
+  - use it as a badge of official status. The "Rasmiy davlat xizmati emas" note stays wherever the logo is prominent.
+- **Web app head:** `<link rel="icon" href="/favicon.ico" sizes="48x48">`, `<link rel="icon" href="/favicon.svg" type="image/svg+xml">`, `<link rel="apple-touch-icon" href="/apple-touch-icon.png">`. The manifest lists `icon-192.png`, `icon-512.png` (purpose `any`) and `icon-512-maskable.png` (purpose `maskable`).
+
 ### App chrome on glass (v1.1)
 Top bar, InputBar (composer), desktop sidebar, mobile drawer, Dialog and Toast use the **glass** treatment (`design-system.md` §8a): `--color-glass` (dialogs/toasts: `--color-glass-strong`), `backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate))`, a `--color-glass-border` hairline on the edge that meets content, and a 1 px `--color-glass-highlight` inner line. Nothing inside these surfaces changes: same text colours, same targets. With no `backdrop-filter` support or with `prefers-reduced-transparency: reduce`, the tokens switch to solid white and the blur to 0. Content cards are never glass.
 
@@ -293,7 +328,7 @@ Every icon is a real Lucide icon from **`lucide-static` 1.61.0**, copied unchang
 | `eye-off` | `EyeOff` | PasswordField "hide" (while the password is visible) |
 | `mail` | `Mail` | Check email; reset link sent; prototype email notes |
 | `log-out` | `LogOut` | Settings: log out |
-| `message-square` | `MessageSquare` | Wordmark mark; landing step 1; empty history |
+| `message-square` | `MessageSquare` | Empty history; sign-up carried question |
 | `refresh-cw` | `RefreshCw` | Retry; resend link; reload |
 | `globe` | `Globe` | LanguageMenu button |
 | `list-checks` | `ListChecks` | Steps card; chat help list; landing step 2 |

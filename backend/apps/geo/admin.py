@@ -17,6 +17,7 @@ class RegionAdmin(BaseAdmin):
 class DistrictAdmin(BaseAdmin):
     """Districts and district-level cities (seeded from SOATO)."""
 
+    list_select_related = ("region",)
     list_display = ("id", "name_uz_latn", "region", "kind")
     list_filter = ("region", "kind")
     search_fields = ("id", "name_uz_latn", "name_uz_cyrl", "name_ru")

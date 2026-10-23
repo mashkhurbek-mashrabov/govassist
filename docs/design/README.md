@@ -2,7 +2,7 @@
 
 **Status: In review** (v1.3: the welcome page that sells, `01-design-plan.md` §3b). v1.2 (language menu and a new landing) was approved and merged as PR #14 on 2026-10-22. v1.1 (Lucide icons, glass, gradients, UX polish) was approved and merged as PR #5 on 2026-10-22. v1 was approved at gate G2 on 2026-10-22 (PR #1). See `docs/plans/00-main-plan.md` §5. **Lane:** Design, Sevara (Claude). **Plan:** [`01-design-plan.md`](../plans/01-design-plan.md). **Contract:** v1.5.
 
-A calm, phone-first, WCAG 2.2 AA design for GovAssist: landing, auth, onboarding, chat with live-streaming answer cards, the office card, history, settings and about, plus **six clickable end-to-end journeys (J1–J6)**. It is deliberately **not** styled like a government site: warm neutral greys with one indigo accent, a plain wordmark, no emblem and no flag colours. "Rasmiy davlat xizmati emas" (*Not an official government service*) and the answer disclaimer are on every relevant screen.
+A calm, phone-first, WCAG 2.2 AA design for GovAssist: landing, auth, onboarding, chat with live-streaming answer cards, the office card, history, settings and about, plus **six clickable end-to-end journeys (J1–J6)**. It is deliberately **not** styled like a government site: warm neutral greys with one indigo accent, its own logo (a speech-bubble map pin), no emblem and no flag colours. "Rasmiy davlat xizmati emas" (*Not an official government service*) and the answer disclaimer are on every relevant screen.
 
 ## Files
 
@@ -16,11 +16,12 @@ A calm, phone-first, WCAG 2.2 AA design for GovAssist: landing, auth, onboarding
 | [`screens.md`](screens.md) | All 17 screens (0–16): purpose, layout per breakpoint, components, states, copy keys, contract fields; then the journeys table |
 | [`copy.md`](copy.md) | UI strings in uz-Latn + en with length budgets, plus the **error code → copy key** map (contract §1, §2, §4) |
 | [`icons/`](icons/) | The 51 Lucide icons used, copied unchanged from `lucide-static` 1.61.0, plus the ISC licence. `tokens.mjs --check` fails if an inline icon differs from these files |
+| [`brand/`](brand/) | The logo: `logo-mark.svg`, `logo-mark-mono.svg`, `logo-lockup.svg`, `favicon.svg` / `.ico`, `apple-touch-icon.png`, `icon-192/512.png`, `icon-512-maskable.png`, a small-size proof and the author's source. Shown in `prototype/brand.html`; rules in components.md, Logo |
 | [`fonts/`](fonts/) | Inter 5.3.0, 400 + 600, latin / latin-ext / cyrillic / cyrillic-ext WOFF2, `inter.css`, OFL licence |
 | [`prototype/index.html`](prototype/index.html) | Every screen and state: one file per screen with a state bar, plus `components.html` and `type.html` (glyphs + long-string test) |
 | [`prototype/journeys.html`](prototype/journeys.html) | Start page for **J1–J6**; each journey is one file (`j1.html` … `j6.html`), 91 linked steps in total |
 | [`prototype/flow.js`](prototype/flow.js) | The one shared script: the LanguageMenu (popover / bottom sheet, keyboard, in-place switch), step navigation, form submits, timed streaming playback (Pause; text jumps under reduced motion), `?shot` mode for screenshots |
-| [`screenshots/`](screenshots/) | 174 PNGs (87 states × 375×812 and 1440×900) + `glyph-proof.png` |
+| [`screenshots/`](screenshots/) | 176 PNGs (88 states × 375×812 and 1440×900) + `glyph-proof.png` |
 | [`screenshots/journeys/`](screenshots/journeys/) | Every journey step in order at 375×812 (`J1-01-landing.png` …), J2 and J6 also at 1440×900: 118 PNGs |
 | [`screenshots/glass/`](screenshots/glass/) | Glass chrome over scrolled content, each next to its two solid fallbacks (`prefers-reduced-transparency` and no `backdrop-filter`): 15 PNGs |
 | [`shoot.cjs`](shoot.cjs) | Playwright script that makes all screenshots and runs the audits below |
@@ -93,7 +94,7 @@ The author: "the changing language is bad … also make prettier the landing pag
 
 ## Review checklist (`01-design-plan.md` §8)
 
-- [x] Every screen and state in §4 is present in `screens.md`, the prototype and the screenshots. *(17 screens incl. the landing, 87 states, 174 state screenshots.)*
+- [x] Every screen and state in §4 is present in `screens.md`, the prototype and the screenshots. *(17 screens incl. the landing, 88 states, 176 state screenshots.)*
 - [x] All answer types (service, legal, not_found, off_topic), every office variant (district, region, none, no office, unknown hours/phone) and the streaming stages (searching → found → office early → summary → steps → documents → fee/time → final, plus stopped) are designed.
 - [x] Data shown matches `docs/contract.md` field by field, and nothing needs data the API doesn't provide. *(Field mapping per screen in `screens.md`; v1.1/v1.2 additions used: `has_password`, resend-verification, `/sources`, `error_code`, `scope`, auth error codes, retry keeps both attempts.)*
 - [x] Contrast table passes AA, targets ≥ 44 px, focus states visible, reduced-motion variant defined. *(`design-system.md` §3 and §7; audits above.)*

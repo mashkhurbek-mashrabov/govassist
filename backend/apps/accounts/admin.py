@@ -14,6 +14,7 @@ admin.site.unregister(Group)
 class UserAdmin(DjangoUserAdmin[User], BaseAdmin):
     """Users with Unfold forms; email is the login."""
 
+    list_select_related = ("region", "district")
     form = UserChangeForm
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm

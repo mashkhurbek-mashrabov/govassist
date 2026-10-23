@@ -8,10 +8,9 @@ from rest_framework.views import APIView
 from apps.common.i18n import resolve_lang
 from apps.geo import selectors
 from apps.geo.api.serializers import PlaceSerializer
-from apps.geo.api.views.shared import LANG_PARAM, cached_get
+from apps.geo.api.views.shared import LANG_PARAM
 
 
-@cached_get
 class DistrictListView(APIView):
     """Public list of a region's districts with localized names."""
 
@@ -34,7 +33,4 @@ class DistrictListView(APIView):
         """
         if not selectors.region_exists(region_id):
             raise NotFound
-        data = PlaceSerializer(
-            selectors.districts_of(region_id), many=True, context={"lang": resolve_lang(request)}
-        ).data
-        return Response(data)
+        return Response(selectors.district_places(region_id, resolve_lang(request)))

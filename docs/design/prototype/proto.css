@@ -79,16 +79,16 @@ a:hover { color: var(--color-link-hover); }
 
 /* Wordmark ------------------------------------------------------------------- */
 .wordmark {
-  display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--size-touch-min);
+  display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--size-touch-min);
   color: var(--color-text); text-decoration: none; font-weight: var(--font-weight-semibold);
   font-size: var(--text-h3-size); letter-spacing: var(--letter-spacing-tight);
 }
-.wordmark__mark {
-  width: var(--size-icon-lg); height: var(--size-icon-lg); border-radius: var(--radius-sm);
-  background: var(--gradient-brand); color: var(--color-on-primary); box-shadow: var(--shadow-primary);
-  display: inline-grid; place-items: center;
-}
-.wordmark__mark .icon { width: var(--size-icon-sm); height: var(--size-icon-sm); }
+.wordmark__mark { flex: none; width: var(--size-logo); height: var(--size-logo); }
+
+/* Logo mark (brand/logo-mark.svg drawn inline): gradient stops come from tokens, so dark theme lightens them. */
+.logo-mark { display: block; width: 100%; height: 100%; }
+.logo-mark__start { stop-color: var(--color-logo-start); }
+.logo-mark__end { stop-color: var(--color-logo-end); }
 .wordmark:hover { color: var(--color-text); }
 
 /* Buttons ------------------------------------------------------------------- */
@@ -854,6 +854,23 @@ a:hover { color: var(--color-link-hover); }
 
 /* Sign up: the question carried over from the landing. */
 .carried__q { display: block; margin-top: var(--space-1); font-weight: var(--font-weight-semibold); color: var(--color-text); }
+
+/* Brand page (brand.html): the logo at real sizes, on light and dark, and the app icons. --------- */
+.brand-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-6); }
+.brand-size, .brand-icon { display: grid; justify-items: center; gap: var(--space-2); font-size: var(--text-small-size); color: var(--color-text-muted); }
+.logo-size--16 { width: var(--size-logo-min); height: var(--size-logo-min); }
+.logo-size--24 { width: var(--size-icon-lg); height: var(--size-icon-lg); }
+.logo-size--32 { width: var(--size-logo); height: var(--size-logo); }
+.logo-size--48 { width: var(--space-12); height: var(--space-12); }
+.logo-size--64 { width: var(--space-16); height: var(--space-16); }
+span[class^="logo-size--"] { display: block; }
+.brand-dark { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-6); padding: var(--space-6); border-radius: var(--radius-lg);
+  background: var(--palette-neutral-950); color: var(--palette-neutral-100); }
+.brand-dark__name { font-size: var(--text-h3-size); font-weight: var(--font-weight-semibold); }
+.logo-mark--on-dark .logo-mark__start { stop-color: var(--palette-indigo-300); }
+.logo-mark--on-dark .logo-mark__end { stop-color: var(--palette-logo-violet-light); }
+.brand-icon img { border-radius: var(--radius-md); box-shadow: var(--shadow-1); background: var(--color-surface-sunken); }
+.brand-lockup { display: block; height: var(--space-16); width: auto; }
 
 /* Glass (v1.1): floating chrome only. Content cards stay solid. Fallbacks swap the tokens to solid values. */
 .topbar, .composer, .sidebar, .drawer-open .sidebar, .dialog, .toast {
