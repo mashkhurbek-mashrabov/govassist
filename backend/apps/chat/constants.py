@@ -62,7 +62,11 @@ STEPS_MAX = 7
 
 FOLLOW_UPS_MAX = 3
 
+# Refused answers (not answered from the corpus). smalltalk is answered, not refused.
 REFUSED_TYPES = frozenset({"not_found", "off_topic"})
+# Answers with only title, summary and follow-ups: no sources, no office (contract §5).
+BARE_TYPES = REFUSED_TYPES | {"smalltalk"}
+SMALLTALK = "smalltalk"
 
 GEMINI_UNSUPPORTED_KEYS = frozenset({"additionalProperties"})
 

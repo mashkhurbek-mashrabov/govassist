@@ -177,3 +177,39 @@ def test_v2_names_the_office_only_by_label() -> None:
     )
     assert "«(none)»" in without.system
     assert without.sha256 != load_template("v1").sha256
+
+
+def test_smalltalk_is_bare_but_not_refused() -> None:
+    """Smalltalk keeps title, summary and follow-ups only, and is not a refusal."""
+    import json  # noqa: PLC0415
+
+    from apps.chat.schemas import Answer  # noqa: PLC0415
+    from conftest import answer_json  # noqa: PLC0415
+
+    answer = Answer.model_validate_json(
+        answer_json(answer_type="smalltalk", follow_up_questions=["NAMUNA?"])
+    )
+    assert (answer.refused, answer.bare) == (False, True)
+    assert (answer.steps, answer.fee, answer.follow_up_questions) == ([], None, ["NAMUNA?"])
+    schema = Answer.model_json_schema()
+    assert "smalltalk" in json.dumps(schema["$defs"]["AnswerType"]["enum"])
+
+
+def test_v1_and_v2_stay_frozen_and_v3_is_the_default() -> None:
+    """Old prompts are byte-for-byte unchanged (evaluation); v3 is the default."""
+    from django.conf import settings  # noqa: PLC0415
+
+    assert load_template("v1").sha256.startswith("6ab5edfac386")
+    assert load_template("v2").sha256.startswith("c22854c5563e")
+    assert settings.PROMPT_VERSION == "v3"
+
+
+def test_v3_adds_smalltalk_and_forbids_internal_wording() -> None:
+    """v3 = v2 + the smalltalk rule + "never mention the context"; not_found speaks plainly."""
+    v2, v3 = load_template("v2"), load_template("v3")
+    assert v3.sha256 != v2.sha256
+    system = v3.system
+    assert '"smalltalk"' in system
+    assert "Never mention the CONTEXT" in system
+    assert "GovAssist has no information on this yet" in system
+    assert v3.user == v2.user
