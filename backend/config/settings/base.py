@@ -17,7 +17,7 @@ SECRET_KEY = env.str("SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 # Loopback is always allowed: the image's HEALTHCHECK calls http://127.0.0.1:$PORT from
 # inside the container. Safe because outside traffic reaches the app only through the
-# Cloudflare Tunnel and nginx, with the real hostname.
+# host's main nginx and the web nginx, with the real hostname.
 LOOPBACK_HOSTS = ["127.0.0.1", "localhost"]
 ALLOWED_HOSTS = list(dict.fromkeys([*env.list("ALLOWED_HOSTS", default=[]), *LOOPBACK_HOSTS]))
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])

@@ -1,5 +1,7 @@
-# Prod: `docker compose -f compose.yaml -f compose.prod.yaml up -d`. No host ports;
-# traffic arrives through the Cloudflare Tunnel.
+# Prod: `docker compose -f compose.yaml -f compose.prod.yaml up -d`.
+# Only `web` (nginx) publishes a port (WEB_PUBLISH, default 127.0.0.1:8015). The host's main
+# nginx terminates TLS and proxies to it (deploy/nginx/govassist.conf). db, redis, backend and
+# worker stay on the project's private network.
 x-prod: &prod
   restart: unless-stopped
   logging:
@@ -33,13 +35,5 @@ services:
 
   web:
     <<: *prod
+    ports: ["${WEB_PUBLISH:-127.0.0.1:8015}:8080"]
     deploy: {resources: {limits: {cpus: "0.5", memory: 128m}}}
-
-  # Tunnel ingress points at http://web:8080 (nginx), never at the backend directly.
-  cloudflared:
-    <<: *prod
-    image: cloudflare/cloudflared:2026.10.0
-    command: ["tunnel", "--no-autoupdate", "run"]
-    environment:
-      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?set TUNNEL_TOKEN in .env}
-    depends_on: [web]

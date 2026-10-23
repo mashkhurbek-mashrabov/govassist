@@ -145,7 +145,7 @@ DEFAULT_FROM_EMAIL=GovAssist <no-reply@example.com>
 CRAWLER_USER_AGENT=GovAssist-research/1.0 (+https://github.com/mashkhurbek-mashrabov/govassist)
 CRAWLER_RATE_PER_HOST=1
 RAW_DATA_DIR=/data/raw
-TUNNEL_TOKEN=
+WEB_PUBLISH=127.0.0.1:8015
 ```
 
 The `TURNSTILE_SECRET_KEY` above is Cloudflare's always-pass test secret, for dev. In production, `EMAIL_URL` points at a cheap SMTP provider, for example Brevo: `smtp+tls://user:key@smtp-relay.brevo.com:587`.
@@ -478,7 +478,7 @@ The main session adds `web` at G4.
 - `env_file: .env`.
 
 **`compose.prod.yaml`:**
-- the `cloudflared` service (`TUNNEL_TOKEN`);
+- `web` publishes `WEB_PUBLISH` (default `127.0.0.1:8015`) for the host's main nginx (`deploy/nginx/govassist.conf`);
 - no host ports;
 - `deploy.resources.limits`;
 - json-file logging with `max-size`/`max-file`;
@@ -536,7 +536,7 @@ Coverage ≥ 80% on `common`, `corpus`, `collector`, `offices`, `retrieval`, `ch
 | **B4** Chat | Schemas, prompt v1, generator, citations, limits, PII, locator, service, SSE view, conversations, feedback, suggestions | The passport question streams `meta → status → (office) → delta → final → done` with real Gemini and a valid `final` |
 | **B5** Hardening | Prod security settings, logging, `invoke schema`, admin dashboard, image size + scan | `invoke check` passes, images are within budget, `docs/schema/*` are committed → **G3** |
 | B6 (later) | `evaluation` app: questions loader, `run_eval` (rag on/off, vector/keyword/hybrid, normalize on/off, prompt version), metrics, judge (different vendor), import of external-chatbot transcripts, `compare_runs`, CSV/PNG export | See main plan §7 |
-| B7 (later) | Prod deploy: compose.prod, cloudflared, Cloudflare Access on admin, backups, staging smoke test | Staging URL live |
+| B7 (later) | Prod deploy: compose.prod, main-nginx proxy on :8015, Cloudflare Access on admin, backups, staging smoke test | Staging URL live |
 
 **Ask the author before:**
 - changing the embedding model or dimension, the chunking parameters, the prompt structure or the Answer schema;

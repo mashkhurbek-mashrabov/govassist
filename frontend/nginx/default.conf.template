@@ -4,7 +4,7 @@
 # Docker's embedded DNS, so nginx starts even before the backend container resolves.
 resolver 127.0.0.11 valid=30s ipv6=off;
 
-# Real client IP from Cloudflare (cloudflared runs inside the private Docker networks).
+# Real client IP from Cloudflare's header, trusted only from private peers (the main nginx).
 set_real_ip_from 10.0.0.0/8;
 set_real_ip_from 172.16.0.0/12;
 set_real_ip_from 192.168.0.0/16;
