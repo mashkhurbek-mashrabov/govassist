@@ -14,7 +14,7 @@ class Chunk(BaseModel):
 
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="chunks")
     order = models.PositiveIntegerField()
-    heading_path = models.CharField(max_length=500, blank=True)
+    heading_path = models.TextField(blank=True)  # long codes: part › chapter › article > 500 chars
     text = models.TextField()
     text_normalized = models.TextField()
     char_count = models.PositiveIntegerField()
