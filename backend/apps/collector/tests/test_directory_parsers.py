@@ -10,6 +10,7 @@ from apps.collector.parsers import parse
 from apps.collector.parsers.directory import (
     coordinate,
     district_from_name,
+    phone_from,
     same_listing,
     split_address,
 )
@@ -35,7 +36,7 @@ def test_goldenpages_company_page_gives_one_structured_office() -> None:
     assert office.address == "Toshkent, Namuna tumani, Namuna ko'chasi, 1A"
     assert (office.region_name, office.district_name) == ("Toshkent", "Namuna tumani")
     assert (office.latitude, office.longitude) == (41.3, 69.2)
-    assert office.phone is None  # masked on the page, never revealed
+    assert office.phone == "+998000000000"  # from the page's FAQ JSON-LD, never a reveal
     assert office.data_as_of == date(2026, 4, 30)
     assert [h.model_dump(by_alias=True) for h in office.working_hours] == [
         {
@@ -78,7 +79,7 @@ def test_other_goldenpages_pages_give_nothing() -> None:
 
 
 def test_yellowpages_company_page_reads_graph_geo_with_commas() -> None:
-    """The LocalBusiness inside ``@graph``; ``"41,3271"`` coordinates; phone not stored."""
+    """The LocalBusiness inside ``@graph``; ``"41,3271"`` coordinates; its ``telephone``."""
     page = parse(_page(f"{YP}/uz/korxona/namuna-bir", "namuna_yellowpages_company.html"))
     assert page.links == []
     assert page.offices is not None
@@ -87,7 +88,7 @@ def test_yellowpages_company_page_reads_graph_geo_with_commas() -> None:
     assert (office.region_name, office.district_name) == ("Toshkent", "Namuna tumani")
     assert office.address == "Toshkent, Namuna tumani, ko'chasi NAMUNA, 4 A"  # label dropped
     assert (office.latitude, office.longitude) == (41.3271, 69.2849)
-    assert (office.phone, office.working_hours, office.data_as_of) == (None, [], None)
+    assert (office.phone, office.working_hours, office.data_as_of) == ("+998000000000", [], None)
 
 
 def test_yellowpages_company_without_structured_data_has_no_offices() -> None:
@@ -167,3 +168,32 @@ def test_same_listing_only_differs_by_page() -> None:
     assert not same_listing(url, f"{GP}/uz/rubrics/?Id=8&Page=2")
     assert not same_listing(url, f"{GP}/uz/rubrics/?Id=7")
     assert not same_listing(url, f"{GP}/en/rubrics/?Id=7&Page=2")
+
+
+@pytest.mark.parametrize(
+    ("text", "phone"),
+    [
+        ("71 2036016; 1148", "+998712036016"),
+        ("+998 (71) 203-60-16", "+998712036016"),
+        ("998901234567", "+998901234567"),
+        ("NAMUNA 90 123 45 67 raqami", "+998901234567"),
+        ("1148", None),
+        ("", None),
+    ],
+)
+def test_phone_from(text: str, phone: str | None) -> None:
+    """The first full Uzbek number, with only the country code added."""
+    assert phone_from(text) == phone
+
+
+def test_goldenpages_without_a_faq_phone_stores_none() -> None:
+    """No FAQ answer about the phone: no number (nothing is guessed or revealed)."""
+    body = (
+        (FIXTURES / "namuna_goldenpages_company.html").read_bytes().replace(b"telefon", b"manzil")
+    )
+    url = f"{GP}/uz/company/?Id=1"
+    page = parse(
+        FetchResult(url=url, final_url=url, status=200, content_type="text/html", body=body)
+    )
+    assert page.offices is not None
+    assert page.offices[0].phone is None
