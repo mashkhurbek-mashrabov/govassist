@@ -564,3 +564,43 @@ def test_build_answer_service_shares_one_client_and_closes_both_halves() -> None
     assert generator.call_args.args == (fake,)
     fake.aio.aclose.assert_awaited_once()
     fake.close.assert_called_once()
+
+
+def _smalltalk() -> str:
+    """A NAMUNA smalltalk answer (the model may still cite: final drops it)."""
+    return answer_json(
+        answer_type="smalltalk",
+        title="NAMUNA salom",
+        summary="NAMUNA: GovAssist davlat xizmatlari haqida yordam beradi.",
+        steps=[{"text": "NAMUNA", "source_ids": ["S1"]}],
+        follow_up_questions=["NAMUNA ID karta?", "NAMUNA nikoh?"],
+    )
+
+
+async def test_smalltalk_is_answered_without_sources_or_office(
+    client: AsyncClient, recorder: _Recorder, passport_doc: Document
+) -> None:
+    """A greeting: not refused, no sources, the provisional office is dropped in final."""
+    recorder.factory = lambda: FakeAnswerGenerator(_smalltalk())
+    events = await _ask(client, text="Salom. Menga qanday yordam bera olasan?")
+    message = events[-2][1]["message"]
+    assert message["answer"]["answer_type"] == "smalltalk"
+    assert (message["refused"], message["office"], message["sources"]) == (False, None, [])
+    assert message["answer"]["steps"] == []
+    assert len(message["answer"]["follow_up_questions"]) == 2
+    stored = await Message.objects.aget(id=message["id"])
+    assert (stored.refused, stored.office_match) == (False, None)
+
+
+async def test_smalltalk_never_titles_the_conversation(
+    client: AsyncClient, recorder: _Recorder, passport_doc: Document
+) -> None:
+    """A greeting keeps the question title, and the next real answer still names the chat."""
+    recorder.factory = lambda: FakeAnswerGenerator(_smalltalk())
+    first = await _ask(client, text="Salom")
+    conversation = await Conversation.objects.aget(id=first[0][1]["conversation_id"])
+    assert conversation.title == "Salom"
+    recorder.factory = lambda: FakeAnswerGenerator(answer_json(title="NAMUNA pasport"))
+    await _ask(client, conversation_id=str(conversation.id))
+    await conversation.arefresh_from_db()
+    assert conversation.title == "NAMUNA pasport"

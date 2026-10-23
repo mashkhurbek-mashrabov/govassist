@@ -21,11 +21,15 @@ from apps.collector.constants import (
     COUNTRY_NAMES,
     DISTRICT_LABEL,
     DISTRICT_PART,
+    FAQ_PAGE,
     LD_JSON_SELECTOR,
     LOCAL_BUSINESS,
     NAME_DISTRICT,
     PAGE_PARAMS,
+    PHONE_QUESTION,
     POSTAL_CODE,
+    UZ_COUNTRY_CODE,
+    UZ_PHONE,
 )
 from apps.collector.extraction import ListedOffice
 from apps.collector.parsers.html import clean, links_of
@@ -43,10 +47,8 @@ def _nodes(data: Any) -> Iterator[dict[str, Any]]:
             yield from _nodes(value)
 
 
-def local_business(tree: LexborHTMLParser) -> dict[str, Any] | None:
-    """The page's schema.org ``LocalBusiness`` JSON-LD object, or None.
-
-    Invalid JSON-LD blocks are skipped: the page is third-party data.
+def ld_nodes(tree: LexborHTMLParser) -> Iterator[dict[str, Any]]:
+    """Every object in the page's JSON-LD blocks; invalid blocks are skipped (third-party data).
 
     Args:
         tree: The parsed page.
@@ -56,9 +58,48 @@ def local_business(tree: LexborHTMLParser) -> dict[str, Any] | None:
             data = json.loads(script.text())
         except ValueError:
             continue
-        for node in _nodes(data):
-            if node.get("@type") == LOCAL_BUSINESS:
-                return node
+        yield from _nodes(data)
+
+
+def phone_from(text: str) -> str | None:
+    """The first Uzbek phone number in ``text`` as ``+998XXXXXXXXX``, or None.
+
+    ``"71 2036016; 1148"`` → ``"+998712036016"``; a short number such as ``1148`` alone is
+    not a full number and gives None. Only the country code is added, never digits.
+
+    Args:
+        text: Text as published (a JSON-LD ``telephone`` or an FAQ answer).
+    """
+    found = UZ_PHONE.search(text)
+    return UZ_COUNTRY_CODE + "".join(found.groups()) if found else None
+
+
+def faq_phone(tree: LexborHTMLParser) -> str | None:
+    """The phone stated in the page's FAQ JSON-LD answer to "phone number?", or None.
+
+    Args:
+        tree: The parsed page.
+    """
+    for node in ld_nodes(tree):
+        if node.get("@type") != FAQ_PAGE:
+            continue
+        for question in node.get("mainEntity") or []:
+            if isinstance(question, dict) and PHONE_QUESTION.search(str(question.get("name"))):
+                phone = phone_from(str((question.get("acceptedAnswer") or {}).get("text") or ""))
+                if phone:
+                    return phone
+    return None
+
+
+def local_business(tree: LexborHTMLParser) -> dict[str, Any] | None:
+    """The page's schema.org ``LocalBusiness`` JSON-LD object, or None.
+
+    Args:
+        tree: The parsed page.
+    """
+    for node in ld_nodes(tree):
+        if node.get("@type") == LOCAL_BUSINESS:
+            return node
     return None
 
 
@@ -164,16 +205,16 @@ def listed_office(
     *,
     hours: list[WorkingHours] | None = None,
     data_as_of: date | None = None,
+    phone: str | None = None,
 ) -> ListedOffice | None:
     """An office from a LocalBusiness block, or None without a name or address.
-
-    The phone is never stored: directory sites mask it on the page.
 
     Args:
         business: The LocalBusiness JSON-LD object.
         geo: The object holding ``latitude``/``longitude`` (the block or its ``geo``).
         hours: Working hours read from the page, if any.
         data_as_of: The directory's own "updated" date, if stated.
+        phone: A number the page publishes in its structured data (never a revealed one).
     """
     name = clean(str(business.get("name") or ""))
     street = clean(str((business.get("address") or {}).get("streetAddress") or ""))
@@ -185,7 +226,7 @@ def listed_office(
         address=place.street,
         region_name=place.region_name,
         district_name=place.district_name or district_from_name(name),
-        phone=None,
+        phone=phone,
         working_hours=hours or [],
         latitude=coordinate(geo.get("latitude")),
         longitude=coordinate(geo.get("longitude")),

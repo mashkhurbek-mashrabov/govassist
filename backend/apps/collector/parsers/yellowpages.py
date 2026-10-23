@@ -2,8 +2,8 @@
 
 The second directory, a cross-check for goldenpages.uz. Its addresses sometimes label
 Tashkent city as "Toshkent viloyati", so the pipeline settles the region by the district.
-Phones are not stored (same rule as goldenpages); the page states no working hours in
-structured form, so none are stored.
+The phone comes from the LocalBusiness ``telephone`` the page publishes; the page states no
+working hours in structured form, so none are stored.
 """
 
 import urllib.parse
@@ -14,7 +14,12 @@ from apps.collector.constants import YELLOWPAGES_COMPANY, YELLOWPAGES_RUBRIC
 from apps.collector.extraction import ListedOffice
 from apps.collector.fetchers import FetchResult
 from apps.collector.parsers.base import ParsedPage
-from apps.collector.parsers.directory import listed_office, listing_links, local_business
+from apps.collector.parsers.directory import (
+    listed_office,
+    listing_links,
+    local_business,
+    phone_from,
+)
 from apps.collector.parsers.html import page_title, tree_of
 
 
@@ -23,7 +28,8 @@ def _office(tree: LexborHTMLParser) -> ListedOffice | None:
     business = local_business(tree)
     if business is None:
         return None
-    return listed_office(business, business.get("geo") or {})
+    phone = phone_from(str(business.get("telephone") or ""))
+    return listed_office(business, business.get("geo") or {}, phone=phone)
 
 
 def parse_yellowpages(result: FetchResult) -> ParsedPage:

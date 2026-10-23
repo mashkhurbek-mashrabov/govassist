@@ -195,3 +195,12 @@ OFFICE_DUPLICATE_METRES = 150
 OFFICE_NAME_SIMILARITY = 0.9
 NAME_PARENTHESES = re.compile(r"\([^)]*\)")
 EARTH_RADIUS_M = 6_371_000
+
+# Phones, read only from structured data already in the page (never a "show phone" reveal).
+# An Uzbek number: optional +998, a 2-digit operator/area code, then 7 digits in any grouping.
+UZ_PHONE = re.compile(
+    r"(?:\+?998[\s\-()]*)?\(?(\d{2})\)?[\s\-]*(\d{3})[\s\-]*(\d{2})[\s\-]*(\d{2})(?!\d)"
+)
+UZ_COUNTRY_CODE = "+998"
+FAQ_PAGE = "FAQPage"
+PHONE_QUESTION = re.compile(r"telefon|phone|телефон", re.I)

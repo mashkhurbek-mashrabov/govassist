@@ -1,7 +1,8 @@
 """goldenpages.uz: company pages → one structured office; rubric pages → links only.
 
-Read from the ``/uz/`` pages, whose names and addresses are Uzbek Latin. The phone is masked
-on the page ("Show phone number"), so it is never stored and no reveal endpoint is called.
+Read from the ``/uz/`` pages, whose names and addresses are Uzbek Latin. The visible phone is
+masked ("Show phone number"); the number is read only from the page's own FAQ JSON-LD, which
+is in the HTML we already have. No reveal click or endpoint is ever used.
 """
 
 import logging
@@ -26,7 +27,12 @@ from apps.collector.constants import (
 from apps.collector.extraction import ListedOffice
 from apps.collector.fetchers import FetchResult
 from apps.collector.parsers.base import ParsedPage
-from apps.collector.parsers.directory import listed_office, listing_links, local_business
+from apps.collector.parsers.directory import (
+    faq_phone,
+    listed_office,
+    listing_links,
+    local_business,
+)
 from apps.collector.parsers.html import clean, page_title, parse_html, tree_of
 from apps.offices.hours import WorkingHours
 
@@ -94,7 +100,13 @@ def _office(tree: LexborHTMLParser) -> ListedOffice | None:
     business = local_business(tree)
     if business is None:
         return None
-    return listed_office(business, business, hours=working_hours(tree), data_as_of=_renewed(tree))
+    return listed_office(
+        business,
+        business,
+        hours=working_hours(tree),
+        data_as_of=_renewed(tree),
+        phone=faq_phone(tree),
+    )
 
 
 def parse_goldenpages(result: FetchResult) -> ParsedPage:

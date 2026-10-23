@@ -147,6 +147,55 @@ const OFF_TOPIC: Scenario = {
   office: null,
 };
 
+/**
+ * Contract v1.10 smalltalk: a greeting answered in the question's language with example questions.
+ *
+ * @param language Language of the greeting.
+ * @param title NAMUNA title.
+ * @param summary NAMUNA friendly summary.
+ * @param questions Example service questions.
+ * @returns The scenario (no sources, no office).
+ */
+function smalltalk(
+  language: Answer["language"],
+  title: string,
+  summary: string,
+  questions: string[],
+): Scenario {
+  return {
+    answer: {
+      ...SAMPLE_OFF_TOPIC_ANSWER,
+      answer_type: "smalltalk",
+      language,
+      title,
+      summary,
+      follow_up_questions: questions,
+    },
+    sources: [],
+    office: null,
+  };
+}
+
+/** Greetings per language (contract v1.10). */
+const SMALLTALK_UZ = smalltalk(
+  "uz-Latn",
+  "NAMUNA: Salom!",
+  "NAMUNA: Men GovAssist — davlat xizmatlari va qonunlar boʻyicha yordamchiman. Savolingizni oddiy soʻzlar bilan yozing.",
+  ["Pasportimni qanday yangilayman?", "NAMUNA savol: tugʻilganlik haqida guvohnoma"],
+);
+const SMALLTALK_RU = smalltalk(
+  "ru",
+  "NAMUNA: Здравствуйте!",
+  "NAMUNA: Я GovAssist — помощник по государственным услугам и законам. Задайте вопрос простыми словами.",
+  ["NAMUNA: Как зарегистрироваться по месту жительства?", "Pasportimni qanday yangilayman?"],
+);
+const SMALLTALK_EN = smalltalk(
+  "en",
+  "NAMUNA: Hello!",
+  "NAMUNA: I'm GovAssist, an assistant for public services and laws in Uzbekistan. Ask in plain words.",
+  ["Pasportimni qanday yangilayman?", "NAMUNA savol: haydovchilik guvohnomasini almashtirish"],
+);
+
 /** Contract v1.7: off topic, but retrieval matched an office first; `final` drops it. */
 const OFF_TOPIC_EARLY_OFFICE: Scenario = { ...OFF_TOPIC, earlyOffice: SAMPLE_OFFICE };
 
@@ -206,6 +255,9 @@ const PASSPORT: Scenario = { answer: SAMPLE_SERVICE_ANSWER, sources: SAMPLE_SOUR
 
 /** Question words → scenario, checked in order (lowercase). */
 const RULES: [RegExp, Scenario][] = [
+  [/^(salom|assalomu alaykum)\b/u, SMALLTALK_UZ],
+  [/^(привет|здравствуйте)/u, SMALLTALK_RU],
+  [/^(hello|hi)\b/u, SMALLTALK_EN],
   [/onlayn almashtir/, ONLINE_PASSPORT],
   [/таътил/, LEAVE_LEGAL],
   [/регистр|прописк/, RESIDENCE_RU],
