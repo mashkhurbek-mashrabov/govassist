@@ -61,7 +61,7 @@ Change these only by updating this file and `AGENTS.md`.
 | Data collection | Admin-curated collector: the admin adds source URLs, the system crawls, admin reviews, then the data is indexed. Office pages go through Gemini structured extraction, then review |
 | Answer format | Gemini returns **JSON following a schema**, streamed over SSE. React parses the partial JSON and fills the cards live. A `final` event carries the validated answer |
 | Privacy | PII (passport no., PINFL, phone, email) is scrubbed **before** anything goes to Gemini, the DB or the logs |
-| Security | Same-origin, no CORS, session cookie + CSRF, verified email, per-user/IP limits, daily token caps, Cloudflare (proxy, Turnstile, Bot Fight, Access on admin); only the web nginx publishes a port |
+| Security | Same-origin, no CORS, session cookie + CSRF, verified email, per-user/IP limits, daily token caps, Cloudflare (Tunnel, Turnstile, Bot Fight, Access on admin); only the web nginx is reachable |
 | Background jobs | `django.tasks` with the `django-tasks` database backend (`db_worker`). No Celery |
 | Packages | **pip** + pip-tools (`requirements.in` compiled to hashed `requirements.txt`). No uv. npm for the frontend |
 | Containers | Docker + Compose, multi-stage builds, small non-root images |
@@ -78,7 +78,7 @@ Browser (React SPA)
    │  HTTPS, same origin
    ▼
 Cloudflare (proxy, Turnstile, Bot Fight, Access on /admin)
-   │  main nginx on the host network (TLS) → web on :8015; nothing else is published
+   │  Cloudflare Tunnel (cloudflared, outbound only; the server needs no open port or certificate)
    ▼
 web: nginx-unprivileged ── serves SPA ── proxies /api, /_allauth, /static, /<admin> ──▶ backend
                                                                                          │

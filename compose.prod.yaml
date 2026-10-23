@@ -1,7 +1,8 @@
-# Prod: `docker compose -f compose.yaml -f compose.prod.yaml up -d`.
-# Only `web` (nginx) publishes a port (WEB_PUBLISH, default 127.0.0.1:8015). The host's main
-# nginx terminates TLS and proxies to it (deploy/nginx/govassist.conf). db, redis, backend and
-# worker stay on the project's private network.
+# Prod: `docker compose -f compose.yaml -f compose.prod.yaml --profile tunnel up -d`.
+# Public traffic: Cloudflare Tunnel (`cloudflared`, profile `tunnel`) → http://web:8080, so the
+# server needs no open ports or certificates. Without the profile, a host's main nginx can proxy
+# to WEB_PUBLISH instead (deploy/nginx/govassist.conf). db, redis, backend and worker publish
+# nothing and stay on the project's private network.
 x-prod: &prod
   restart: unless-stopped
   logging:
@@ -36,4 +37,15 @@ services:
   web:
     <<: *prod
     ports: ["${WEB_PUBLISH:-127.0.0.1:8015}:8080"]
+    deploy: {resources: {limits: {cpus: "0.5", memory: 128m}}}
+
+  # Tunnel public hostname → HTTP web:8080 (set in the Cloudflare dashboard), never the backend.
+  cloudflared:
+    <<: *prod
+    profiles: [tunnel]
+    image: cloudflare/cloudflared:2026.10.0
+    command: ["tunnel", "--no-autoupdate", "run"]
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:-}
+    depends_on: [web]
     deploy: {resources: {limits: {cpus: "0.5", memory: 128m}}}
